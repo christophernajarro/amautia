@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScoreDistribution } from "@/components/charts/score-distribution";
 import { ProgressRing } from "@/components/charts/progress-ring";
-import { ArrowLeft, Upload, Zap, CheckCircle, Eye, Globe } from "lucide-react";
+import { ArrowLeft, Upload, Zap, CheckCircle, Eye, Globe, FileSpreadsheet, FileText as FilePDF } from "lucide-react";
 import Link from "next/link";
 
 export default function ExamenPage() {
@@ -118,9 +118,23 @@ export default function ExamenPage() {
             </Button>
           )}
           {results?.stats?.corrected > 0 && (
-            <Button onClick={handlePublish} disabled={publishing} variant="outline">
-              <Globe className="h-4 w-4 mr-2" />{publishing ? "Publicando..." : "Publicar resultados"}
-            </Button>
+            <>
+              <Button onClick={handlePublish} disabled={publishing} variant="outline">
+                <Globe className="h-4 w-4 mr-2" />{publishing ? "Publicando..." : "Publicar"}
+              </Button>
+              <a href={`http://localhost:8000/api/v1/profesor/exams/${id}/export/excel`}
+                target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="sm">
+                  <FileSpreadsheet className="h-4 w-4 mr-1" />Excel
+                </Button>
+              </a>
+              <a href={`http://localhost:8000/api/v1/profesor/exams/${id}/export/pdf`}
+                target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="sm">
+                  <FilePDF className="h-4 w-4 mr-1" />PDF
+                </Button>
+              </a>
+            </>
           )}
         </div>
       </div>

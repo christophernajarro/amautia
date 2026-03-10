@@ -111,3 +111,47 @@ async def upload_receipt(plan_id: str = Form(...), amount: float = Form(...),
     
     return {"id": str(payment.id), "status": "pending", "receipt_url": receipt_url,
             "message": "Comprobante recibido. Tu suscripción será activada tras verificación."}
+
+
+@router.get("/qr/{plan_slug}")
+async def get_payment_qr(plan_slug: str, db: AsyncSession = Depends(get_db)):
+    """Generate QR code for Yape/Plin payment."""
+    import qrcode
+    import io
+    from fastapi.responses import Response
+
+    plan = (await db.execute(select(Plan).where(Plan.slug == plan_slug))).scalar_one_or_none()
+    if not plan:
+        raise HTTPException(404, "Plan no encontrado")
+
+    # Yape deeplink format
+    yape_data = f"https://yape.com.pe/pago?nombre=Amautia&monto={float(plan.price_monthly):.2f}&concepto=Suscripcion+{plan.name}"
+
+    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
+    qr.add_data(yape_data)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="#4F46E5", back_color="white")
+
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+    return Response(content=buf.read(), media_type="image/png",
+                    headers={"Cache-Control": "public, max-age=3600"})
+
+
+@router.get("/plans/with-qr")
+async def plans_with_qr(db: AsyncSession = Depends(get_db)):
+    """Plans list with QR URLs."""
+    result = await db.execute(select(Plan).where(Plan.is_active == True).order_by(Plan.display_order))
+    plans = result.scalars().all()
+    return [{
+        "id": str(p.id), "name": p.name, "slug": p.slug,
+        "price": float(p.price_monthly),
+        "qr_url": f"/api/v1/payments/qr/{p.slug}",
+        "features": {
+            "max_corrections": p.max_corrections_month,
+            "max_subjects": p.max_subjects,
+            "has_tutor": p.has_tutor,
+            "has_analytics": p.has_analytics,
+        },
+    } for p in plans]

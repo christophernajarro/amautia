@@ -1,6 +1,6 @@
 import uuid
 import secrets
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
 from app.core.database import get_db
@@ -276,3 +276,61 @@ async def delete_exam(exam_id: str, db: AsyncSession = Depends(get_db), user: Us
     await db.delete(exam)
     await db.commit()
     return {"ok": True}
+
+
+@router.post("/sections/{section_id}/import-csv")
+async def import_students_csv(section_id: str, file: UploadFile = File(...),
+                               db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
+    """Import students from CSV. Columns: email, first_name, last_name (optional: phone)"""
+    import csv, io
+    from app.core.security import hash_password
+    from app.models.section import SectionStudent
+
+    content = await file.read()
+    text = content.decode("utf-8-sig")  # Handle BOM
+    reader = csv.DictReader(io.StringIO(text))
+
+    created, skipped, errors = 0, 0, []
+
+    for row in reader:
+        email = (row.get("email") or row.get("Email") or "").strip().lower()
+        first_name = (row.get("first_name") or row.get("nombre") or row.get("Nombre") or "").strip()
+        last_name = (row.get("last_name") or row.get("apellido") or row.get("Apellido") or "").strip()
+        phone = (row.get("phone") or row.get("telefono") or "").strip()
+
+        if not email:
+            errors.append(f"Fila sin email: {row}")
+            continue
+
+        from sqlalchemy import select as sel
+        existing = (await db.execute(sel(User).where(User.email == email))).scalar_one_or_none()
+
+        if existing:
+            # Just enroll if not already enrolled
+            enrolled = (await db.execute(
+                sel(SectionStudent).where(SectionStudent.section_id == uuid.UUID(section_id),
+                                          SectionStudent.student_id == existing.id)
+            )).scalar_one_or_none()
+            if not enrolled:
+                db.add(SectionStudent(section_id=uuid.UUID(section_id), student_id=existing.id))
+                skipped += 1
+            continue
+
+        # Create new student
+        student = User(
+            email=email, password_hash=hash_password("amautia2026"),
+            first_name=first_name or email.split("@")[0],
+            last_name=last_name, role="alumno", is_active=True, phone=phone,
+        )
+        db.add(student)
+        await db.flush()
+        db.add(SectionStudent(section_id=uuid.UUID(section_id), student_id=student.id))
+        created += 1
+
+        # Welcome email
+        import asyncio
+        from app.services.email_service import send_welcome
+        asyncio.create_task(send_welcome(email, f"{first_name} {last_name}", "alumno"))
+
+    await db.commit()
+    return {"created": created, "enrolled_existing": skipped, "errors": len(errors), "error_details": errors[:5]}

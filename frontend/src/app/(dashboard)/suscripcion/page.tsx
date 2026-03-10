@@ -127,7 +127,14 @@ export default function SuscripcionPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div className="bg-slate-50 rounded-xl p-6 text-center">
-              <QrCode className="h-32 w-32 mx-auto text-indigo-600 mb-3" />
+              {/* Real QR from backend */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`http://localhost:8000/api/v1/payments/qr/${selectedPlan}`}
+                alt="QR Yape/Plin"
+                className="h-40 w-40 mx-auto mb-3 rounded-lg"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+              />
               <p className="font-medium">Escanea el QR con Yape o Plin</p>
               <p className="text-2xl font-bold text-indigo-600 mt-2">
                 S/ {plans.find(p => p.id === selectedPlan)?.price || 0}.00

@@ -557,3 +557,84 @@ async def save_as_exam(gen_id: str, section_id: str = Form(...),
 
     await db.commit()
     return {"exam_id": str(exam.id)}
+
+
+# ─── Export ───
+
+@router.get("/exams/{exam_id}/export/excel")
+async def export_excel(exam_id: str, db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
+    from fastapi.responses import Response as FastAPIResponse
+    from app.services.export_service import export_results_excel
+
+    exam = (await db.execute(select(Exam).where(Exam.id == exam_id, Exam.profesor_id == user.id))).scalar_one_or_none()
+    if not exam:
+        raise HTTPException(404)
+
+    student_exams = (await db.execute(
+        select(StudentExam).where(StudentExam.exam_id == exam.id)
+    )).scalars().all()
+
+    results = []
+    for se in student_exams:
+        from app.models.user import User as UserModel
+        student = (await db.execute(select(UserModel).where(UserModel.id == se.student_id))).scalar_one_or_none() if se.student_id else None
+        results.append({
+            "student_name": f"{student.first_name} {student.last_name}" if student else "Sin identificar",
+            "student_email": student.email if student else "",
+            "total_score": float(se.total_score) if se.total_score else None,
+            "percentage": float(se.percentage) if se.percentage else None,
+            "status": se.status,
+            "feedback": se.general_feedback,
+        })
+
+    stats = {
+        "total_students": len(results),
+        "corrected": sum(1 for r in results if r["status"] == "corrected"),
+        "average": sum(r["percentage"] for r in results if r["percentage"]) / max(1, sum(1 for r in results if r["percentage"])),
+        "max_score": max((r["percentage"] for r in results if r["percentage"]), default=0),
+        "min_score": min((r["percentage"] for r in results if r["percentage"]), default=0),
+    }
+
+    data = export_results_excel(exam.title, results, stats)
+    filename = f"resultados_{exam.title[:30].replace(' ', '_')}.xlsx"
+    return FastAPIResponse(content=data,
+                           media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                           headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+
+
+@router.get("/exams/{exam_id}/export/pdf")
+async def export_pdf(exam_id: str, db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
+    from fastapi.responses import Response as FastAPIResponse
+    from app.services.export_service import export_results_pdf
+
+    exam = (await db.execute(select(Exam).where(Exam.id == exam_id, Exam.profesor_id == user.id))).scalar_one_or_none()
+    if not exam:
+        raise HTTPException(404)
+
+    student_exams = (await db.execute(
+        select(StudentExam).where(StudentExam.exam_id == exam.id)
+    )).scalars().all()
+
+    results = []
+    for se in student_exams:
+        from app.models.user import User as UserModel
+        student = (await db.execute(select(UserModel).where(UserModel.id == se.student_id))).scalar_one_or_none() if se.student_id else None
+        results.append({
+            "student_name": f"{student.first_name} {student.last_name}" if student else "Sin identificar",
+            "total_score": float(se.total_score) if se.total_score else None,
+            "percentage": float(se.percentage) if se.percentage else None,
+            "status": se.status,
+        })
+
+    stats = {
+        "total_students": len(results),
+        "corrected": sum(1 for r in results if r["status"] == "corrected"),
+        "average": sum(r["percentage"] for r in results if r["percentage"]) / max(1, sum(1 for r in results if r["percentage"])),
+        "max_score": max((r["percentage"] for r in results if r["percentage"]), default=0),
+        "min_score": min((r["percentage"] for r in results if r["percentage"]), default=0),
+    }
+
+    data = export_results_pdf(exam.title, results, stats)
+    filename = f"resultados_{exam.title[:30].replace(' ', '_')}.pdf"
+    return FastAPIResponse(content=data, media_type="application/pdf",
+                           headers={"Content-Disposition": f'attachment; filename="{filename}"'})

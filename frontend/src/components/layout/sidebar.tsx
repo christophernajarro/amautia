@@ -7,7 +7,7 @@ import { User } from "@/types/user";
 import {
   LayoutDashboard, BookOpen, Users, FileText, Sparkles, GraduationCap,
   CreditCard, Settings, Brain, BarChart3, Bell, Shield, Wallet,
-  ClipboardList, X, LogOut
+  ClipboardList, X, LogOut, UploadCloud
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -33,6 +33,7 @@ const profesorLinks = [
   { href: "/profesor", label: "Dashboard", icon: LayoutDashboard },
   { href: "/profesor/materias", label: "Materias", icon: BookOpen },
   { href: "/profesor/alumnos", label: "Alumnos", icon: Users },
+  { href: "/profesor/alumnos/importar", label: "Importar CSV", icon: UploadCloud },
   { href: "/profesor/examenes", label: "Exámenes", icon: FileText },
   { href: "/profesor/generar", label: "Generar Examen", icon: Sparkles },
   { href: "/profesor/estadisticas", label: "Estadísticas", icon: BarChart3 },
