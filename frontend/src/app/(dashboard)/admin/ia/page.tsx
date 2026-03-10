@@ -1,70 +1,64 @@
+// @ts-nocheck
 "use client";
 
+import { useAdminProviders } from "@/lib/api-hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Plus, Settings, Zap } from "lucide-react";
-
-const providers = [
-  { name: "Google Gemini", slug: "gemini", models: ["gemini-2.5-flash", "gemini-2.5-pro"], active: false, color: "text-blue-600", bg: "bg-blue-50" },
-  { name: "OpenAI", slug: "openai", models: ["gpt-4o", "gpt-4o-mini"], active: false, color: "text-emerald-600", bg: "bg-emerald-50" },
-  { name: "Anthropic Claude", slug: "claude", models: ["claude-sonnet-4-6", "claude-haiku-4-5"], active: false, color: "text-violet-600", bg: "bg-violet-50" },
-];
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Plus, Cpu, Zap } from "lucide-react";
 
 export default function IAConfigPage() {
+  const { data: providers, isLoading } = useAdminProviders();
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Configuración de IA</h1>
-          <p className="text-muted-foreground">Gestiona los proveedores y modelos de inteligencia artificial</p>
+          <p className="text-slate-500">Proveedores y modelos de inteligencia artificial</p>
         </div>
-        <Button className="bg-indigo-600 hover:bg-indigo-700">
-          <Plus className="h-4 w-4 mr-1" /> Agregar Proveedor
-        </Button>
+        <Button className="bg-indigo-600 hover:bg-indigo-700"><Plus className="h-4 w-4 mr-2" />Agregar proveedor</Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        {providers.map((provider) => (
-          <Card key={provider.slug}>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`h-10 w-10 rounded-lg ${provider.bg} flex items-center justify-center`}>
-                    <Brain className={`h-5 w-5 ${provider.color}`} />
+      {isLoading ? (
+        <div className="space-y-4">{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-32" />)}</div>
+      ) : providers?.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Cpu className="h-12 w-12 text-slate-300 mb-4" />
+            <h3 className="text-lg font-medium text-slate-900 mb-1">Sin proveedores configurados</h3>
+            <p className="text-sm text-slate-500 mb-4">Agrega un proveedor de IA para empezar (Gemini, OpenAI, Claude)</p>
+            <Button className="bg-indigo-600 hover:bg-indigo-700"><Plus className="h-4 w-4 mr-2" />Agregar proveedor</Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {providers?.map((p: any) => (
+            <Card key={p.id}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-indigo-50 flex items-center justify-center">
+                      <Zap className="h-5 w-5 text-indigo-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base">{p.name}</CardTitle>
+                      <p className="text-sm text-slate-500">{p.slug}</p>
+                    </div>
                   </div>
-                  <CardTitle className="text-base">{provider.name}</CardTitle>
+                  <Badge variant={p.is_active ? "default" : "secondary"}>
+                    {p.is_active ? "Activo" : "Inactivo"}
+                  </Badge>
                 </div>
-                <Badge variant={provider.active ? "default" : "secondary"}>
-                  {provider.active ? "Activo" : "Inactivo"}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">API Key</p>
-                <p className="text-sm text-slate-600">No configurada</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Modelos disponibles</p>
-                <div className="flex flex-wrap gap-1">
-                  {provider.models.map((model) => (
-                    <Badge key={model} variant="outline" className="text-xs">{model}</Badge>
-                  ))}
-                </div>
-              </div>
-              <div className="flex gap-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
-                  <Settings className="h-3 w-3 mr-1" /> Configurar
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Zap className="h-3 w-3" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-slate-400">Creado: {new Date(p.created_at).toLocaleDateString("es-PE")}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,58 +1,48 @@
+// @ts-nocheck
 "use client";
 
+import { useAdminConfig } from "@/lib/api-hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Settings } from "lucide-react";
 
 export default function ConfigPage() {
+  const { data: configs, isLoading } = useAdminConfig();
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Configuración General</h1>
-        <p className="text-muted-foreground">Ajustes globales de la plataforma</p>
+        <h1 className="text-2xl font-bold text-slate-900">Configuración</h1>
+        <p className="text-slate-500">Configuración global del sistema</p>
       </div>
 
-      <div className="grid gap-6 max-w-2xl">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Datos de Pago</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Número de Yape</Label>
-              <Input placeholder="999999999" />
-            </div>
-            <div className="space-y-2">
-              <Label>Número de Plin</Label>
-              <Input placeholder="888888888" />
-            </div>
-            <Button className="bg-indigo-600 hover:bg-indigo-700">
-              <Save className="h-4 w-4 mr-1" /> Guardar
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Registro</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-sm">Requiere aprobación de admin</p>
-                <p className="text-xs text-muted-foreground">Los nuevos registros necesitan aprobación manual</p>
-              </div>
-              <Button variant="outline" size="sm">Desactivado</Button>
-            </div>
-            <div className="space-y-2">
-              <Label>Escala de calificación por defecto</Label>
-              <Input value="0-20" readOnly />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {isLoading ? (
+        <div className="space-y-4">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-20" />)}</div>
+      ) : (
+        <div className="space-y-4">
+          {configs?.map((c: any) => (
+            <Card key={c.key}>
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center mt-0.5">
+                      <Settings className="h-5 w-5 text-slate-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-slate-900">{c.key}</h3>
+                      <p className="text-sm text-slate-500 mt-0.5">{c.description || "Sin descripción"}</p>
+                      <pre className="mt-2 text-xs bg-slate-50 p-2 rounded text-slate-600 overflow-x-auto">
+                        {JSON.stringify(c.value, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

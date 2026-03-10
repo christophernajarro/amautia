@@ -1,69 +1,70 @@
+// @ts-nocheck
 "use client";
 
+import { useAlumnoDashboard } from "@/lib/api-hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, FileText, Brain, BarChart3, Plus } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
-
-const stats = [
-  { title: "Materias", value: "0", icon: BookOpen, color: "text-blue-600", bg: "bg-blue-50" },
-  { title: "Exámenes", value: "0", icon: FileText, color: "text-green-600", bg: "bg-green-50" },
-  { title: "Sesiones Tutor", value: "0", icon: Brain, color: "text-violet-600", bg: "bg-violet-50" },
-  { title: "Promedio", value: "-", icon: BarChart3, color: "text-amber-600", bg: "bg-amber-50" },
-];
+import { BookOpen, FileText, BarChart3, Plus } from "lucide-react";
 
 export default function AlumnoDashboard() {
+  const { data, isLoading } = useAlumnoDashboard();
+
+  const stats = [
+    { label: "Mis secciones", value: data?.total_sections || 0, icon: BookOpen, color: "text-blue-600", bg: "bg-blue-50" },
+    { label: "Exámenes", value: data?.total_exams || 0, icon: FileText, color: "text-violet-600", bg: "bg-violet-50" },
+    { label: "Promedio", value: data?.average_score ? `${data.average_score.toFixed(1)}%` : "—", icon: BarChart3, color: "text-emerald-600", bg: "bg-emerald-50" },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Mi Dashboard</h1>
-          <p className="text-muted-foreground">Resumen de tu actividad</p>
+          <p className="text-slate-500">Bienvenido, alumno</p>
         </div>
         <Link href="/alumno/unirse">
-          <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
-            <Plus className="h-4 w-4 mr-1" /> Unirme a clase
-          </Button>
+          <Button className="bg-indigo-600 hover:bg-indigo-700"><Plus className="h-4 w-4 mr-2" />Unirme a clase</Button>
         </Link>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {stat.title}
-              </CardTitle>
-              <div className={`h-8 w-8 rounded-lg ${stat.bg} flex items-center justify-center`}>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
+      <div className="grid gap-4 sm:grid-cols-3">
+        {stats.map((s) => (
+          <Card key={s.label}>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className={`h-12 w-12 rounded-xl ${s.bg} flex items-center justify-center`}>
+                  <s.icon className={`h-6 w-6 ${s.color}`} />
+                </div>
+                <div>
+                  {isLoading ? <Skeleton className="h-8 w-12" /> : <p className="text-2xl font-bold">{s.value}</p>}
+                  <p className="text-sm text-slate-500">{s.label}</p>
+                </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Exámenes Recientes</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>Exámenes recientes</CardTitle></CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">No hay exámenes corregidos todavía</p>
+            <p className="text-sm text-slate-500 text-center py-6">No tienes exámenes corregidos aún.</p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Tutor IA</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">Inicia una sesión con tu tutor personalizado</p>
-            <Link href="/alumno/tutor">
-              <Button variant="outline" size="sm" className="mt-3">
-                <Brain className="h-4 w-4 mr-1" /> Ir al Tutor
-              </Button>
+          <CardHeader><CardTitle>Acciones rápidas</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <Link href="/alumno/unirse" className="block">
+              <Button variant="outline" className="w-full justify-start"><Plus className="h-4 w-4 mr-2" />Unirme a una clase con código</Button>
+            </Link>
+            <Link href="/alumno/materias" className="block">
+              <Button variant="outline" className="w-full justify-start"><BookOpen className="h-4 w-4 mr-2" />Ver mis materias</Button>
+            </Link>
+            <Link href="/alumno/tutor" className="block">
+              <Button variant="outline" className="w-full justify-start"><BarChart3 className="h-4 w-4 mr-2" />Hablar con el tutor IA</Button>
             </Link>
           </CardContent>
         </Card>

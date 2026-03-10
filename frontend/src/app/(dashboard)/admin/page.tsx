@@ -1,56 +1,76 @@
 "use client";
 
+import { useAdminStats } from "@/lib/api-hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, FileText, CreditCard, BarChart3 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Users, GraduationCap, BookOpen, FileText, CreditCard, DollarSign, CheckCircle, Clock } from "lucide-react";
 
-const stats = [
-  { title: "Usuarios Totales", value: "0", icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
-  { title: "Exámenes Corregidos", value: "0", icon: FileText, color: "text-green-600", bg: "bg-green-50" },
-  { title: "Pagos Pendientes", value: "0", icon: CreditCard, color: "text-amber-600", bg: "bg-amber-50" },
-  { title: "Correcciones Hoy", value: "0", icon: BarChart3, color: "text-violet-600", bg: "bg-violet-50" },
+const statCards = [
+  { key: "total_users", label: "Usuarios totales", icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
+  { key: "total_profesores", label: "Profesores", icon: GraduationCap, color: "text-violet-600", bg: "bg-violet-50" },
+  { key: "total_alumnos", label: "Alumnos", icon: BookOpen, color: "text-emerald-600", bg: "bg-emerald-50" },
+  { key: "total_exams", label: "Exámenes", icon: FileText, color: "text-amber-600", bg: "bg-amber-50" },
+  { key: "total_corrections", label: "Correcciones", icon: CheckCircle, color: "text-rose-600", bg: "bg-rose-50" },
+  { key: "total_revenue", label: "Ingresos (S/)", icon: DollarSign, color: "text-green-600", bg: "bg-green-50" },
+  { key: "active_subscriptions", label: "Suscripciones activas", icon: CreditCard, color: "text-indigo-600", bg: "bg-indigo-50" },
+  { key: "pending_payments", label: "Pagos pendientes", icon: Clock, color: "text-orange-600", bg: "bg-orange-50" },
 ];
 
 export default function AdminDashboard() {
+  const { data: stats, isLoading } = useAdminStats();
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Panel de Administración</h1>
-        <p className="text-muted-foreground">Resumen general de la plataforma</p>
+        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+        <p className="text-slate-500">Panel de administración de Amautia</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {stat.title}
-              </CardTitle>
-              <div className={`h-8 w-8 rounded-lg ${stat.bg} flex items-center justify-center`}>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {statCards.map((card) => (
+          <Card key={card.key}>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className={`h-12 w-12 rounded-xl ${card.bg} flex items-center justify-center`}>
+                  <card.icon className={`h-6 w-6 ${card.color}`} />
+                </div>
+                <div>
+                  {isLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <p className="text-2xl font-bold text-slate-900">
+                      {card.key === "total_revenue"
+                        ? `S/ ${(stats as any)?.[card.key] || 0}`
+                        : (stats as any)?.[card.key] || 0}
+                    </p>
+                  )}
+                  <p className="text-sm text-slate-500">{card.label}</p>
+                </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Actividad Reciente</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>Actividad reciente</CardTitle></CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">No hay actividad reciente</p>
+            <p className="text-sm text-slate-500">Sin actividad reciente registrada.</p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Pagos Pendientes</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>Pagos pendientes</CardTitle></CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">No hay pagos pendientes</p>
+            {isLoading ? <Skeleton className="h-20" /> : (
+              (stats as any)?.pending_payments === 0 ? (
+                <p className="text-sm text-slate-500">No hay pagos pendientes de verificación.</p>
+              ) : (
+                <p className="text-sm text-orange-600 font-medium">
+                  {(stats as any)?.pending_payments} pagos esperando verificación
+                </p>
+              )
+            )}
           </CardContent>
         </Card>
       </div>
