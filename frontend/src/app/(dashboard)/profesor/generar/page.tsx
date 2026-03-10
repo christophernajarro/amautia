@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 "use client";
 
 import { useState } from "react";
@@ -69,7 +69,7 @@ export default function GenerarPage() {
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <Label>Dificultad</Label>
-                <Select value={form.difficulty} onValueChange={(v) => setForm({ ...form, difficulty: v })}>
+                <Select value={form.difficulty} onValueChange={(v: string) => setForm({ ...form, difficulty: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="easy">Fácil</SelectItem>
@@ -85,7 +85,7 @@ export default function GenerarPage() {
               </div>
               <div>
                 <Label>Nivel</Label>
-                <Select value={form.education_level} onValueChange={(v) => setForm({ ...form, education_level: v })}>
+                <Select value={form.education_level} onValueChange={(v: string) => setForm({ ...form, education_level: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="primaria">Primaria</SelectItem>

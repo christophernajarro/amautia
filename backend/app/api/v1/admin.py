@@ -384,8 +384,31 @@ async def approve_payment(payment_id: str, db: AsyncSession = Depends(get_db), a
     payment.status = "approved"
     payment.reviewed_by = admin.id
     payment.reviewed_at = datetime.now(timezone.utc)
-    # TODO: Activate/extend subscription
+
+    # Activate subscription
+    if payment.plan_id:
+        from datetime import timedelta
+        from app.models.subscription import Subscription
+        from app.models.plan import Plan
+        plan = (await db.execute(select(Plan).where(Plan.id == payment.plan_id))).scalar_one_or_none()
+        if plan:
+            now = datetime.now(timezone.utc)
+            sub = Subscription(user_id=payment.user_id, plan_id=plan.id, status="active",
+                               starts_at=now, expires_at=now + timedelta(days=30))
+            db.add(sub)
+
     await db.commit()
+
+    # Email notification
+    import asyncio
+    from app.services.email_service import send_payment_approved
+    from app.models.user import User as UserModel
+    user = (await db.execute(select(UserModel).where(UserModel.id == payment.user_id))).scalar_one_or_none()
+    if user and payment.plan_id:
+        from app.models.plan import Plan
+        plan = (await db.execute(select(Plan).where(Plan.id == payment.plan_id))).scalar_one_or_none()
+        asyncio.create_task(send_payment_approved(user.email, user.first_name, plan.name if plan else "Premium"))
+
     return {"ok": True}
 
 

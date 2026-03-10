@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 "use client";
 
 import { useState } from "react";
@@ -97,7 +97,7 @@ export default function NuevoExamenPage() {
             <div>
               <Label>Materia</Label>
               {isLoading ? <Skeleton className="h-10" /> : (
-                <Select onValueChange={(v) => loadSections(v)}>
+                <Select onValueChange={(v: string) => loadSections(v)}>
                   <SelectTrigger><SelectValue placeholder="Selecciona una materia" /></SelectTrigger>
                   <SelectContent>
                     {subjects?.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
@@ -108,7 +108,7 @@ export default function NuevoExamenPage() {
             {sections.length > 0 && (
               <div>
                 <Label>Sección</Label>
-                <Select onValueChange={(v) => setForm({ ...form, section_id: v })}>
+                <Select onValueChange={(v: string) => setForm({ ...form, section_id: v })}>
                   <SelectTrigger><SelectValue placeholder="Selecciona una sección" /></SelectTrigger>
                   <SelectContent>
                     {sections.map((s: any) => (
@@ -126,7 +126,7 @@ export default function NuevoExamenPage() {
               </div>
               <div>
                 <Label>Escala</Label>
-                <Select value={form.grading_scale} onValueChange={(v) => setForm({ ...form, grading_scale: v })}>
+                <Select value={form.grading_scale} onValueChange={(v: string) => setForm({ ...form, grading_scale: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="0-20">0-20</SelectItem>

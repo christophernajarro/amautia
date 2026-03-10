@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 "use client";
 
 import { useState } from "react";
@@ -57,7 +57,7 @@ export default function UsuariosPage() {
               </div>
               <Input placeholder="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
               <Input placeholder="Contraseña" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-              <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
+              <Select value={form.role} onValueChange={(v: string) => setForm({ ...form, role: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="superadmin">Superadmin</SelectItem>

@@ -46,6 +46,11 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
     await db.commit()
 
+    # Send welcome email (background, non-blocking)
+    import asyncio
+    from app.services.email_service import send_welcome
+    asyncio.create_task(send_welcome(user.email, f"{user.first_name} {user.last_name}", user.role))
+
     access_token = create_access_token({"sub": str(user.id), "role": user.role})
     refresh_token = create_refresh_token({"sub": str(user.id)})
 

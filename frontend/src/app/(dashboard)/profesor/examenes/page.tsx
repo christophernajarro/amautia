@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 "use client";
 
 import { useProfesorExams } from "@/lib/api-hooks";

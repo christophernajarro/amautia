@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 "use client";
 
 import { useAdminLogs } from "@/lib/api-hooks";

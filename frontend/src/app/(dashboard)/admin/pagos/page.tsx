@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 "use client";
 
 import { useAdminPayments } from "@/lib/api-hooks";

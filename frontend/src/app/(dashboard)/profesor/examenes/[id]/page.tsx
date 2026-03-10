@@ -1,0 +1,222 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { apiFetch } from "@/lib/api";
+import { getTokens } from "@/lib/auth";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ScoreDistribution } from "@/components/charts/score-distribution";
+import { ProgressRing } from "@/components/charts/progress-ring";
+import { ArrowLeft, Upload, Zap, CheckCircle, Eye, Globe } from "lucide-react";
+import Link from "next/link";
+
+export default function ExamenPage() {
+  const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+  const [results, setResults] = useState<any>(null);
+  const [status, setStatus] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [correcting, setCorrecting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+
+  const load = async () => {
+    const token = getTokens().access;
+    if (!token) return;
+    const [r, s] = await Promise.all([
+      apiFetch(`/profesor/exams/${id}/results`, { token }),
+      apiFetch(`/profesor/exams/${id}/correction-status`, { token }),
+    ]);
+    setResults(r);
+    setStatus(s);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, [id]);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+    setUploading(true);
+    const token = getTokens().access;
+    const formData = new FormData();
+    Array.from(e.target.files).forEach((f) => formData.append("files", f));
+    await fetch(`http://localhost:8000/api/v1/profesor/exams/${id}/student-exams`, {
+      method: "POST", headers: { Authorization: `Bearer ${token}` }, body: formData,
+    });
+    await load();
+    setUploading(false);
+  };
+
+  const handleCorrect = async () => {
+    setCorrecting(true);
+    const token = getTokens().access;
+    await apiFetch(`/profesor/exams/${id}/correct`, { method: "POST", token: token! });
+    await load();
+    setCorrecting(false);
+  };
+
+  const handlePublish = async () => {
+    setPublishing(true);
+    const token = getTokens().access;
+    await apiFetch(`/profesor/exams/${id}/publish`, { method: "PATCH", token: token! });
+    await load();
+    setPublishing(false);
+  };
+
+  // Build distribution chart data
+  const buildDistribution = (results: any) => {
+    const ranges = [
+      { range: "0-5", min: 0, max: 25 },
+      { range: "6-10", min: 26, max: 50 },
+      { range: "11-13", min: 51, max: 65 },
+      { range: "14-16", min: 66, max: 80 },
+      { range: "17-18", min: 81, max: 90 },
+      { range: "19-20", min: 91, max: 100 },
+    ];
+    return ranges.map((r) => ({
+      range: r.range,
+      count: (results?.results || []).filter((s: any) => s.percentage != null && s.percentage >= r.min && s.percentage <= r.max).length,
+    }));
+  };
+
+  if (loading) return (
+    <div className="space-y-4">
+      <Skeleton className="h-10 w-48" />
+      <Skeleton className="h-32" />
+      <Skeleton className="h-64" />
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href="/profesor/examenes">
+            <Button variant="ghost" size="sm"><ArrowLeft className="h-4 w-4" /></Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold">{results?.title || "Examen"}</h1>
+            <Badge variant={results?.stats?.corrected > 0 ? "default" : "secondary"}>
+              {results?.stats?.corrected}/{results?.stats?.total_students} corregidos
+            </Badge>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <label className="cursor-pointer">
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium hover:bg-slate-50 transition-colors ${uploading ? "opacity-50 cursor-not-allowed" : ""}`}>
+              <Upload className="h-4 w-4" />{uploading ? "Subiendo..." : "Subir exámenes"}
+            </div>
+            <input type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.txt" className="hidden" onChange={handleUpload} disabled={uploading} />
+          </label>
+          {(status?.pending ?? 0) > 0 && (
+            <Button onClick={handleCorrect} disabled={correcting} className="bg-indigo-600 hover:bg-indigo-700">
+              <Zap className="h-4 w-4 mr-2" />{correcting ? "Corrigiendo..." : `Corregir (${status?.pending})`}
+            </Button>
+          )}
+          {results?.stats?.corrected > 0 && (
+            <Button onClick={handlePublish} disabled={publishing} variant="outline">
+              <Globe className="h-4 w-4 mr-2" />{publishing ? "Publicando..." : "Publicar resultados"}
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Stats row */}
+      <div className="grid gap-4 sm:grid-cols-4">
+        {[
+          { label: "Total alumnos", value: results?.stats?.total_students ?? 0 },
+          { label: "Corregidos", value: results?.stats?.corrected ?? 0 },
+          { label: "Promedio", value: `${Math.round(results?.stats?.average ?? 0)}%` },
+          { label: "Máxima nota", value: `${Math.round(results?.stats?.max_score ?? 0)}%` },
+        ].map((s) => (
+          <Card key={s.label}>
+            <CardContent className="pt-4 pb-4 text-center">
+              <p className="text-2xl font-bold">{s.value}</p>
+              <p className="text-sm text-slate-500">{s.label}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Charts */}
+      {results?.stats?.corrected > 0 && (
+        <div className="grid gap-6 lg:grid-cols-3">
+          <Card className="lg:col-span-2">
+            <CardHeader><CardTitle>Distribución de notas</CardTitle></CardHeader>
+            <CardContent>
+              <ScoreDistribution data={buildDistribution(results)} />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle>Promedio del grupo</CardTitle></CardHeader>
+            <CardContent className="flex justify-center py-4">
+              <ProgressRing
+                value={results?.stats?.average ?? 0}
+                color={results?.stats?.average >= 70 ? "#10b981" : results?.stats?.average >= 50 ? "#f59e0b" : "#ef4444"}
+                label="Promedio general"
+              />
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Results table */}
+      <Card>
+        <CardHeader><CardTitle>Resultados por alumno</CardTitle></CardHeader>
+        <CardContent>
+          {(results?.results?.length ?? 0) === 0 ? (
+            <div className="text-center py-8">
+              <Upload className="h-10 w-10 text-slate-200 mx-auto mb-3" />
+              <p className="text-slate-500">Sube los exámenes de tus alumnos para corregirlos</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Alumno</TableHead>
+                  <TableHead>Puntaje</TableHead>
+                  <TableHead>Porcentaje</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Retroalimentación</TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {results.results.map((r: any) => (
+                  <TableRow key={r.id}>
+                    <TableCell className="font-medium">{r.student_name}</TableCell>
+                    <TableCell>{r.total_score ?? "—"}</TableCell>
+                    <TableCell>
+                      {r.percentage != null ? (
+                        <span className={`font-semibold ${r.percentage >= 70 ? "text-emerald-600" : r.percentage >= 50 ? "text-amber-600" : "text-red-600"}`}>
+                          {Math.round(r.percentage)}%
+                        </span>
+                      ) : "—"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={r.status === "corrected" ? "default" : r.status === "error" ? "destructive" : "secondary"}>
+                        {r.status === "corrected" ? "✓ Corregido" : r.status === "error" ? "Error" : "Pendiente"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="max-w-xs truncate text-sm text-slate-500">
+                      {r.feedback || "—"}
+                    </TableCell>
+                    <TableCell>
+                      <Link href={`/profesor/examenes/resultado/${r.id}`}>
+                        <Button variant="ghost" size="sm"><Eye className="h-4 w-4" /></Button>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

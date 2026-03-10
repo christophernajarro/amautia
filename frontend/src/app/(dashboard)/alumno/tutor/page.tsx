@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -20,7 +20,7 @@ export default function TutorPage() {
 
   useEffect(() => {
     const token = getTokens().access;
-    if (token) apiFetch("/alumno/tutor/chats", { token }).then(setChats);
+    if (token) apiFetch("/alumno/tutor/chats", { token }).then((data) => setChats(data as any[]));
   }, []);
 
   const loadChat = async (chatId: string) => {

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 from app.core.database import get_db
@@ -82,3 +82,32 @@ async def my_subscription(db: AsyncSession = Depends(get_db), user: User = Depen
     return SubscriptionResponse(id=str(sub.id), plan_name=plan_name, status=sub.status,
             starts_at=sub.starts_at.isoformat(), expires_at=sub.expires_at.isoformat(),
             corrections_used=sub.corrections_used, generations_used=sub.generations_used)
+
+
+@router.post("/upload-receipt")
+async def upload_receipt(plan_id: str = Form(...), amount: float = Form(...),
+                         payment_method: str = Form("yape"),
+                         file: UploadFile = File(...),
+                         db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    """Upload payment receipt (Yape/Plin/bank transfer screenshot)."""
+    from app.services.storage import save_file
+    from decimal import Decimal
+
+    plan = (await db.execute(select(Plan).where(Plan.slug == plan_id))).scalar_one_or_none()
+    if not plan:
+        # Try by ID
+        plan = (await db.execute(select(Plan).where(Plan.id == plan_id))).scalar_one_or_none()
+    
+    receipt_url = await save_file(file, f"receipts/{str(user.id)}")
+    
+    payment = Payment(
+        user_id=user.id, plan_id=plan.id if plan else None,
+        amount=Decimal(str(amount)), method=payment_method,
+        receipt_url=receipt_url, status="pending",
+    )
+    db.add(payment)
+    await db.commit()
+    await db.refresh(payment)
+    
+    return {"id": str(payment.id), "status": "pending", "receipt_url": receipt_url,
+            "message": "Comprobante recibido. Tu suscripción será activada tras verificación."}

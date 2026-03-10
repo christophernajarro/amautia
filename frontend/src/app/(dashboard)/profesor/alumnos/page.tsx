@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -28,7 +28,7 @@ export default function AlumnosPage() {
   useEffect(() => {
     if (selectedSubject) {
       const token = getTokens().access;
-      apiFetch(`/profesor/subjects/${selectedSubject}/sections`, { token: token! }).then(setSections);
+      apiFetch(`/profesor/subjects/${selectedSubject}/sections`, { token: token! }).then((d) => setSections(d as any[]));
     }
   }, [selectedSubject]);
 
@@ -37,7 +37,7 @@ export default function AlumnosPage() {
       setLoading(true);
       const token = getTokens().access;
       apiFetch(`/profesor/sections/${selectedSection}/students`, { token: token! })
-        .then(setStudents).finally(() => setLoading(false));
+        .then((d) => setStudents(d as any[])).finally(() => setLoading(false));
     }
   }, [selectedSection]);
 
@@ -50,7 +50,7 @@ export default function AlumnosPage() {
     });
     setShowAdd(false);
     const updated = await apiFetch(`/profesor/sections/${selectedSection}/students`, { token: token! });
-    setStudents(updated);
+    setStudents(updated as any[]);
   };
 
   const classCode = sections.find(s => s.id === selectedSection)?.class_code;

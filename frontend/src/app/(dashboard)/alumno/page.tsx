@@ -1,73 +1,164 @@
-// @ts-nocheck
 "use client";
 
 import { useAlumnoDashboard } from "@/lib/api-hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
-import { BookOpen, FileText, BarChart3, Plus } from "lucide-react";
+import { BookOpen, FileText, BarChart3, Brain, Trophy, Target, ArrowRight } from "lucide-react";
+import { ProgressRing } from "@/components/charts/progress-ring";
 
 export default function AlumnoDashboard() {
-  const { data, isLoading } = useAlumnoDashboard();
+  const { data: stats, isLoading } = useAlumnoDashboard();
 
-  const stats = [
-    { label: "Mis secciones", value: data?.total_sections || 0, icon: BookOpen, color: "text-blue-600", bg: "bg-blue-50" },
-    { label: "Exámenes", value: data?.total_exams || 0, icon: FileText, color: "text-violet-600", bg: "bg-violet-50" },
-    { label: "Promedio", value: data?.average_score ? `${data.average_score.toFixed(1)}%` : "—", icon: BarChart3, color: "text-emerald-600", bg: "bg-emerald-50" },
+  const kpis = [
+    { label: "Mis materias", value: (stats as any)?.total_subjects || 0, icon: BookOpen, color: "text-indigo-600", bg: "bg-indigo-50", href: "/alumno/materias" },
+    { label: "Exámenes", value: (stats as any)?.total_exams || 0, icon: FileText, color: "text-violet-600", bg: "bg-violet-50", href: "/alumno/examenes" },
+    { label: "Promedio", value: `${(stats as any)?.average_score || 0}%`, icon: BarChart3, color: "text-emerald-600", bg: "bg-emerald-50", href: "/alumno/progreso" },
+    { label: "Ejercicios", value: (stats as any)?.exercises_completed || 0, icon: Target, color: "text-amber-600", bg: "bg-amber-50", href: "/alumno/tutor" },
   ];
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Mi Dashboard</h1>
-          <p className="text-slate-500">Bienvenido, alumno</p>
+          <h1 className="text-2xl font-bold text-slate-900">Mi Panel</h1>
+          <p className="text-slate-500">Tu progreso de aprendizaje</p>
         </div>
-        <Link href="/alumno/unirse">
-          <Button className="bg-indigo-600 hover:bg-indigo-700"><Plus className="h-4 w-4 mr-2" />Unirme a clase</Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/alumno/unirse">
+            <Button variant="outline">Unirme a clase</Button>
+          </Link>
+          <Link href="/alumno/tutor">
+            <Button className="bg-indigo-600 hover:bg-indigo-700">
+              <Brain className="h-4 w-4 mr-2" />Tutor IA
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        {stats.map((s) => (
-          <Card key={s.label}>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className={`h-12 w-12 rounded-xl ${s.bg} flex items-center justify-center`}>
-                  <s.icon className={`h-6 w-6 ${s.color}`} />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {kpis.map((kpi) => (
+          <Link key={kpi.label} href={kpi.href}>
+            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-4">
+                  <div className={`h-12 w-12 rounded-xl ${kpi.bg} flex items-center justify-center`}>
+                    <kpi.icon className={`h-6 w-6 ${kpi.color}`} />
+                  </div>
+                  <div>
+                    {isLoading ? <Skeleton className="h-8 w-12" /> : (
+                      <p className="text-2xl font-bold">{kpi.value}</p>
+                    )}
+                    <p className="text-sm text-slate-500">{kpi.label}</p>
+                  </div>
                 </div>
-                <div>
-                  {isLoading ? <Skeleton className="h-8 w-12" /> : <p className="text-2xl font-bold">{s.value}</p>}
-                  <p className="text-sm text-slate-500">{s.label}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader><CardTitle>Exámenes recientes</CardTitle></CardHeader>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Últimos exámenes</CardTitle>
+              <Link href="/alumno/examenes">
+                <Button variant="ghost" size="sm">Ver todos <ArrowRight className="h-4 w-4 ml-1" /></Button>
+              </Link>
+            </div>
+          </CardHeader>
           <CardContent>
-            <p className="text-sm text-slate-500 text-center py-6">No tienes exámenes corregidos aún.</p>
+            {isLoading ? (
+              [...Array(3)].map((_, i) => <Skeleton key={i} className="h-14 mb-2" />)
+            ) : (stats as any)?.recent_exams?.length > 0 ? (
+              <div className="space-y-3">
+                {(stats as any).recent_exams.map((exam: any) => (
+                  <div key={exam.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-50">
+                    <div>
+                      <p className="font-medium text-sm">{exam.title}</p>
+                      <p className="text-xs text-slate-500">{new Date(exam.date).toLocaleDateString("es-PE")}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {exam.score != null && (
+                        <span className={`text-sm font-bold ${exam.score >= 14 ? "text-emerald-600" : exam.score >= 11 ? "text-amber-600" : "text-red-600"}`}>
+                          {exam.score}/20
+                        </span>
+                      )}
+                      <Badge variant={exam.status === "corrected" ? "default" : "secondary"}>
+                        {exam.status === "corrected" ? "Corregido" : "Pendiente"}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center py-8">
+                <FileText className="h-10 w-10 text-slate-200 mb-3" />
+                <p className="text-slate-500 text-sm">No tienes exámenes aún</p>
+                <Link href="/alumno/unirse">
+                  <Button variant="link" className="text-indigo-600 mt-2">
+                    Únete a una clase <ArrowRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </Link>
+              </div>
+            )}
           </CardContent>
         </Card>
+
         <Card>
-          <CardHeader><CardTitle>Acciones rápidas</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <Link href="/alumno/unirse" className="block">
-              <Button variant="outline" className="w-full justify-start"><Plus className="h-4 w-4 mr-2" />Unirme a una clase con código</Button>
-            </Link>
-            <Link href="/alumno/materias" className="block">
-              <Button variant="outline" className="w-full justify-start"><BookOpen className="h-4 w-4 mr-2" />Ver mis materias</Button>
-            </Link>
-            <Link href="/alumno/tutor" className="block">
-              <Button variant="outline" className="w-full justify-start"><BarChart3 className="h-4 w-4 mr-2" />Hablar con el tutor IA</Button>
-            </Link>
+          <CardHeader><CardTitle>Mi progreso</CardTitle></CardHeader>
+          <CardContent className="flex flex-col items-center gap-4 py-4">
+            <ProgressRing value={(stats as any)?.average_score || 0} label="Promedio general" />
+            <div className="w-full space-y-2 pt-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">Ejercicios completados</span>
+                <span className="font-medium">{(stats as any)?.exercises_completed || 0}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">Precisión</span>
+                <span className="font-medium">{(stats as any)?.accuracy || 0}%</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">Planes activos</span>
+                <span className="font-medium">{(stats as any)?.active_plans || 0}</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Quick actions */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Link href="/alumno/tutor">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer border-indigo-100 hover:border-indigo-200">
+            <CardContent className="pt-6 text-center">
+              <Brain className="h-10 w-10 text-indigo-600 mx-auto mb-3" />
+              <h3 className="font-semibold mb-1">Tutor IA</h3>
+              <p className="text-xs text-slate-500">Pregunta sobre cualquier tema</p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/alumno/progreso">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer border-emerald-100 hover:border-emerald-200">
+            <CardContent className="pt-6 text-center">
+              <Trophy className="h-10 w-10 text-emerald-600 mx-auto mb-3" />
+              <h3 className="font-semibold mb-1">Mi progreso</h3>
+              <p className="text-xs text-slate-500">Estadísticas y logros</p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/alumno/unirse">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer border-violet-100 hover:border-violet-200">
+            <CardContent className="pt-6 text-center">
+              <BookOpen className="h-10 w-10 text-violet-600 mx-auto mb-3" />
+              <h3 className="font-semibold mb-1">Unirme a clase</h3>
+              <p className="text-xs text-slate-500">Ingresa el código de tu profesor</p>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
     </div>
   );

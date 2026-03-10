@@ -271,6 +271,21 @@ async def correct_exam(exam_id: str, db: AsyncSession = Depends(get_db), user: U
     if corrected > 0:
         exam.status = "corrected"
     await db.commit()
+
+    # Notify students via email (background)
+    import asyncio
+    from app.services.email_service import send_exam_corrected
+    from app.models.user import User as UserModel
+    for se in student_exams:
+        if se.status == "corrected" and se.student_id:
+            student = (await db.execute(select(UserModel).where(UserModel.id == se.student_id))).scalar_one_or_none()
+            if student and se.total_score is not None:
+                asyncio.create_task(send_exam_corrected(
+                    student.email, f"{student.first_name} {student.last_name}",
+                    exam.title, float(se.total_score), float(exam.total_points),
+                    se.general_feedback or "Sin observaciones adicionales.",
+                ))
+
     return {"corrected": corrected, "total": len(student_exams)}
 
 

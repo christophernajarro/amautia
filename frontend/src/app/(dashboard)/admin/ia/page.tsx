@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 "use client";
 
 import { useAdminProviders } from "@/lib/api-hooks";

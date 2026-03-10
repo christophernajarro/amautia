@@ -29,6 +29,13 @@ class Settings(BaseSettings):
     GOOGLE_API_KEY: str = ""
     ANTHROPIC_API_KEY: str = ""
 
+    # SMTP Email
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASS: str = ""
+    SMTP_TLS: bool = True
+
     class Config:
         env_file = ".env"
 

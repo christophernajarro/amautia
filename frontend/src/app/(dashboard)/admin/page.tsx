@@ -3,7 +3,9 @@
 import { useAdminStats } from "@/lib/api-hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, GraduationCap, BookOpen, FileText, CreditCard, DollarSign, CheckCircle, Clock } from "lucide-react";
+import { Users, GraduationCap, BookOpen, FileText, CreditCard, DollarSign, CheckCircle, Clock, TrendingUp, Activity } from "lucide-react";
+import { ActivityChart } from "@/components/charts/activity-chart";
+import { ScoreDistribution } from "@/components/charts/score-distribution";
 
 const statCards = [
   { key: "total_users", label: "Usuarios totales", icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
@@ -14,6 +16,26 @@ const statCards = [
   { key: "total_revenue", label: "Ingresos (S/)", icon: DollarSign, color: "text-green-600", bg: "bg-green-50" },
   { key: "active_subscriptions", label: "Suscripciones activas", icon: CreditCard, color: "text-indigo-600", bg: "bg-indigo-50" },
   { key: "pending_payments", label: "Pagos pendientes", icon: Clock, color: "text-orange-600", bg: "bg-orange-50" },
+];
+
+// Mock data for charts (will be replaced with real API data)
+const activityData = [
+  { date: "Lun", exams: 2, corrections: 5 },
+  { date: "Mar", exams: 1, corrections: 8 },
+  { date: "Mié", exams: 3, corrections: 12 },
+  { date: "Jue", exams: 0, corrections: 4 },
+  { date: "Vie", exams: 4, corrections: 15 },
+  { date: "Sáb", exams: 1, corrections: 3 },
+  { date: "Dom", exams: 0, corrections: 0 },
+];
+
+const scoreData = [
+  { range: "0-5", count: 1 },
+  { range: "6-10", count: 3 },
+  { range: "11-13", count: 5 },
+  { range: "14-16", count: 8 },
+  { range: "17-18", count: 4 },
+  { range: "19-20", count: 2 },
 ];
 
 export default function AdminDashboard() {
@@ -28,7 +50,7 @@ export default function AdminDashboard() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((card) => (
-          <Card key={card.key}>
+          <Card key={card.key} className="hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               <div className="flex items-center gap-4">
                 <div className={`h-12 w-12 rounded-xl ${card.bg} flex items-center justify-center`}>
@@ -54,9 +76,42 @@ export default function AdminDashboard() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
-          <CardHeader><CardTitle>Actividad reciente</CardTitle></CardHeader>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Activity className="h-5 w-5 text-indigo-600" />
+              <CardTitle>Actividad semanal</CardTitle>
+            </div>
+          </CardHeader>
           <CardContent>
-            <p className="text-sm text-slate-500">Sin actividad reciente registrada.</p>
+            <ActivityChart data={activityData} />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-emerald-600" />
+              <CardTitle>Distribución de notas</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <ScoreDistribution data={scoreData} />
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader><CardTitle>Últimas inscripciones</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {isLoading ? (
+                [...Array(3)].map((_, i) => <Skeleton key={i} className="h-10" />)
+              ) : (
+                <p className="text-sm text-slate-500 py-4 text-center">
+                  Los registros recientes aparecerán aquí
+                </p>
+              )}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -64,7 +119,10 @@ export default function AdminDashboard() {
           <CardContent>
             {isLoading ? <Skeleton className="h-20" /> : (
               (stats as any)?.pending_payments === 0 ? (
-                <p className="text-sm text-slate-500">No hay pagos pendientes de verificación.</p>
+                <div className="py-4 text-center">
+                  <CheckCircle className="h-8 w-8 text-emerald-400 mx-auto mb-2" />
+                  <p className="text-sm text-slate-500">No hay pagos pendientes</p>
+                </div>
               ) : (
                 <p className="text-sm text-orange-600 font-medium">
                   {(stats as any)?.pending_payments} pagos esperando verificación
