@@ -43,6 +43,7 @@ const alumnoLinks = [
   { href: "/alumno", label: "Dashboard", icon: LayoutDashboard },
   { href: "/alumno/materias", label: "Materias", icon: BookOpen },
   { href: "/alumno/examenes", label: "Mis Exámenes", icon: FileText },
+  { href: "/alumno/calificaciones", label: "Calificaciones", icon: ClipboardList },
   { href: "/alumno/tutor", label: "Tutor IA", icon: Brain },
   { href: "/alumno/progreso", label: "Mi Progreso", icon: BarChart3 },
 ];

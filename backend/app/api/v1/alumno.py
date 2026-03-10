@@ -103,3 +103,49 @@ async def my_stats(db: AsyncSession = Depends(get_db), user: User = Depends(get_
         "average_percentage": float(avg) if avg else None,
         "best_percentage": float(best) if best else None,
     }
+
+
+@router.get("/exams/{student_exam_id}/resultado")
+async def exam_resultado(student_exam_id: str, db: AsyncSession = Depends(get_db), user: User = Depends(get_alumno)):
+    """Alumno ve el detalle de su corrección: nota por pregunta, feedback, puntaje total."""
+    from app.models.student_exam import StudentAnswer
+    from app.models.exam import ExamQuestion
+
+    se = (await db.execute(
+        select(StudentExam).where(StudentExam.id == student_exam_id, StudentExam.student_id == user.id)
+    )).scalar_one_or_none()
+    if not se:
+        raise HTTPException(404, "Examen no encontrado")
+    if se.status not in ("corrected", "published"):
+        raise HTTPException(400, "El examen aún no ha sido corregido")
+
+    exam = (await db.execute(select(Exam).where(Exam.id == se.exam_id))).scalar_one()
+
+    # Get answers with question text
+    answers_raw = (await db.execute(
+        select(StudentAnswer, ExamQuestion)
+        .outerjoin(ExamQuestion, ExamQuestion.id == StudentAnswer.question_id)
+        .where(StudentAnswer.student_exam_id == se.id)
+        .order_by(ExamQuestion.question_number)
+    )).all()
+
+    answers = []
+    for sa, q in answers_raw:
+        answers.append({
+            "question_number": q.question_number if q else None,
+            "question_text": q.question_text if q else None,
+            "score": float(sa.score) if sa.score else 0,
+            "max_score": float(sa.max_score) if sa.max_score else 0,
+            "is_correct": sa.is_correct,
+            "feedback": sa.feedback or "",
+        })
+
+    return {
+        "exam_title": exam.title,
+        "total_score": float(se.total_score) if se.total_score else None,
+        "total_points": float(exam.total_points),
+        "percentage": float(se.percentage) if se.percentage else None,
+        "general_feedback": se.general_feedback or "",
+        "corrected_at": se.corrected_at.isoformat() if se.corrected_at else None,
+        "answers": answers,
+    }

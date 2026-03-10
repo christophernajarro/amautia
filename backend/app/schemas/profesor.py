@@ -55,6 +55,13 @@ class SectionCreateRequest(BaseModel):
     name: str
     academic_period: str | None = None
 
+    @field_validator("name")
+    @classmethod
+    def name_not_empty(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("El nombre de la sección es requerido")
+        return v.strip()
+
 
 class SectionUpdateRequest(BaseModel):
     name: str | None = None
@@ -102,6 +109,13 @@ class ExamCreateRequest(BaseModel):
     section_id: str
     total_points: float = 20
     grading_scale: str = "0-20"
+
+    @field_validator("title")
+    @classmethod
+    def title_not_empty(cls, v: str) -> str:
+        if not v or len(v.strip()) < 3:
+            raise ValueError("El título del examen debe tener al menos 3 caracteres")
+        return v.strip()
 
 
 class ProfesorDashboard(BaseModel):

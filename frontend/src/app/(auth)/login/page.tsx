@@ -86,6 +86,12 @@ export default function LoginPage() {
           <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={loading}>
             {loading ? "Ingresando..." : "Iniciar sesión"}
           </Button>
+
+          <div className="text-center mt-3">
+            <a href="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-800">
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
         </form>
 
         <div className="mt-6">

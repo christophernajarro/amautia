@@ -104,3 +104,68 @@ async def me(user: User = Depends(get_current_user)):
         is_verified=user.is_verified,
         created_at=user.created_at.isoformat() if user.created_at else "",
     )
+
+
+@router.put("/me")
+async def update_profile(
+    first_name: str = None, last_name: str = None, phone: str = None,
+    db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)
+):
+    if first_name is not None:
+        user.first_name = first_name.strip()
+    if last_name is not None:
+        user.last_name = last_name.strip()
+    if phone is not None:
+        user.phone = phone.strip() if phone else None
+    await db.commit()
+    return {"ok": True, "message": "Perfil actualizado"}
+
+
+@router.post("/forgot-password")
+async def forgot_password(email: str, db: AsyncSession = Depends(get_db)):
+    """Send password reset token (stored in DB). Always returns success for security."""
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
+    if user:
+        token = str(uuid.uuid4())
+        user.reset_token = token
+        user.reset_token_expires = datetime.now(timezone.utc) + timedelta(hours=1)
+        await db.commit()
+        # Send email with reset link (background)
+        import asyncio
+        from app.services.email_service import send_password_reset
+        asyncio.create_task(send_password_reset(user.email, user.first_name, token))
+    return {"ok": True, "message": "Si el email existe, recibirás instrucciones para restablecer tu contraseña"}
+
+
+@router.post("/reset-password")
+async def reset_password(token: str, new_password: str, db: AsyncSession = Depends(get_db)):
+    """Reset password using token from forgot-password."""
+    if not new_password or len(new_password.strip()) < 6:
+        raise HTTPException(400, "La contraseña debe tener al menos 6 caracteres")
+    result = await db.execute(select(User).where(User.reset_token == token))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(400, "Token inválido o expirado")
+    if user.reset_token_expires and user.reset_token_expires < datetime.now(timezone.utc):
+        raise HTTPException(400, "Token expirado. Solicita uno nuevo.")
+    user.password_hash = hash_password(new_password)
+    user.reset_token = None
+    user.reset_token_expires = None
+    await db.commit()
+    return {"ok": True, "message": "Contraseña actualizada exitosamente"}
+
+
+@router.put("/change-password")
+async def change_password(
+    current_password: str, new_password: str,
+    db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)
+):
+    """Change password (requires current password)."""
+    if not verify_password(current_password, user.password_hash):
+        raise HTTPException(400, "Contraseña actual incorrecta")
+    if not new_password or len(new_password.strip()) < 6:
+        raise HTTPException(400, "La nueva contraseña debe tener al menos 6 caracteres")
+    user.password_hash = hash_password(new_password)
+    await db.commit()
+    return {"ok": True, "message": "Contraseña cambiada exitosamente"}

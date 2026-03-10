@@ -73,6 +73,49 @@ export default function ProfesorDashboard() {
         ))}
       </div>
 
+      {/* Quick Actions */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Link href="/profesor/examenes/nuevo">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer border-indigo-100 bg-indigo-50/50">
+            <CardContent className="pt-6 flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl bg-indigo-100 flex items-center justify-center">
+                <Plus className="h-6 w-6 text-indigo-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-indigo-900">Crear Examen</p>
+                <p className="text-xs text-indigo-600">Nuevo examen manual</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/profesor/generar">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer border-violet-100 bg-violet-50/50">
+            <CardContent className="pt-6 flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl bg-violet-100 flex items-center justify-center">
+                <Sparkles className="h-6 w-6 text-violet-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-violet-900">Generar con IA</p>
+                <p className="text-xs text-violet-600">Examen automático</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/profesor/alumnos/importar">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer border-emerald-100 bg-emerald-50/50">
+            <CardContent className="pt-6 flex items-center gap-4">
+              <div className="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                <Users className="h-6 w-6 text-emerald-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-emerald-900">Importar Alumnos</p>
+                <p className="text-xs text-emerald-600">CSV masivo</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>

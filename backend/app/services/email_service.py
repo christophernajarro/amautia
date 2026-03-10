@@ -134,3 +134,20 @@ async def send_study_plan_ready(to: str, name: str, plan_title: str):
   </a>
 </div>"""
     await send_email(to, "Plan de estudio personalizado listo", _base(content, "Plan de estudio"))
+
+
+async def send_password_reset(to: str, name: str, token: str):
+    """Send password reset email."""
+    reset_link = f"https://amautia.com/reset-password?token={token}"
+    subject = "Amautia - Restablecer contraseña"
+    body_html = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto;">
+        <h2 style="color: #4F46E5;">Restablecer Contraseña</h2>
+        <p>Hola {name},</p>
+        <p>Recibimos una solicitud para restablecer tu contraseña. Haz clic en el botón:</p>
+        <a href="{reset_link}" style="display: inline-block; background: #4F46E5; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 16px 0;">Restablecer Contraseña</a>
+        <p style="color: #666; font-size: 14px;">Este enlace expira en 1 hora. Si no solicitaste esto, ignora este email.</p>
+        <p style="color: #999; font-size: 12px;">Token: {token}</p>
+    </div>
+    """
+    await send_email(to, subject, body_html)

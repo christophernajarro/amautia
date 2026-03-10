@@ -278,6 +278,9 @@ async def correct_exam(exam_id: str, db: AsyncSession = Depends(get_db), user: U
             se.status = "error"
             se.general_feedback = str(e)
 
+        # Flush each student exam to persist scores
+        await db.flush()
+
     if corrected > 0:
         exam.status = "corrected"
         # Increment quota usage
@@ -287,18 +290,30 @@ async def correct_exam(exam_id: str, db: AsyncSession = Depends(get_db), user: U
         asyncio.create_task(log_exam_corrected(user.id, exam_id, corrected, db))
     await db.commit()
 
-    # Notify students via email (background)
+    # Notify students via email + in-app notification
     from app.services.email_service import send_exam_corrected
     from app.models.user import User as UserModel
+    from app.models.notification import Notification
     for se in student_exams:
         if se.status == "corrected" and se.student_id:
             student = (await db.execute(select(UserModel).where(UserModel.id == se.student_id))).scalar_one_or_none()
             if student and se.total_score is not None:
+                # In-app notification
+                notif = Notification(
+                    user_id=student.id,
+                    type="exam_corrected",
+                    title=f"Tu examen '{exam.title}' fue corregido",
+                    message=f"Obtuviste {float(se.total_score):.1f}/{float(exam.total_points)} ({float(se.percentage):.0f}%)",
+                    data={"exam_id": str(exam.id), "student_exam_id": str(se.id)},
+                )
+                db.add(notif)
+                # Email notification
                 asyncio.create_task(send_exam_corrected(
                     student.email, f"{student.first_name} {student.last_name}",
                     exam.title, float(se.total_score), float(exam.total_points),
                     se.general_feedback or "Sin observaciones adicionales.",
                 ))
+    await db.commit()
 
     return {"corrected": corrected, "total": len(student_exams)}
 
