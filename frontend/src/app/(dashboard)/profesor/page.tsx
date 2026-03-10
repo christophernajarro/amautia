@@ -9,6 +9,7 @@ import { BookOpen, Users, FileText, CheckCircle, Plus, Sparkles, ArrowRight } fr
 import { ProgressRing } from "@/components/charts/progress-ring";
 import { ScoreDistribution } from "@/components/charts/score-distribution";
 import Link from "next/link";
+import { UsageQuota } from "@/components/usage-quota";
 
 const mockScores = [
   { range: "0-5", count: 0 },
@@ -49,6 +50,8 @@ export default function ProfesorDashboard() {
           </Link>
         </div>
       </div>
+
+      <UsageQuota />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((kpi) => (

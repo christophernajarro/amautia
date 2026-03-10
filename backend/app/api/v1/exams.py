@@ -199,9 +199,16 @@ async def upload_student_exams(exam_id: str, files: list[UploadFile] = File(...)
 @router.post("/exams/{exam_id}/correct")
 async def correct_exam(exam_id: str, db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
     """Start AI correction for all pending student exams."""
+    from app.services.quota_service import can_correct_exam
+
     exam = (await db.execute(select(Exam).where(Exam.id == exam_id, Exam.profesor_id == user.id))).scalar_one_or_none()
     if not exam:
         raise HTTPException(404, "Examen no encontrado")
+
+    # Check quota
+    can_correct, msg = await can_correct_exam(user.id, db)
+    if not can_correct:
+        raise HTTPException(402, f"Plan limit: {msg}")
 
     # Get questions
     questions = (await db.execute(
@@ -270,6 +277,11 @@ async def correct_exam(exam_id: str, db: AsyncSession = Depends(get_db), user: U
 
     if corrected > 0:
         exam.status = "corrected"
+        # Increment quota usage
+        from app.services.quota_service import increment_corrections_count
+        from app.services.activity_service import log_exam_corrected
+        await increment_corrections_count(user.id, corrected, db)
+        asyncio.create_task(log_exam_corrected(user.id, exam_id, corrected, db))
     await db.commit()
 
     # Notify students via email (background)
@@ -411,6 +423,13 @@ async def generate_exam(title: str = Form("Examen generado"), subject_id: str = 
                         source_text: str = Form(""), education_level: str = Form("secundaria"),
                         source_file: UploadFile = File(None),
                         db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
+    from app.services.quota_service import can_generate_exam, increment_generations_count
+
+    # Check quota
+    can_gen, msg = await can_generate_exam(user.id, db)
+    if not can_gen:
+        raise HTTPException(402, f"Plan limit: {msg}")
+
     file_url = None
     if source_file:
         file_url = await save_file(source_file, f"generated/{uuid.uuid4().hex}")
@@ -456,6 +475,14 @@ async def generate_exam(title: str = Form("Examen generado"), subject_id: str = 
         gen.generated_content = {"error": str(e)}
 
     await db.commit()
+
+    # Increment quota if successful
+    if gen.status == "completed":
+        from app.services.activity_service import log_exam_generated
+        import asyncio
+        await increment_generations_count(user.id, 1, db)
+        asyncio.create_task(log_exam_generated(user.id, str(gen.id), gen.title, db))
+
     await db.refresh(gen)
     return {"id": str(gen.id), "status": gen.status, "title": gen.title}
 
@@ -638,3 +665,12 @@ async def export_pdf(exam_id: str, db: AsyncSession = Depends(get_db), user: Use
     filename = f"resultados_{exam.title[:30].replace(' ', '_')}.pdf"
     return FastAPIResponse(content=data, media_type="application/pdf",
                            headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+
+
+# ─── Quota & Usage ───
+
+@router.get("/usage")
+async def my_usage(db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    """Get current subscription and usage stats."""
+    from app.services.quota_service import user_usage_stats
+    return await user_usage_stats(user.id, db)
