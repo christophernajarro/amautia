@@ -2,136 +2,143 @@
 
 import { useAdminStats } from "@/lib/api-hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, GraduationCap, BookOpen, FileText, CreditCard, DollarSign, CheckCircle, Clock, TrendingUp, Activity } from "lucide-react";
+import Link from "next/link";
+import {
+  Users, GraduationCap, FileText, CreditCard, TrendingUp,
+  ArrowRight, DollarSign, CheckCircle, UserPlus, Activity,
+} from "lucide-react";
 import { ActivityChart } from "@/components/charts/activity-chart";
-import { ScoreDistribution } from "@/components/charts/score-distribution";
-
-const statCards = [
-  { key: "total_users", label: "Usuarios totales", icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
-  { key: "total_profesores", label: "Profesores", icon: GraduationCap, color: "text-violet-600", bg: "bg-violet-50" },
-  { key: "total_alumnos", label: "Alumnos", icon: BookOpen, color: "text-emerald-600", bg: "bg-emerald-50" },
-  { key: "total_exams", label: "Exámenes", icon: FileText, color: "text-amber-600", bg: "bg-amber-50" },
-  { key: "total_corrections", label: "Correcciones", icon: CheckCircle, color: "text-rose-600", bg: "bg-rose-50" },
-  { key: "total_revenue", label: "Ingresos (S/)", icon: DollarSign, color: "text-green-600", bg: "bg-green-50" },
-  { key: "active_subscriptions", label: "Suscripciones activas", icon: CreditCard, color: "text-indigo-600", bg: "bg-indigo-50" },
-  { key: "pending_payments", label: "Pagos pendientes", icon: Clock, color: "text-orange-600", bg: "bg-orange-50" },
-];
-
-// Mock data for charts (will be replaced with real API data)
-const activityData = [
-  { date: "Lun", exams: 2, corrections: 5 },
-  { date: "Mar", exams: 1, corrections: 8 },
-  { date: "Mié", exams: 3, corrections: 12 },
-  { date: "Jue", exams: 0, corrections: 4 },
-  { date: "Vie", exams: 4, corrections: 15 },
-  { date: "Sáb", exams: 1, corrections: 3 },
-  { date: "Dom", exams: 0, corrections: 0 },
-];
-
-const scoreData = [
-  { range: "0-5", count: 1 },
-  { range: "6-10", count: 3 },
-  { range: "11-13", count: 5 },
-  { range: "14-16", count: 8 },
-  { range: "17-18", count: 4 },
-  { range: "19-20", count: 2 },
-];
 
 export default function AdminDashboard() {
   const { data: stats, isLoading } = useAdminStats();
+  const s = stats as any;
+
+  const kpis = [
+    { label: "Usuarios", value: s?.total_users || 0, sub: `${s?.total_profesores || 0} prof · ${s?.total_alumnos || 0} alum`, icon: Users, color: "text-indigo-600", bg: "bg-indigo-50", href: "/admin/usuarios" },
+    { label: "Exámenes", value: s?.total_exams || 0, sub: `${s?.corrected_exams || 0} corregidos`, icon: FileText, color: "text-violet-600", bg: "bg-violet-50", href: "#" },
+    { label: "Ingresos", value: `S/${s?.total_revenue?.toFixed(0) || 0}`, sub: `${s?.active_subscriptions || 0} subs activas`, icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50", href: "/admin/pagos" },
+    { label: "Suscripciones", value: s?.active_subscriptions || 0, sub: "activas", icon: CreditCard, color: "text-amber-600", bg: "bg-amber-50", href: "/admin/planes" },
+  ];
+
+  const quickActions = [
+    { label: "Ver usuarios", icon: Users, href: "/admin/usuarios", color: "text-indigo-600" },
+    { label: "Gestionar pagos", icon: CreditCard, href: "/admin/pagos", color: "text-emerald-600" },
+    { label: "Configurar IA", icon: Activity, href: "/admin/ia", color: "text-violet-600" },
+    { label: "Ver logs", icon: FileText, href: "/admin/logs", color: "text-slate-600" },
+  ];
+
+  // Mock activity data for chart
+  const activityData = [
+    { date: "Lun", registros: 3, exams: 1, corrections: 2 },
+    { date: "Mar", registros: 5, exams: 2, corrections: 4 },
+    { date: "Mié", registros: 2, exams: 3, corrections: 1 },
+    { date: "Jue", registros: 4, exams: 1, corrections: 3 },
+    { date: "Vie", registros: 6, exams: 4, corrections: 5 },
+    { date: "Sáb", registros: 1, exams: 0, corrections: 0 },
+    { date: "Dom", registros: 0, exams: 0, corrections: 0 },
+  ];
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-        <p className="text-slate-500">Panel de administración de Amautia</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Panel de Administración</h1>
+          <p className="text-slate-500">Vista general del sistema Amautia</p>
+        </div>
       </div>
 
+      {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((card) => (
-          <Card key={card.key} className="hover:shadow-md transition-shadow">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className={`h-12 w-12 rounded-xl ${card.bg} flex items-center justify-center`}>
-                  <card.icon className={`h-6 w-6 ${card.color}`} />
+        {kpis.map((kpi) => (
+          <Link key={kpi.label} href={kpi.href}>
+            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
+              <CardContent className="pt-6 pb-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm text-slate-500">{kpi.label}</p>
+                    {isLoading ? <Skeleton className="h-9 w-20 mt-1" /> : (
+                      <p className="text-3xl font-bold mt-1">{kpi.value}</p>
+                    )}
+                    <p className="text-xs text-slate-400 mt-1">{kpi.sub}</p>
+                  </div>
+                  <div className={`h-12 w-12 rounded-xl ${kpi.bg} flex items-center justify-center`}>
+                    <kpi.icon className={`h-6 w-6 ${kpi.color}`} />
+                  </div>
                 </div>
-                <div>
-                  {isLoading ? (
-                    <Skeleton className="h-8 w-16" />
-                  ) : (
-                    <p className="text-2xl font-bold text-slate-900">
-                      {card.key === "total_revenue"
-                        ? `S/ ${(stats as any)?.[card.key] || 0}`
-                        : (stats as any)?.[card.key] || 0}
-                    </p>
-                  )}
-                  <p className="text-sm text-slate-500">{card.label}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
+      {/* Charts & Quick Actions */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
           <CardHeader>
-            <div className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-indigo-600" />
-              <CardTitle>Actividad semanal</CardTitle>
-            </div>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-indigo-600" />
+              Actividad semanal
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ActivityChart data={activityData} />
           </CardContent>
         </Card>
+
         <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-emerald-600" />
-              <CardTitle>Distribución de notas</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <ScoreDistribution data={scoreData} />
+          <CardHeader><CardTitle>Acciones rápidas</CardTitle></CardHeader>
+          <CardContent className="space-y-2">
+            {quickActions.map((action) => (
+              <Link key={action.label} href={action.href}>
+                <Button variant="ghost" className="w-full justify-between h-12 group">
+                  <span className="flex items-center gap-3">
+                    <action.icon className={`h-5 w-5 ${action.color}`} />
+                    <span className="text-sm">{action.label}</span>
+                  </span>
+                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-slate-600 transition-colors" />
+                </Button>
+              </Link>
+            ))}
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader><CardTitle>Últimas inscripciones</CardTitle></CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {isLoading ? (
-                [...Array(3)].map((_, i) => <Skeleton key={i} className="h-10" />)
-              ) : (
-                <p className="text-sm text-slate-500 py-4 text-center">
-                  Los registros recientes aparecerán aquí
-                </p>
-              )}
+      {/* System health */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle className="h-5 w-5 text-emerald-600" />
+            Estado del sistema
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-50">
+              <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
+              <div>
+                <p className="text-sm font-medium text-emerald-900">API Backend</p>
+                <p className="text-xs text-emerald-700">Operativo</p>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle>Pagos pendientes</CardTitle></CardHeader>
-          <CardContent>
-            {isLoading ? <Skeleton className="h-20" /> : (
-              (stats as any)?.pending_payments === 0 ? (
-                <div className="py-4 text-center">
-                  <CheckCircle className="h-8 w-8 text-emerald-400 mx-auto mb-2" />
-                  <p className="text-sm text-slate-500">No hay pagos pendientes</p>
-                </div>
-              ) : (
-                <p className="text-sm text-orange-600 font-medium">
-                  {(stats as any)?.pending_payments} pagos esperando verificación
-                </p>
-              )
-            )}
-          </CardContent>
-        </Card>
-      </div>
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-50">
+              <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
+              <div>
+                <p className="text-sm font-medium text-emerald-900">Base de datos</p>
+                <p className="text-xs text-emerald-700">PostgreSQL activo</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-50">
+              <div className="h-3 w-3 rounded-full bg-amber-500" />
+              <div>
+                <p className="text-sm font-medium text-amber-900">Motor IA</p>
+                <p className="text-xs text-amber-700">Mock (sin API key)</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

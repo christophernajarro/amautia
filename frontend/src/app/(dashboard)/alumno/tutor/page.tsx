@@ -1,152 +1,253 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import { apiFetch } from "@/lib/api";
 import { getTokens } from "@/lib/auth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Brain, Send, Plus, MessageCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Brain, Send, Plus, MessageSquare, Sparkles, ArrowLeft, Loader2 } from "lucide-react";
+
+interface Chat {
+  id: string;
+  title: string;
+  created_at: string;
+  messages_count?: number;
+}
+
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+}
 
 export default function TutorPage() {
-  const [chats, setChats] = useState<any[]>([]);
-  const [activeChatId, setActiveChatId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<any[]>([]);
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [activeChat, setActiveChat] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(true);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const token = typeof window !== "undefined" ? getTokens().access : null;
 
   useEffect(() => {
-    const token = getTokens().access;
-    if (token) apiFetch("/alumno/tutor/chats", { token }).then((data) => setChats(data as any[]));
+    if (!token) return;
+    apiFetch<Chat[]>("/alumno/tutor/chats", { token })
+      .then(setChats)
+      .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   const loadChat = async (chatId: string) => {
-    const token = getTokens().access;
+    setActiveChat(chatId);
+    setShowSidebar(false);
     const data = await apiFetch<any>(`/alumno/tutor/chats/${chatId}`, { token: token! });
-    setActiveChatId(chatId);
     setMessages(data.messages || []);
   };
 
-  const newChat = async () => {
-    const token = getTokens().access;
+  const createChat = async () => {
     const formData = new FormData();
     formData.append("title", "Nueva conversación");
-    const resp = await fetch("http://localhost:8000/api/v1/alumno/tutor/chats", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1"}/alumno/tutor/chats`, {
       method: "POST", headers: { Authorization: `Bearer ${token}` }, body: formData,
     });
-    const data = await resp.json();
-    setActiveChatId(data.id);
+    const chat = await res.json();
+    setChats((prev) => [chat, ...prev]);
+    setActiveChat(chat.id);
     setMessages([]);
-    setChats((prev) => [{ id: data.id, title: data.title }, ...prev]);
+    setShowSidebar(false);
   };
 
   const sendMessage = async () => {
-    if (!message.trim() || !activeChatId) return;
-    const userMsg = { role: "user", content: message };
+    if (!input.trim() || !activeChat || sending) return;
+    const userMsg: Message = { id: Date.now().toString(), role: "user", content: input, created_at: new Date().toISOString() };
     setMessages((prev) => [...prev, userMsg]);
-    setMessage("");
-    setLoading(true);
+    setInput("");
+    setSending(true);
 
     try {
-      const token = getTokens().access;
       const formData = new FormData();
       formData.append("content", userMsg.content);
-      const resp = await fetch(`http://localhost:8000/api/v1/alumno/tutor/chats/${activeChatId}/message`, {
-        method: "POST", headers: { Authorization: `Bearer ${token}` }, body: formData,
-      });
-      const data = await resp.json();
-      setMessages((prev) => [...prev, { role: "assistant", content: data.content }]);
-    } catch (e) {
-      setMessages((prev) => [...prev, { role: "assistant", content: "Error al obtener respuesta." }]);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1"}/alumno/tutor/chats/${activeChat}/message`,
+        { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: formData }
+      );
+      const data = await res.json();
+      const aiMsg: Message = { id: data.id || (Date.now() + 1).toString(), role: "assistant", content: data.content || data.message || "Sin respuesta", created_at: new Date().toISOString() };
+      setMessages((prev) => [...prev, aiMsg]);
+    } catch {
+      setMessages((prev) => [...prev, { id: "err", role: "assistant", content: "Error al obtener respuesta. Intenta de nuevo.", created_at: new Date().toISOString() }]);
     }
-    setLoading(false);
+    setSending(false);
   };
 
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  const suggestions = [
+    "¿Cómo resuelvo una ecuación de segundo grado?",
+    "Explícame la fotosíntesis paso a paso",
+    "¿Cuáles son las causas de la independencia del Perú?",
+    "Ayúdame a entender las fracciones",
+  ];
 
   return (
-    <div className="flex gap-4 h-[calc(100vh-140px)]">
-      {/* Sidebar */}
-      <Card className="w-64 flex-shrink-0">
-        <CardHeader className="p-3">
-          <Button onClick={newChat} className="w-full bg-indigo-600 hover:bg-indigo-700" size="sm">
-            <Plus className="h-4 w-4 mr-2" />Nuevo chat
+    <div className="flex h-[calc(100vh-7rem)] -m-6">
+      {/* Chat list sidebar */}
+      <div className={`${showSidebar ? "flex" : "hidden"} lg:flex w-full lg:w-80 flex-col border-r bg-white`}>
+        <div className="p-4 border-b">
+          <Button onClick={createChat} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Plus className="h-4 w-4 mr-2" />Nueva conversación
           </Button>
-        </CardHeader>
-        <CardContent className="p-2">
-          <ScrollArea className="h-[calc(100vh-240px)]">
-            {chats.map((c) => (
-              <button key={c.id} onClick={() => loadChat(c.id)}
-                className={`w-full text-left p-2 rounded-lg text-sm mb-1 transition-colors ${
-                  activeChatId === c.id ? "bg-indigo-50 text-indigo-700" : "hover:bg-slate-50"}`}>
-                <MessageCircle className="h-3 w-3 inline mr-2" />{c.title}
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          {loading ? (
+            <div className="p-4 text-center text-slate-400 text-sm">Cargando chats...</div>
+          ) : chats.length === 0 ? (
+            <div className="p-8 text-center">
+              <Brain className="h-10 w-10 text-slate-200 mx-auto mb-3" />
+              <p className="text-sm text-slate-500">No tienes conversaciones</p>
+              <p className="text-xs text-slate-400 mt-1">Crea una para empezar a aprender</p>
+            </div>
+          ) : (
+            chats.map((chat) => (
+              <button
+                key={chat.id}
+                onClick={() => loadChat(chat.id)}
+                className={`w-full text-left px-4 py-3 border-b hover:bg-slate-50 transition-colors ${
+                  activeChat === chat.id ? "bg-indigo-50 border-l-2 border-l-indigo-600" : ""
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <MessageSquare className="h-4 w-4 text-slate-400 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-slate-900 truncate">{chat.title}</p>
+                    <p className="text-xs text-slate-400">
+                      {new Date(chat.created_at).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
+                    </p>
+                  </div>
+                </div>
               </button>
-            ))}
-          </ScrollArea>
-        </CardContent>
-      </Card>
+            ))
+          )}
+        </div>
+      </div>
 
       {/* Chat area */}
-      <Card className="flex-1 flex flex-col">
-        {!activeChatId ? (
-          <CardContent className="flex-1 flex flex-col items-center justify-center">
-            <Brain className="h-16 w-16 text-indigo-200 mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Tutor IA de Amautia</h3>
-            <p className="text-slate-500 text-center max-w-md mb-6">
-              Tu asistente de estudio personalizado. Pregunta sobre cualquier tema, pide explicaciones o genera ejercicios.
-            </p>
-            <Button onClick={newChat} className="bg-indigo-600 hover:bg-indigo-700">
-              <Plus className="h-4 w-4 mr-2" />Iniciar conversación
-            </Button>
-          </CardContent>
+      <div className={`${!showSidebar || !activeChat ? "flex" : "hidden"} lg:flex flex-1 flex-col bg-slate-50`}>
+        {!activeChat ? (
+          /* Welcome state */
+          <div className="flex-1 flex items-center justify-center p-6">
+            <div className="text-center max-w-lg">
+              <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Brain className="h-10 w-10 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Tutor IA</h2>
+              <p className="text-slate-500 mb-8">
+                Tu asistente personal de estudio. Pregúntame sobre cualquier tema y te ayudo a aprender paso a paso.
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {suggestions.map((s, i) => (
+                  <button
+                    key={i}
+                    onClick={async () => {
+                      await createChat();
+                      setInput(s);
+                    }}
+                    className="text-left p-4 rounded-xl border bg-white hover:border-indigo-300 hover:shadow-sm transition-all text-sm text-slate-700"
+                  >
+                    <Sparkles className="h-4 w-4 text-indigo-500 mb-2" />
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         ) : (
           <>
-            <ScrollArea className="flex-1 p-4">
-              <div className="space-y-4 max-w-2xl mx-auto">
-                {messages.map((m, i) => (
-                  <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                      m.role === "user"
-                        ? "bg-indigo-600 text-white"
-                        : "bg-slate-100 text-slate-900"}`}>
-                      <p className="text-sm whitespace-pre-wrap">{m.content}</p>
-                    </div>
+            {/* Chat header */}
+            <div className="flex items-center gap-3 px-4 py-3 border-b bg-white">
+              <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setShowSidebar(true)}>
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <Brain className="h-5 w-5 text-indigo-600" />
+              <h3 className="font-medium text-sm text-slate-900">
+                {chats.find((c) => c.id === activeChat)?.title || "Conversación"}
+              </h3>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.length === 0 && (
+                <div className="text-center py-12">
+                  <Brain className="h-12 w-12 text-slate-200 mx-auto mb-3" />
+                  <p className="text-slate-500">Escribe tu primera pregunta</p>
+                  <div className="flex flex-wrap justify-center gap-2 mt-4">
+                    {suggestions.slice(0, 2).map((s, i) => (
+                      <button key={i} onClick={() => setInput(s)}
+                        className="text-xs px-3 py-1.5 rounded-full bg-white border hover:border-indigo-300 text-slate-600">
+                        {s}
+                      </button>
+                    ))}
                   </div>
-                ))}
-                {loading && (
-                  <div className="flex justify-start">
-                    <div className="bg-slate-100 rounded-2xl px-4 py-3">
-                      <div className="flex gap-1">
-                        <div className="h-2 w-2 bg-slate-400 rounded-full animate-bounce" />
-                        <div className="h-2 w-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
-                        <div className="h-2 w-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
+                </div>
+              )}
+              {messages.map((msg) => (
+                <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                  <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                    msg.role === "user"
+                      ? "bg-indigo-600 text-white rounded-br-md"
+                      : "bg-white border shadow-sm rounded-bl-md"
+                  }`}>
+                    {msg.role === "assistant" && (
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <Brain className="h-3.5 w-3.5 text-indigo-600" />
+                        <span className="text-xs font-medium text-indigo-600">Tutor IA</span>
                       </div>
+                    )}
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                    <p className={`text-[10px] mt-1.5 ${msg.role === "user" ? "text-indigo-200" : "text-slate-400"}`}>
+                      {new Date(msg.created_at).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              {sending && (
+                <div className="flex justify-start">
+                  <div className="bg-white border shadow-sm rounded-2xl rounded-bl-md px-4 py-3">
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span className="text-sm">Pensando...</span>
                     </div>
                   </div>
-                )}
-                <div ref={scrollRef} />
-              </div>
-            </ScrollArea>
-            <div className="p-4 border-t">
-              <div className="flex gap-2 max-w-2xl mx-auto">
-                <Input placeholder="Escribe tu pregunta..." value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-                  disabled={loading} />
-                <Button onClick={sendMessage} disabled={loading || !message.trim()}
-                  className="bg-indigo-600 hover:bg-indigo-700">
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input */}
+            <div className="border-t bg-white p-4">
+              <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex gap-2">
+                <Input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Escribe tu pregunta..."
+                  disabled={sending}
+                  className="flex-1"
+                  autoFocus
+                />
+                <Button type="submit" disabled={!input.trim() || sending} className="bg-indigo-600 hover:bg-indigo-700 shrink-0">
                   <Send className="h-4 w-4" />
                 </Button>
-              </div>
+              </form>
             </div>
           </>
         )}
-      </Card>
+      </div>
     </div>
   );
 }

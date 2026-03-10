@@ -41,7 +41,8 @@ const profesorLinks = [
 
 const alumnoLinks = [
   { href: "/alumno", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/alumno/materias", label: "Materias", icon: BookOpen },
+  { href: "/alumno/unirse", label: "Unirme a clase", icon: GraduationCap },
+  { href: "/alumno/materias", label: "Mis Materias", icon: BookOpen },
   { href: "/alumno/examenes", label: "Mis Exámenes", icon: FileText },
   { href: "/alumno/calificaciones", label: "Calificaciones", icon: ClipboardList },
   { href: "/alumno/tutor", label: "Tutor IA", icon: Brain },
@@ -105,24 +106,32 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
 
       <div className="border-t border-indigo-900 p-3 space-y-1">
         <Link
-          href="/notificaciones"
+          href="/perfil"
           onClick={onClose}
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-indigo-200 hover:bg-indigo-900 hover:text-white transition-colors"
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+            pathname === "/perfil" ? "bg-indigo-800 text-white" : "text-indigo-200 hover:bg-indigo-900 hover:text-white"
+          )}
         >
-          <Bell className="h-5 w-5" />
-          Notificaciones
+          <Settings className="h-5 w-5" />
+          Mi Perfil
         </Link>
-        <Link
-          href="/suscripcion"
-          onClick={onClose}
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-indigo-200 hover:bg-indigo-900 hover:text-white transition-colors"
-        >
-          <CreditCard className="h-5 w-5" />
-          Suscripción
-        </Link>
+        {user.role !== "superadmin" && (
+          <Link
+            href="/suscripcion"
+            onClick={onClose}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+              pathname === "/suscripcion" ? "bg-indigo-800 text-white" : "text-indigo-200 hover:bg-indigo-900 hover:text-white"
+            )}
+          >
+            <CreditCard className="h-5 w-5" />
+            Suscripción
+          </Link>
+        )}
         <button
           onClick={logout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-indigo-200 hover:bg-indigo-900 hover:text-white transition-colors"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-300 hover:bg-red-900/30 hover:text-red-200 transition-colors"
         >
           <LogOut className="h-5 w-5" />
           Cerrar sesión
