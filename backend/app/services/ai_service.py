@@ -188,7 +188,19 @@ async def _stream_anthropic(prompt: str, system: str, config: dict) -> AsyncGene
 
 def _mock_response(prompt: str) -> str:
     """Generate a mock response when no AI provider is configured."""
-    if "corregir" in prompt.lower() or "correct" in prompt.lower():
+    # Check generation FIRST (before correction, since generation prompts contain "correcta")
+    if "genera" in prompt.lower() or "generate" in prompt.lower():
+        return json.dumps({
+            "title": "Examen generado",
+            "questions": [
+                {"number": 1, "text": "¿Cuál es la definición de...?", "type": "open", "answer": "La definición es...", "explanation": "Concepto fundamental del tema.", "points": 4},
+                {"number": 2, "text": "Explique el proceso de...", "type": "open", "answer": "El proceso consiste en...", "explanation": "Requiere comprensión del procedimiento.", "points": 4},
+                {"number": 3, "text": "Compare y contraste...", "type": "open", "answer": "Las similitudes son... Las diferencias son...", "explanation": "Análisis comparativo.", "points": 4},
+                {"number": 4, "text": "¿Verdadero o Falso? ...", "type": "true_false", "answer": "Verdadero", "explanation": "Según la teoría estudiada.", "points": 4},
+                {"number": 5, "text": "Resuelva el siguiente problema...", "type": "problem", "answer": "La solución es...", "explanation": "Aplicación práctica.", "points": 4},
+            ]
+        })
+    elif "corregir" in prompt.lower() or "corrige" in prompt.lower() or "correc" in prompt.lower():
         return json.dumps({
             "score": 16,
             "total": 20,
@@ -200,17 +212,6 @@ def _mock_response(prompt: str) -> str:
                 {"question": 3, "score": 2, "max": 4, "correct": False, "feedback": "Parcialmente correcto. Falta mencionar el concepto de X."},
                 {"question": 4, "score": 4, "max": 4, "correct": True, "feedback": "Perfecto."},
                 {"question": 5, "score": 2, "max": 4, "correct": False, "feedback": "La respuesta es incompleta. Se esperaba incluir Y."},
-            ]
-        })
-    elif "generar" in prompt.lower() or "generate" in prompt.lower():
-        return json.dumps({
-            "title": "Examen generado",
-            "questions": [
-                {"number": 1, "text": "¿Cuál es la definición de...?", "type": "open", "answer": "La definición es...", "points": 4},
-                {"number": 2, "text": "Explique el proceso de...", "type": "open", "answer": "El proceso consiste en...", "points": 4},
-                {"number": 3, "text": "Compare y contraste...", "type": "open", "answer": "Las similitudes son... Las diferencias son...", "points": 4},
-                {"number": 4, "text": "¿Verdadero o Falso? ...", "type": "true_false", "answer": "Verdadero", "points": 4},
-                {"number": 5, "text": "Resuelva el siguiente problema...", "type": "problem", "answer": "La solución es...", "points": 4},
             ]
         })
     elif "tutor" in prompt.lower() or "estudi" in prompt.lower():
