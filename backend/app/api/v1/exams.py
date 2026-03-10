@@ -1,6 +1,7 @@
 """Exam management: upload, correct, results, generate."""
 import uuid
 import json
+import asyncio
 from decimal import Decimal
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
@@ -218,9 +219,12 @@ async def correct_exam(exam_id: str, db: AsyncSession = Depends(get_db), user: U
     if not questions:
         raise HTTPException(400, "El examen no tiene preguntas definidas")
 
-    # Get pending student exams
+    # Get pending or stuck student exams
     student_exams = (await db.execute(
-        select(StudentExam).where(StudentExam.exam_id == exam.id, StudentExam.status == "pending")
+        select(StudentExam).where(
+            StudentExam.exam_id == exam.id,
+            StudentExam.status.in_(["pending", "correcting", "error"])
+        )
     )).scalars().all()
 
     if not student_exams:
@@ -235,7 +239,6 @@ async def correct_exam(exam_id: str, db: AsyncSession = Depends(get_db), user: U
 
     for se in student_exams:
         se.status = "correcting"
-        await db.commit()
 
         prompt = CORRECTION_PROMPT.format(
             questions=json.dumps(questions_data, ensure_ascii=False),
@@ -285,7 +288,6 @@ async def correct_exam(exam_id: str, db: AsyncSession = Depends(get_db), user: U
     await db.commit()
 
     # Notify students via email (background)
-    import asyncio
     from app.services.email_service import send_exam_corrected
     from app.models.user import User as UserModel
     for se in student_exams:
@@ -479,7 +481,6 @@ async def generate_exam(title: str = Form("Examen generado"), subject_id: str = 
     # Increment quota if successful
     if gen.status == "completed":
         from app.services.activity_service import log_exam_generated
-        import asyncio
         await increment_generations_count(user.id, 1, db)
         asyncio.create_task(log_exam_generated(user.id, str(gen.id), gen.title, db))
 

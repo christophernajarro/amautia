@@ -1,0 +1,7 @@
+EXAMEN FINAL QA
+Nombre: Juan García
+Curso: 5to A
+
+P1: La respuesta es correcta y completa.
+P2: La respuesta es casi correcta pero le falta algo.
+P3: No entiendo esta pregunta.

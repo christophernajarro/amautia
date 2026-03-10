@@ -2,9 +2,9 @@
 from app.models.user import User
 from app.models.subscription import Subscription
 from app.models.student_exam import StudentExam
-from app.models.generated_exam import GeneratedExam
+from app.models.generated_exam import GeneratedExam, GeneratedQuestion
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, and_
 from datetime import datetime, timezone
 
 
@@ -44,7 +44,14 @@ async def can_correct_exam(user_id, db: AsyncSession) -> tuple[bool, str]:
     """Check if user can correct another exam."""
     plan = await get_user_plan(user_id, db)
     if not plan:
-        return False, "No subscription active"
+        # Free tier: allow 5 corrections total for demo/trial
+        from app.models.student_exam import StudentExam
+        total = (await db.execute(
+            select(func.count(StudentExam.id)).where(StudentExam.status == "corrected")
+        )).scalar() or 0
+        if total < 5:
+            return True, f"Trial: {5 - total} corrections remaining"
+        return False, "Trial limit reached. Subscribe for more."
 
     if plan["max_corrections_month"] == -1:  # Unlimited
         return True, "OK"
@@ -60,7 +67,14 @@ async def can_generate_exam(user_id, db: AsyncSession) -> tuple[bool, str]:
     """Check if user can generate another exam."""
     plan = await get_user_plan(user_id, db)
     if not plan:
-        return False, "No subscription active"
+        # Free tier: allow 3 generations for demo/trial
+        from app.models.generated_exam import GeneratedExam
+        total = (await db.execute(
+            select(func.count(GeneratedExam.id)).where(GeneratedExam.profesor_id == user_id)
+        )).scalar() or 0
+        if total < 3:
+            return True, f"Trial: {3 - total} generations remaining"
+        return False, "Trial limit reached. Subscribe for more."
 
     if plan["max_generations_month"] == -1:  # Unlimited
         return True, "OK"

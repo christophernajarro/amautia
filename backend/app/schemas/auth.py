@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 
 class RegisterRequest(BaseModel):
     email: str
@@ -8,6 +8,27 @@ class RegisterRequest(BaseModel):
     role: str = "profesor"
     phone: str | None = None
     class_code: str | None = None  # For students joining a class
+
+    @field_validator("password")
+    @classmethod
+    def password_not_empty(cls, v: str) -> str:
+        if not v or len(v.strip()) < 6:
+            raise ValueError("La contraseña debe tener al menos 6 caracteres")
+        return v
+
+    @field_validator("email")
+    @classmethod
+    def email_valid(cls, v: str) -> str:
+        if not v or "@" not in v:
+            raise ValueError("Email inválido")
+        return v.strip().lower()
+
+    @field_validator("first_name")
+    @classmethod
+    def name_not_empty(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("El nombre es requerido")
+        return v.strip()
 
 class LoginRequest(BaseModel):
     email: str

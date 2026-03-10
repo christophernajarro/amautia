@@ -1,195 +1,194 @@
-"""Multi-provider AI service for exam correction, generation, and tutoring."""
+"""AI service: multi-provider support with streaming."""
 import json
 import re
-from typing import AsyncGenerator
+import httpx
+from typing import AsyncIterator
+from app.models.ai_provider import AIProvider, AIModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.models.ai_provider import AIProvider, AIModel
-from app.config import get_settings
-
-settings = get_settings()
 
 
-async def get_ai_config(db: AsyncSession, task: str = "correction") -> dict | None:
-    """Get the default AI model config for a task (correction/generation/tutor/vision)."""
-    field_map = {
-        "correction": "is_default_correction",
-        "generation": "is_default_generation",
-        "tutor": "is_default_tutor",
-        "vision": "is_default_vision",
-    }
-    field = field_map.get(task)
-    if not field:
-        return None
-
-    result = await db.execute(
-        select(AIModel, AIProvider)
-        .join(AIProvider, AIProvider.id == AIModel.provider_id)
-        .where(getattr(AIModel, field) == True, AIModel.is_active == True, AIProvider.is_active == True)
-        .limit(1)
-    )
-    row = result.first()
-    if not row:
-        return None
-
-    model, provider = row
-    api_key = provider.api_key_encrypted or ""
-    # Fallback to env vars
-    if not api_key:
-        if provider.slug == "openai":
-            api_key = settings.OPENAI_API_KEY
-        elif provider.slug in ("google", "gemini"):
-            api_key = settings.GOOGLE_API_KEY
-        elif provider.slug in ("anthropic", "claude"):
-            api_key = settings.ANTHROPIC_API_KEY
-
+async def get_ai_config(db: AsyncSession, purpose: str = "correction") -> dict:
+    """Get active AI provider config, fallback to mock if none configured."""
+    r = await db.execute(select(AIProvider).where(AIProvider.is_active == True))
+    provider = r.scalar_one_or_none()
+    if not provider:
+        return {"provider": "mock", "model": "mock", "api_key": None}
     return {
         "provider": provider.slug,
-        "model_id": model.model_id,
-        "api_key": api_key,
-        "max_tokens": model.max_tokens or 4096,
-        "supports_vision": model.supports_vision,
+        "model": provider.model_id,
+        "api_key": provider.api_key_encrypted,
+        "max_tokens": provider.max_tokens,
     }
 
 
-async def call_ai(prompt: str, system: str = "", config: dict | None = None,
-                   images: list[str] | None = None) -> str:
-    """Call AI provider and return text response."""
-    if not config or not config.get("api_key"):
+async def call_ai(prompt: str, config: dict = None) -> str:
+    """Call AI provider synchronously."""
+    if not config or config.get("provider") == "mock":
         return _mock_response(prompt)
-
-    provider = config["provider"]
-    if provider == "openai":
-        return await _call_openai(prompt, system, config, images)
-    elif provider in ("google", "gemini"):
-        return await _call_gemini(prompt, system, config, images)
-    elif provider in ("anthropic", "claude"):
-        return await _call_anthropic(prompt, system, config, images)
-    else:
-        return _mock_response(prompt)
+    return await _call_real_provider(prompt, config)
 
 
-async def stream_ai(prompt: str, system: str = "", config: dict | None = None) -> AsyncGenerator[str, None]:
-    """Stream AI response token by token."""
-    if not config or not config.get("api_key"):
-        for word in _mock_response(prompt).split():
+async def stream_ai(prompt: str, config: dict = None) -> AsyncIterator[str]:
+    """Call AI provider with streaming."""
+    if not config or config.get("provider") == "mock":
+        # Mock streaming
+        response = _mock_response(prompt)
+        for word in response.split():
             yield word + " "
         return
+    async for chunk in _stream_real_provider(prompt, config):
+        yield chunk
 
-    provider = config["provider"]
+
+async def _call_real_provider(prompt: str, config: dict) -> str:
+    """Call actual AI provider."""
+    provider = config.get("provider", "").lower()
     if provider == "openai":
-        async for chunk in _stream_openai(prompt, system, config):
+        return await _call_openai(prompt, config)
+    elif provider == "gemini":
+        return await _call_gemini(prompt, config)
+    elif provider == "anthropic":
+        return await _call_anthropic(prompt, config)
+    else:
+        return _mock_response(prompt)
+
+
+async def _stream_real_provider(prompt: str, config: dict) -> AsyncIterator[str]:
+    """Stream from actual AI provider."""
+    provider = config.get("provider", "").lower()
+    if provider == "openai":
+        async for chunk in _stream_openai(prompt, config):
             yield chunk
-    elif provider in ("google", "gemini"):
-        async for chunk in _stream_gemini(prompt, system, config):
-            yield chunk
-    elif provider in ("anthropic", "claude"):
-        async for chunk in _stream_anthropic(prompt, system, config):
+    elif provider == "gemini":
+        async for chunk in _stream_gemini(prompt, config):
             yield chunk
     else:
-        for word in _mock_response(prompt).split():
-            yield word + " "
+        async for chunk in _stream_mock(prompt):
+            yield chunk
 
 
-# ─── Provider Implementations ───
-
-async def _call_openai(prompt: str, system: str, config: dict, images: list[str] | None = None) -> str:
-    import httpx
-    messages = []
-    if system:
-        messages.append({"role": "system", "content": system})
-    content = [{"type": "text", "text": prompt}]
-    if images:
-        for img_url in images:
-            content.append({"type": "image_url", "image_url": {"url": img_url}})
-    messages.append({"role": "user", "content": content if images else prompt})
-
-    async with httpx.AsyncClient(timeout=120) as client:
-        resp = await client.post("https://api.openai.com/v1/chat/completions",
-            headers={"Authorization": f"Bearer {config['api_key']}"},
-            json={"model": config["model_id"], "messages": messages, "max_tokens": config["max_tokens"]})
-        data = resp.json()
-        return data["choices"][0]["message"]["content"]
+async def _call_openai(prompt: str, config: dict) -> str:
+    """Call OpenAI API."""
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers={"Authorization": f"Bearer {config.get('api_key')}"},
+            json={
+                "model": config.get("model", "gpt-4o"),
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": config.get("max_tokens", 2000),
+            },
+            timeout=30,
+        )
+        data = response.json()
+        return data.get("choices", [{}])[0].get("message", {}).get("content", "")
 
 
-async def _call_gemini(prompt: str, system: str, config: dict, images: list[str] | None = None) -> str:
-    import httpx
-    full_prompt = f"{system}\n\n{prompt}" if system else prompt
-    contents = [{"parts": [{"text": full_prompt}]}]
-
-    async with httpx.AsyncClient(timeout=120) as client:
-        resp = await client.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/{config['model_id']}:generateContent?key={config['api_key']}",
-            json={"contents": contents, "generationConfig": {"maxOutputTokens": config["max_tokens"]}})
-        data = resp.json()
-        return data["candidates"][0]["content"]["parts"][0]["text"]
-
-
-async def _call_anthropic(prompt: str, system: str, config: dict, images: list[str] | None = None) -> str:
-    import httpx
-    messages = [{"role": "user", "content": prompt}]
-    body = {"model": config["model_id"], "messages": messages, "max_tokens": config["max_tokens"]}
-    if system:
-        body["system"] = system
-
-    async with httpx.AsyncClient(timeout=120) as client:
-        resp = await client.post("https://api.anthropic.com/v1/messages",
-            headers={"x-api-key": config["api_key"], "anthropic-version": "2023-06-01", "content-type": "application/json"},
-            json=body)
-        data = resp.json()
-        return data["content"][0]["text"]
+async def _call_gemini(prompt: str, config: dict) -> str:
+    """Call Google Gemini API."""
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{config.get('model')}:generateContent",
+            params={"key": config.get("api_key")},
+            json={"contents": [{"parts": [{"text": prompt}]}]},
+            timeout=30,
+        )
+        data = response.json()
+        return data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
 
 
-async def _stream_openai(prompt: str, system: str, config: dict) -> AsyncGenerator[str, None]:
-    import httpx
-    messages = []
-    if system:
-        messages.append({"role": "system", "content": system})
-    messages.append({"role": "user", "content": prompt})
+async def _call_anthropic(prompt: str, config: dict) -> str:
+    """Call Anthropic Claude API."""
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": config.get("api_key"),
+                "anthropic-version": "2023-06-01",
+            },
+            json={
+                "model": config.get("model", "claude-opus-4-6"),
+                "max_tokens": config.get("max_tokens", 2000),
+                "messages": [{"role": "user", "content": prompt}],
+            },
+            timeout=30,
+        )
+        data = response.json()
+        return data.get("content", [{}])[0].get("text", "")
 
-    async with httpx.AsyncClient(timeout=120) as client:
-        async with client.stream("POST", "https://api.openai.com/v1/chat/completions",
-            headers={"Authorization": f"Bearer {config['api_key']}"},
-            json={"model": config["model_id"], "messages": messages, "max_tokens": config["max_tokens"], "stream": True}) as resp:
-            async for line in resp.aiter_lines():
-                if line.startswith("data: ") and line != "data: [DONE]":
-                    data = json.loads(line[6:])
-                    delta = data["choices"][0].get("delta", {}).get("content", "")
-                    if delta:
-                        yield delta
+
+async def _stream_openai(prompt: str, config: dict) -> AsyncIterator[str]:
+    """Stream from OpenAI."""
+    async with httpx.AsyncClient() as client:
+        async with client.stream(
+            "POST",
+            "https://api.openai.com/v1/chat/completions",
+            headers={"Authorization": f"Bearer {config.get('api_key')}"},
+            json={
+                "model": config.get("model", "gpt-4o"),
+                "messages": [{"role": "user", "content": prompt}],
+                "stream": True,
+                "max_tokens": config.get("max_tokens", 2000),
+            },
+            timeout=30,
+        ) as response:
+            async for line in response.aiter_lines():
+                if line.startswith("data: "):
+                    try:
+                        data = json.loads(line[6:])
+                        yield data.get("choices", [{}])[0].get("delta", {}).get("content", "")
+                    except:
+                        pass
 
 
-async def _stream_gemini(prompt: str, system: str, config: dict) -> AsyncGenerator[str, None]:
-    # Gemini streaming via REST
-    result = await _call_gemini(prompt, system, config)
-    for word in result.split():
+async def _stream_gemini(prompt: str, config: dict) -> AsyncIterator[str]:
+    """Stream from Gemini."""
+    async with httpx.AsyncClient() as client:
+        async with client.stream(
+            "POST",
+            f"https://generativelanguage.googleapis.com/v1beta/models/{config.get('model')}:streamGenerateContent",
+            params={"key": config.get("api_key")},
+            json={"contents": [{"parts": [{"text": prompt}]}]},
+            timeout=30,
+        ) as response:
+            async for line in response.aiter_lines():
+                try:
+                    data = json.loads(line)
+                    yield data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                except:
+                    pass
+
+
+async def _stream_mock(prompt: str) -> AsyncIterator[str]:
+    """Mock streaming."""
+    response = _mock_response(prompt)
+    for word in response.split():
         yield word + " "
 
 
-async def _stream_anthropic(prompt: str, system: str, config: dict) -> AsyncGenerator[str, None]:
-    import httpx
-    messages = [{"role": "user", "content": prompt}]
-    body = {"model": config["model_id"], "messages": messages, "max_tokens": config["max_tokens"], "stream": True}
-    if system:
-        body["system"] = system
-
-    async with httpx.AsyncClient(timeout=120) as client:
-        async with client.stream("POST", "https://api.anthropic.com/v1/messages",
-            headers={"x-api-key": config["api_key"], "anthropic-version": "2023-06-01", "content-type": "application/json"},
-            json=body) as resp:
-            async for line in resp.aiter_lines():
-                if line.startswith("data: "):
-                    data = json.loads(line[6:])
-                    if data.get("type") == "content_block_delta":
-                        yield data["delta"].get("text", "")
-
-
-# ─── Mock for development ───
-
 def _mock_response(prompt: str) -> str:
     """Generate a mock response when no AI provider is configured."""
-    # Check generation FIRST (before correction, since generation prompts contain "correcta")
-    if "genera" in prompt.lower() or "generate" in prompt.lower():
+    p = prompt.lower()
+    
+    # CORRECTION: Check first since "general" in correction examples triggers "genera" falsely
+    if "corrige" in p or ("correc" in p and "generar" not in p and "genera un" not in p):
+        return json.dumps({
+            "score": 16,
+            "total": 20,
+            "percentage": 80,
+            "feedback": "Buen trabajo en general. Hay algunos errores menores en las preguntas 3 y 5.",
+            "answers": [
+                {"question": 1, "score": 4, "max": 4, "correct": True, "feedback": "Respuesta correcta y bien fundamentada."},
+                {"question": 2, "score": 4, "max": 4, "correct": True, "feedback": "Excelente desarrollo del tema."},
+                {"question": 3, "score": 2, "max": 4, "correct": False, "feedback": "Parcialmente correcto. Falta mencionar el concepto X."},
+                {"question": 4, "score": 4, "max": 4, "correct": True, "feedback": "Perfecto."},
+                {"question": 5, "score": 2, "max": 4, "correct": False, "feedback": "La respuesta es incompleta. Se esperaba incluir Y."},
+            ]
+        })
+    
+    # GENERATION: Check for explicit generation keywords
+    if "generar un examen" in p or "generate" in p or ("generar" in p and "correc" not in p):
         return json.dumps({
             "title": "Examen generado",
             "questions": [
@@ -200,23 +199,13 @@ def _mock_response(prompt: str) -> str:
                 {"number": 5, "text": "Resuelva el siguiente problema...", "type": "problem", "answer": "La solución es...", "explanation": "Aplicación práctica.", "points": 4},
             ]
         })
-    elif "corregir" in prompt.lower() or "corrige" in prompt.lower() or "correc" in prompt.lower():
-        return json.dumps({
-            "score": 16,
-            "total": 20,
-            "percentage": 80,
-            "feedback": "Buen trabajo en general. Hay algunos errores menores en las preguntas 3 y 5.",
-            "answers": [
-                {"question": 1, "score": 4, "max": 4, "correct": True, "feedback": "Respuesta correcta y bien fundamentada."},
-                {"question": 2, "score": 4, "max": 4, "correct": True, "feedback": "Excelente desarrollo del tema."},
-                {"question": 3, "score": 2, "max": 4, "correct": False, "feedback": "Parcialmente correcto. Falta mencionar el concepto de X."},
-                {"question": 4, "score": 4, "max": 4, "correct": True, "feedback": "Perfecto."},
-                {"question": 5, "score": 2, "max": 4, "correct": False, "feedback": "La respuesta es incompleta. Se esperaba incluir Y."},
-            ]
-        })
-    elif "tutor" in prompt.lower() or "estudi" in prompt.lower():
+    
+    # TUTOR/STUDY
+    if "tutor" in p or "estudi" in p or "ayudar" in p:
         return "¡Claro! Te puedo ayudar con eso. Vamos paso a paso:\n\n1. Primero, es importante entender el concepto base...\n2. Luego, podemos ver cómo se aplica en la práctica...\n3. Finalmente, hagamos un ejercicio juntos.\n\n¿Por dónde quieres empezar?"
-    elif "plan" in prompt.lower():
+    
+    # STUDY PLAN
+    if "plan" in p or "estudio" in p:
         return json.dumps({
             "title": "Plan de estudio personalizado",
             "topics": [
@@ -225,8 +214,9 @@ def _mock_response(prompt: str) -> str:
                 {"name": "Análisis", "priority": "low", "exercises": 2, "description": "Desarrollar pensamiento crítico"},
             ]
         })
-    else:
-        return "Respuesta generada por el sistema. Configure un proveedor de IA para obtener respuestas reales."
+    
+    # DEFAULT
+    return "Respuesta generada por el sistema. Configure un proveedor de IA para obtener respuestas reales."
 
 
 def extract_json(text: str) -> dict | list | None:
@@ -241,21 +231,13 @@ def extract_json(text: str) -> dict | list | None:
     if match:
         try:
             return json.loads(match.group(1))
-        except json.JSONDecodeError:
+        except:
             pass
-    # Try finding { or [ blocks
-    for char, end in [('{', '}'), ('[', ']')]:
-        start = text.find(char)
-        if start != -1:
-            depth = 0
-            for i, c in enumerate(text[start:], start):
-                if c == char:
-                    depth += 1
-                elif c == end:
-                    depth -= 1
-                    if depth == 0:
-                        try:
-                            return json.loads(text[start:i+1])
-                        except json.JSONDecodeError:
-                            break
+    # Try finding JSON object
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    if match:
+        try:
+            return json.loads(match.group(0))
+        except:
+            pass
     return None

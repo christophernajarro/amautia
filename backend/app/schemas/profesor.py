@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 class SubjectResponse(BaseModel):
@@ -21,6 +21,13 @@ class SubjectCreateRequest(BaseModel):
     description: str | None = None
     color: str = "#3B82F6"
     icon: str | None = None
+
+    @field_validator("name")
+    @classmethod
+    def name_not_empty(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("El nombre de la materia es requerido")
+        return v.strip()
 
 
 class SubjectUpdateRequest(BaseModel):
