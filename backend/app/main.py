@@ -20,6 +20,12 @@ app.add_middleware(
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
+# Serve uploaded files
+from fastapi.staticfiles import StaticFiles
+import os
+os.makedirs("uploads", exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "service": "Amautia API"}

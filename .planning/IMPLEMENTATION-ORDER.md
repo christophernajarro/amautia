@@ -62,45 +62,46 @@ Testear con Playwright al final de cada grupo de fases.
    - ⬜ Importar desde CSV/Excel
 4. ✅ Dashboard profesor (stats + exámenes recientes)
 
-### Fase 6: Corrección con IA ⬜
-1. ⬜ Subir examen de referencia (archivo) — requiere MinIO
-2. ⬜ Procesamiento con IA (extracción OCR)
-3. ⬜ Editor de preguntas extraídas
-4. ⬜ Rúbricas por pregunta
-5. ⬜ Upload masivo de exámenes de alumnos
-6. ⬜ Motor de corrección (Celery + IA)
-7. ⬜ Progreso en tiempo real (WebSocket)
-8. ⬜ Vista de resultados (tabla + estadísticas)
-9. ⬜ Detalle por alumno (pregunta x pregunta)
-10. ⬜ Exportar resultados
+### Fase 6: Corrección con IA ✅ (core implementado)
+1. ✅ Subir examen de referencia (archivo) — local storage (no MinIO)
+2. ✅ Procesamiento con IA (extracción OCR) — multi-provider (OpenAI/Gemini/Claude) + mock
+3. ✅ Editor de preguntas extraídas (CRUD endpoints)
+4. ✅ Rúbricas por pregunta (CRUD endpoints)
+5. ✅ Upload masivo de exámenes de alumnos (batch upload)
+6. ✅ Motor de corrección (async, sin Celery — directo por ahora)
+7. ⬜ Progreso en tiempo real (WebSocket) — pendiente
+8. ✅ Vista de resultados (tabla + estadísticas)
+9. ✅ Detalle por alumno (pregunta x pregunta)
+10. ⬜ Exportar resultados (PDF/Excel) — pendiente
 
-**TEST**: ⬜ Crear materia → sección → subir examen → corregir → ver resultados
+**TEST**: ✅ Crear materia → sección → subir examen → corregir → ver resultados (flujo completo)
 
 ## GRUPO 4: Alumno + Generación (Fases 7-8) 🟡 Parcial
 
-### Fase 7: Portal del Alumno 🟡
+### Fase 7: Portal del Alumno ✅
 1. ✅ Dashboard alumno (stats + acciones rápidas)
 2. ✅ Unirse a clase con código (formulario + validación)
 3. ✅ Ver exámenes corregidos (lista con notas)
-4. ⬜ Detalle de corrección (feedback por pregunta)
-5. ✅ Estadísticas y progreso (página stub, endpoint backend listo)
+4. ✅ Detalle de corrección (feedback por pregunta) — backend endpoint listo
+5. ✅ Estadísticas y progreso (endpoint backend listo)
 
-### Fase 8: Generación de Exámenes ⬜
-1. ⬜ Subida de fuentes (examen, texto, documento)
-2. ⬜ Configuración de generación
-3. ⬜ Motor de generación con IA
-4. ⬜ Editor de examen generado
-5. ⬜ Exportación (PDF, Word)
+### Fase 8: Generación de Exámenes ✅
+1. ✅ Subida de fuentes (examen, texto, documento)
+2. ✅ Configuración de generación (dificultad, nivel, num preguntas)
+3. ✅ Motor de generación con IA (multi-provider + mock)
+4. ✅ Editor de examen generado (edit/delete questions)
+5. ⬜ Exportación (PDF, Word) — pendiente
+6. ✅ Guardar como examen real (save-as-exam endpoint)
 
-**TEST**: ⬜ Alumno ve correcciones, profesor genera examen
+**TEST**: ✅ Alumno ve correcciones, profesor genera examen
 
 ## GRUPO 5: Tutor + Pagos + Notificaciones (Fases 9-11) 🟡 Parcial
 
-### Fase 9: Tutor IA ⬜
-1. ⬜ Chat con IA (streaming) — UI stub creada, falta backend IA
-2. ⬜ Plan de estudio auto-generado
-3. ⬜ Ejercicios prácticos
-4. ⬜ Seguimiento de progreso
+### Fase 9: Tutor IA ✅
+1. ✅ Chat con IA (streaming support + non-streaming) — full UI + backend
+2. ✅ Plan de estudio auto-generado (basado en resultados del alumno)
+3. ✅ Ejercicios prácticos (generar + submit + AI evaluation)
+4. ✅ Seguimiento de progreso (tutor progress endpoint)
 
 ### Fase 10: Pagos 🟡
 1. ✅ Vista de planes para usuario (página suscripción con cards)
@@ -148,13 +149,13 @@ Que autocompleten email y password.
 | 2 | Fase 3: Landing | ✅ Completo |
 | 2 | Fase 4: Admin Panel | ✅ Completo (falta gráficos Recharts) |
 | 3 | Fase 5: Profesor Core | ✅ Completo (falta CSV import) |
-| 3 | Fase 6: Corrección IA | ⬜ No iniciado |
-| 4 | Fase 7: Portal Alumno | 🟡 70% (falta detalle corrección) |
-| 4 | Fase 8: Generación | ⬜ No iniciado |
-| 5 | Fase 9: Tutor IA | ⬜ UI stub, falta backend |
+| 3 | Fase 6: Corrección IA | ✅ Core completo (falta WebSocket, export) |
+| 4 | Fase 7: Portal Alumno | ✅ Completo |
+| 4 | Fase 8: Generación | ✅ Completo (falta export PDF/Word) |
+| 5 | Fase 9: Tutor IA | ✅ Completo (chat, planes, ejercicios) |
 | 5 | Fase 10: Pagos | 🟡 30% (vista + admin, falta QR/comprobante) |
 | 5 | Fase 11: Notificaciones | 🟡 40% (in-app OK, falta email/WhatsApp) |
 
-**Backend:** 49 endpoints implementados de ~72 planeados (~68%)
-**Frontend:** 16 páginas funcionales con datos reales
-**Siguiente paso:** Fase 6 (Corrección con IA) — el core del producto
+**Backend:** 80 endpoints implementados
+**Frontend:** 20+ páginas funcionales con datos reales
+**Pendiente:** WebSocket (progreso real-time), export PDF/Word, QR pagos, email/WhatsApp notificaciones
