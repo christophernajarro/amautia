@@ -246,6 +246,13 @@ async def list_exams(section_id: str | None = None, db: AsyncSession = Depends(g
 
 @router.post("/exams", response_model=ExamResponse, status_code=201)
 async def create_exam(data: ExamCreateRequest, db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
+    # Verify section exists and belongs to this profesor
+    section = (await db.execute(
+        select(Section).join(Subject, Subject.id == Section.subject_id)
+        .where(Section.id == data.section_id, Subject.profesor_id == user.id)
+    )).scalar_one_or_none()
+    if not section:
+        raise HTTPException(404, "Sección no encontrada o no te pertenece")
     exam = Exam(title=data.title, description=data.description, section_id=uuid.UUID(data.section_id),
                 profesor_id=user.id, total_points=data.total_points, grading_scale=data.grading_scale)
     db.add(exam)

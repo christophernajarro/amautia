@@ -82,7 +82,8 @@ async def send_message(chat_id: str, content: str = Form(...), stream: bool = Fo
     if stream:
         async def generate():
             full_response = ""
-            async for chunk in stream_ai(prompt, system=TUTOR_SYSTEM, config=ai_config):
+            stream_prompt = f"{TUTOR_SYSTEM}\n\n{prompt}" if TUTOR_SYSTEM else prompt
+            async for chunk in stream_ai(stream_prompt, config=ai_config):
                 full_response += chunk
                 yield f"data: {json.dumps({'text': chunk})}\n\n"
 
@@ -96,7 +97,8 @@ async def send_message(chat_id: str, content: str = Form(...), stream: bool = Fo
 
         return StreamingResponse(generate(), media_type="text/event-stream")
     else:
-        response = await call_ai(prompt, system=TUTOR_SYSTEM, config=ai_config)
+        full_prompt = f"{TUTOR_SYSTEM}\n\n{prompt}" if TUTOR_SYSTEM else prompt
+        response = await call_ai(full_prompt, config=ai_config)
         assistant_msg = TutorMessage(chat_id=chat.id, role="assistant", content=response)
         db.add(assistant_msg)
 
