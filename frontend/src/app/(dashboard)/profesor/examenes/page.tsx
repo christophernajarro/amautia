@@ -1,13 +1,14 @@
-
 "use client";
 
+import { useState, useMemo } from "react";
 import { useProfesorExams } from "@/lib/api-hooks";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
-import { Plus, FileText, Sparkles, ChevronRight, Zap, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { Plus, FileText, Sparkles, ChevronRight, Zap, CheckCircle, Clock, AlertCircle, Search } from "lucide-react";
 
 const statusConfig: Record<string, { label: string; icon: any; class: string }> = {
   draft: { label: "Borrador", icon: Clock, class: "bg-slate-100 text-slate-700" },
@@ -19,8 +20,30 @@ const statusConfig: Record<string, { label: string; icon: any; class: string }> 
   error: { label: "Error", icon: AlertCircle, class: "bg-red-100 text-red-700" },
 };
 
+const filterTabs = [
+  { key: "todos", label: "Todos" },
+  { key: "pendientes", label: "Pendientes" },
+  { key: "corregidos", label: "Corregidos" },
+  { key: "publicados", label: "Publicados" },
+];
+
 export default function ExamenesPage() {
   const { data: exams, isLoading } = useProfesorExams();
+  const [filter, setFilter] = useState("todos");
+  const [search, setSearch] = useState("");
+
+  const filteredExams = useMemo(() => {
+    if (!exams) return [];
+    let list = exams as any[];
+    if (filter === "pendientes") list = list.filter((e) => ["draft", "ready", "processing"].includes(e.status));
+    else if (filter === "corregidos") list = list.filter((e) => ["corrected", "correcting"].includes(e.status));
+    else if (filter === "publicados") list = list.filter((e) => e.status === "published");
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter((e) => e.title?.toLowerCase().includes(q));
+    }
+    return list;
+  }, [exams, filter, search]);
 
   const pending = (exams as any[])?.filter((e) => e.status === "ready" || e.status === "draft").length || 0;
   const corrected = (exams as any[])?.filter((e) => e.status === "corrected" || e.status === "published").length || 0;
@@ -44,8 +67,43 @@ export default function ExamenesPage() {
         </div>
       </div>
 
+      {/* Filter tabs + search */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex gap-1 bg-slate-100 p-1 rounded-lg">
+          {filterTabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setFilter(tab.key)}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                filter === tab.key
+                  ? "bg-white text-indigo-700 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Input
+            placeholder="Buscar examen..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+      </div>
+
       {isLoading ? (
         <div className="space-y-3">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-20" />)}</div>
+      ) : filteredExams.length === 0 && (exams?.length || 0) > 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center py-12">
+            <Search className="h-10 w-10 text-slate-300 mb-3" />
+            <p className="text-slate-500 text-sm">No se encontraron exámenes con ese filtro</p>
+          </CardContent>
+        </Card>
       ) : exams?.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center py-16">
@@ -68,7 +126,7 @@ export default function ExamenesPage() {
         </Card>
       ) : (
         <div className="space-y-2">
-          {exams?.map((exam: any) => {
+          {filteredExams.map((exam: any) => {
             const cfg = statusConfig[exam.status] || statusConfig.draft;
             const StatusIcon = cfg.icon;
             return (

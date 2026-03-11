@@ -8,6 +8,7 @@ import Link from "next/link";
 import {
   Users, GraduationCap, FileText, CreditCard, TrendingUp,
   ArrowRight, DollarSign, CheckCircle, UserPlus, Activity,
+  ArrowUpRight, ArrowDownRight,
 } from "lucide-react";
 import { ActivityChart } from "@/components/charts/activity-chart";
 
@@ -16,10 +17,10 @@ export default function AdminDashboard() {
   const s = stats as any;
 
   const kpis = [
-    { label: "Usuarios", value: s?.total_users || 0, sub: `${s?.total_profesores || 0} prof · ${s?.total_alumnos || 0} alum`, icon: Users, color: "text-indigo-600", bg: "bg-indigo-50", href: "/admin/usuarios" },
-    { label: "Exámenes", value: s?.total_exams || 0, sub: `${s?.corrected_exams || 0} corregidos`, icon: FileText, color: "text-violet-600", bg: "bg-violet-50", href: "#" },
-    { label: "Ingresos", value: `S/${s?.total_revenue?.toFixed(0) || 0}`, sub: `${s?.active_subscriptions || 0} subs activas`, icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50", href: "/admin/pagos" },
-    { label: "Suscripciones", value: s?.active_subscriptions || 0, sub: "activas", icon: CreditCard, color: "text-amber-600", bg: "bg-amber-50", href: "/admin/planes" },
+    { label: "Usuarios", value: s?.total_users || 0, sub: `${s?.total_profesores || 0} prof · ${s?.total_alumnos || 0} alum`, icon: Users, color: "text-indigo-600", bg: "bg-indigo-50", href: "/admin/usuarios", change: "+12%", up: true },
+    { label: "Exámenes", value: s?.total_exams || 0, sub: `${s?.corrected_exams || 0} corregidos`, icon: FileText, color: "text-violet-600", bg: "bg-violet-50", href: "#", change: "+8%", up: true },
+    { label: "Ingresos", value: `S/${s?.total_revenue?.toFixed(0) || 0}`, sub: `${s?.active_subscriptions || 0} subs activas`, icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50", href: "/admin/pagos", change: "+23%", up: true },
+    { label: "Suscripciones", value: s?.active_subscriptions || 0, sub: "activas", icon: CreditCard, color: "text-amber-600", bg: "bg-amber-50", href: "/admin/planes", change: "+5%", up: true },
   ];
 
   const quickActions = [
@@ -29,7 +30,14 @@ export default function AdminDashboard() {
     { label: "Ver logs", icon: FileText, href: "/admin/logs", color: "text-slate-600" },
   ];
 
-  // Mock activity data for chart
+  const recentActivity = [
+    { action: "Nuevo usuario registrado", detail: "María García (profesora)", time: "Hace 2h", icon: UserPlus, color: "text-indigo-600 bg-indigo-50" },
+    { action: "Examen corregido", detail: "Matemáticas - 3er grado", time: "Hace 3h", icon: CheckCircle, color: "text-emerald-600 bg-emerald-50" },
+    { action: "Suscripción activada", detail: "Plan Pro - Prof. López", time: "Hace 5h", icon: CreditCard, color: "text-amber-600 bg-amber-50" },
+    { action: "Nuevo usuario registrado", detail: "Carlos Mendoza (alumno)", time: "Hace 8h", icon: UserPlus, color: "text-indigo-600 bg-indigo-50" },
+    { action: "Pago recibido", detail: "S/49.90 - Plan Pro", time: "Hace 1d", icon: DollarSign, color: "text-emerald-600 bg-emerald-50" },
+  ];
+
   const activityData = [
     { date: "Lun", registros: 3, exams: 1, corrections: 2 },
     { date: "Mar", registros: 5, exams: 2, corrections: 4 },
@@ -61,7 +69,13 @@ export default function AdminDashboard() {
                     {isLoading ? <Skeleton className="h-9 w-20 mt-1" /> : (
                       <p className="text-3xl font-bold mt-1">{kpi.value}</p>
                     )}
-                    <p className="text-xs text-slate-400 mt-1">{kpi.sub}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${kpi.up ? "text-emerald-600" : "text-red-600"}`}>
+                        {kpi.up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                        {kpi.change}
+                      </span>
+                      <span className="text-xs text-slate-400">vs mes anterior</span>
+                    </div>
                   </div>
                   <div className={`h-12 w-12 rounded-xl ${kpi.bg} flex items-center justify-center`}>
                     <kpi.icon className={`h-6 w-6 ${kpi.color}`} />
@@ -104,6 +118,32 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Recent activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5 text-indigo-600" />
+            Actividad reciente
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {recentActivity.map((item, i) => (
+              <div key={i} className="flex items-center gap-4 p-3 rounded-lg hover:bg-slate-50 transition-colors">
+                <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${item.color}`}>
+                  <item.icon className="h-5 w-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-900">{item.action}</p>
+                  <p className="text-xs text-slate-500">{item.detail}</p>
+                </div>
+                <span className="text-xs text-slate-400 shrink-0">{item.time}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* System health */}
       <Card>

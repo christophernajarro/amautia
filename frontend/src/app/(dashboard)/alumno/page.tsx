@@ -1,16 +1,27 @@
 "use client";
 
 import { useAlumnoDashboard } from "@/lib/api-hooks";
+import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
-import { BookOpen, FileText, BarChart3, Brain, Trophy, Target, ArrowRight } from "lucide-react";
+import { BookOpen, FileText, BarChart3, Brain, Trophy, Target, ArrowRight, Flame } from "lucide-react";
 import { ProgressRing } from "@/components/charts/progress-ring";
+
+const motivationalPhrases = [
+  "¡Cada día aprendes algo nuevo! 🚀",
+  "¡Sigue así, vas por buen camino! 💪",
+  "El conocimiento es tu mejor herramienta 🧠",
+  "¡Hoy es un gran día para aprender! ⭐",
+];
 
 export default function AlumnoDashboard() {
   const { data: stats, isLoading } = useAlumnoDashboard();
+  const { user } = useAuth();
+
+  const phrase = motivationalPhrases[new Date().getDate() % motivationalPhrases.length];
 
   const kpis = [
     { label: "Mis materias", value: (stats as any)?.total_subjects || 0, icon: BookOpen, color: "text-indigo-600", bg: "bg-indigo-50", href: "/alumno/materias" },
@@ -23,8 +34,13 @@ export default function AlumnoDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Mi Panel</h1>
-          <p className="text-slate-500">Tu progreso de aprendizaje</p>
+          <h1 className="text-2xl font-bold text-slate-900">
+            ¡Hola, {user?.first_name || "Estudiante"}!
+          </h1>
+          <div className="flex items-center gap-2 mt-0.5">
+            <Flame className="h-4 w-4 text-amber-500" />
+            <p className="text-slate-500 text-sm">{phrase}</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <Link href="/alumno/unirse">

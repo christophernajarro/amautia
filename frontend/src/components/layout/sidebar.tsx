@@ -62,6 +62,7 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { logout } = useAuth();
   const links = getLinks(user.role);
+  const userInitials = `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
 
   const content = (
     <div className="flex h-full flex-col bg-indigo-950 text-white">
@@ -81,6 +82,7 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
       </div>
 
       <ScrollArea className="flex-1 px-3 py-4">
+        <p className="px-3 mb-2 text-[10px] font-semibold tracking-widest text-indigo-400 uppercase">Principal</p>
         <nav className="space-y-1">
           {links.map((link) => {
             const isActive = pathname === link.href || (link.href !== `/${user.role}` && link.href !== "/admin" && pathname.startsWith(link.href));
@@ -105,6 +107,7 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
       </ScrollArea>
 
       <div className="border-t border-indigo-900 p-3 space-y-1">
+        <p className="px-3 mb-2 text-[10px] font-semibold tracking-widest text-indigo-400 uppercase">Cuenta</p>
         <Link
           href="/perfil"
           onClick={onClose}
@@ -136,6 +139,17 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
           <LogOut className="h-5 w-5" />
           Cerrar sesión
         </button>
+
+        {/* User avatar footer */}
+        <div className="flex items-center gap-3 px-3 pt-3 mt-2 border-t border-indigo-900">
+          <div className="h-8 w-8 rounded-full bg-indigo-700 flex items-center justify-center text-xs font-bold text-white shrink-0">
+            {userInitials}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-white truncate">{user.first_name} {user.last_name}</p>
+            <p className="text-[11px] text-indigo-400 truncate">{user.email}</p>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -147,15 +161,22 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
         {content}
       </div>
 
-      {/* Mobile sidebar */}
-      {open && (
-        <>
-          <div className="fixed inset-0 z-50 bg-black/50 lg:hidden" onClick={onClose} />
-          <div className="fixed inset-y-0 left-0 z-50 w-64 lg:hidden">
-            {content}
-          </div>
-        </>
-      )}
+      {/* Mobile sidebar with smooth transition */}
+      <div
+        className={cn(
+          "fixed inset-0 z-50 bg-black/50 lg:hidden transition-opacity duration-300",
+          open ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+        onClick={onClose}
+      />
+      <div
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 w-64 lg:hidden transition-transform duration-300 ease-in-out",
+          open ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        {content}
+      </div>
     </>
   );
 }

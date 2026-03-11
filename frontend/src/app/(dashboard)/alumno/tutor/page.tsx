@@ -6,7 +6,7 @@ import { getTokens } from "@/lib/auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Brain, Send, Plus, MessageSquare, Sparkles, ArrowLeft, Loader2 } from "lucide-react";
+import { Brain, Send, Plus, MessageSquare, Sparkles, ArrowLeft, Copy, Check } from "lucide-react";
 
 interface Chat {
   id: string;
@@ -20,6 +20,52 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   created_at: string;
+}
+
+function renderMarkdown(text: string) {
+  const parts: React.ReactNode[] = [];
+  const lines = text.split("\n");
+  let key = 0;
+
+  for (const line of lines) {
+    if (parts.length > 0) parts.push(<br key={`br-${key++}`} />);
+    // Process inline formatting
+    const regex = /(\*\*(.+?)\*\*|`(.+?)`)/g;
+    let lastIndex = 0;
+    let match;
+    const lineNodes: React.ReactNode[] = [];
+
+    while ((match = regex.exec(line)) !== null) {
+      if (match.index > lastIndex) {
+        lineNodes.push(line.slice(lastIndex, match.index));
+      }
+      if (match[2]) {
+        lineNodes.push(<strong key={`b-${key++}`} className="font-semibold">{match[2]}</strong>);
+      } else if (match[3]) {
+        lineNodes.push(<code key={`c-${key++}`} className="bg-slate-100 text-indigo-700 px-1.5 py-0.5 rounded text-xs font-mono">{match[3]}</code>);
+      }
+      lastIndex = match.index + match[0].length;
+    }
+    if (lastIndex < line.length) {
+      lineNodes.push(line.slice(lastIndex));
+    }
+    parts.push(...lineNodes);
+  }
+  return parts;
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button onClick={handleCopy} className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-slate-600 p-1">
+      {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+    </button>
+  );
 }
 
 export default function TutorPage() {
@@ -140,7 +186,6 @@ export default function TutorPage() {
       {/* Chat area */}
       <div className={`${!showSidebar || !activeChat ? "flex" : "hidden"} lg:flex flex-1 flex-col bg-slate-50`}>
         {!activeChat ? (
-          /* Welcome state */
           <div className="flex-1 flex items-center justify-center p-6">
             <div className="text-center max-w-lg">
               <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center mx-auto mb-6 shadow-lg">
@@ -169,7 +214,6 @@ export default function TutorPage() {
           </div>
         ) : (
           <>
-            {/* Chat header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b bg-white">
               <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setShowSidebar(true)}>
                 <ArrowLeft className="h-4 w-4" />
@@ -180,7 +224,6 @@ export default function TutorPage() {
               </h3>
             </div>
 
-            {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.length === 0 && (
                 <div className="text-center py-12">
@@ -198,18 +241,23 @@ export default function TutorPage() {
               )}
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                  <div className={`max-w-[80%] rounded-2xl px-4 py-3 group relative ${
                     msg.role === "user"
                       ? "bg-indigo-600 text-white rounded-br-md"
                       : "bg-white border shadow-sm rounded-bl-md"
                   }`}>
                     {msg.role === "assistant" && (
-                      <div className="flex items-center gap-1.5 mb-1.5">
-                        <Brain className="h-3.5 w-3.5 text-indigo-600" />
-                        <span className="text-xs font-medium text-indigo-600">Tutor IA</span>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <Brain className="h-3.5 w-3.5 text-indigo-600" />
+                          <span className="text-xs font-medium text-indigo-600">Tutor IA</span>
+                        </div>
+                        <CopyButton text={msg.content} />
                       </div>
                     )}
-                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                    <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                      {msg.role === "assistant" ? renderMarkdown(msg.content) : msg.content}
+                    </div>
                     <p className={`text-[10px] mt-1.5 ${msg.role === "user" ? "text-indigo-200" : "text-slate-400"}`}>
                       {new Date(msg.created_at).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}
                     </p>
@@ -219,9 +267,14 @@ export default function TutorPage() {
               {sending && (
                 <div className="flex justify-start">
                   <div className="bg-white border shadow-sm rounded-2xl rounded-bl-md px-4 py-3">
-                    <div className="flex items-center gap-2 text-slate-400">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span className="text-sm">Pensando...</span>
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <Brain className="h-3.5 w-3.5 text-indigo-600" />
+                      <span className="text-xs font-medium text-indigo-600">Tutor IA</span>
+                    </div>
+                    <div className="flex items-center gap-1 py-1">
+                      <span className="typing-dot h-2 w-2 rounded-full bg-indigo-400" />
+                      <span className="typing-dot h-2 w-2 rounded-full bg-indigo-400" />
+                      <span className="typing-dot h-2 w-2 rounded-full bg-indigo-400" />
                     </div>
                   </div>
                 </div>
@@ -229,7 +282,6 @@ export default function TutorPage() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
             <div className="border-t bg-white p-4">
               <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex gap-2">
                 <Input

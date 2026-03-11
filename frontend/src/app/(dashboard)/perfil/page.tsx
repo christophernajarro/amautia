@@ -11,6 +11,19 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User, Mail, Phone, Shield, Save, CheckCircle } from "lucide-react";
 
+function getPasswordStrength(pw: string): { label: string; color: string; width: string } {
+  if (!pw) return { label: "", color: "", width: "w-0" };
+  let score = 0;
+  if (pw.length >= 6) score++;
+  if (pw.length >= 10) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  if (score <= 2) return { label: "Débil", color: "bg-red-500", width: "w-1/3" };
+  if (score <= 3) return { label: "Media", color: "bg-amber-500", width: "w-2/3" };
+  return { label: "Fuerte", color: "bg-emerald-500", width: "w-full" };
+}
+
 export default function PerfilPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -18,6 +31,8 @@ export default function PerfilPage() {
   const [saved, setSaved] = useState(false);
   const [form, setForm] = useState({ first_name: "", last_name: "", phone: "" });
   const [passwordForm, setPasswordForm] = useState({ current: "", new_password: "", confirm: "" });
+
+  const strength = getPasswordStrength(passwordForm.new_password);
 
   useEffect(() => {
     const token = getTokens().access;
@@ -52,6 +67,14 @@ export default function PerfilPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      {/* Save success banner */}
+      {saved && (
+        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg text-sm font-medium animate-in fade-in slide-in-from-top-2 duration-300">
+          <CheckCircle className="h-4 w-4" />
+          Cambios guardados correctamente
+        </div>
+      )}
+
       <div>
         <h1 className="text-2xl font-bold">Mi Perfil</h1>
         <p className="text-slate-500">Administra tu información personal</p>
@@ -102,9 +125,7 @@ export default function PerfilPage() {
             </div>
           </div>
           <Button onClick={handleSave} disabled={saving} className="bg-indigo-600 hover:bg-indigo-700">
-            {saved ? (
-              <><CheckCircle className="h-4 w-4 mr-2" />Guardado</>
-            ) : saving ? "Guardando..." : (
+            {saving ? "Guardando..." : (
               <><Save className="h-4 w-4 mr-2" />Guardar cambios</>
             )}
           </Button>
@@ -131,6 +152,17 @@ export default function PerfilPage() {
                 onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })} />
             </div>
           </div>
+          {/* Password strength indicator */}
+          {passwordForm.new_password && (
+            <div className="space-y-1">
+              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div className={`h-full ${strength.color} ${strength.width} rounded-full transition-all duration-300`} />
+              </div>
+              <p className={`text-xs ${strength.color === "bg-red-500" ? "text-red-600" : strength.color === "bg-amber-500" ? "text-amber-600" : "text-emerald-600"}`}>
+                Seguridad: {strength.label}
+              </p>
+            </div>
+          )}
           <Button variant="outline" disabled={!passwordForm.current || !passwordForm.new_password || passwordForm.new_password !== passwordForm.confirm}>
             <Shield className="h-4 w-4 mr-2" />Cambiar contraseña
           </Button>

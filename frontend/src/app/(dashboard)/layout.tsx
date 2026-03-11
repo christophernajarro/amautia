@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { ROLE_ROUTES } from "@/lib/constants";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Navbar } from "@/components/layout/navbar";
+import { Breadcrumb } from "@/components/layout/breadcrumb";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -38,6 +39,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="lg:pl-64">
         <Navbar user={user} onMenuClick={() => setSidebarOpen(true)} />
         <main className="p-6">
+          <Breadcrumb />
           {children}
         </main>
       </div>
