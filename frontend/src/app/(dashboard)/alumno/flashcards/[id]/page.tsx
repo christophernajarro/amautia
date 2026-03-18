@@ -151,7 +151,7 @@ export default function FlashcardStudyPage() {
                 style={{ backfaceVisibility: "hidden" }}
               >
                 <div className="text-center">
-                  <Badge className="mb-3 bg-indigo-100 text-indigo-700">Frente</Badge>
+                  <Badge className="mb-3 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">Frente</Badge>
                   <p className="text-xl font-medium text-slate-900 dark:text-slate-100">{currentCard.front}</p>
                 </div>
               </div>
@@ -161,7 +161,7 @@ export default function FlashcardStudyPage() {
                 style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
               >
                 <div className="text-center">
-                  <Badge className="mb-3 bg-emerald-100 text-emerald-700">Reverso</Badge>
+                  <Badge className="mb-3 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">Reverso</Badge>
                   <p className="text-xl font-medium text-slate-900 dark:text-slate-100">{currentCard.back}</p>
                 </div>
               </div>

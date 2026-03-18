@@ -191,11 +191,11 @@ export default function AlumnoQuizEnVivoPage() {
   return (
     <div className="space-y-6 max-w-lg mx-auto">
       <div className="flex items-center justify-between">
-        <Badge className="bg-indigo-100 text-indigo-700">
+        <Badge className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300">
           Pregunta {(quiz?.current_question_index || 0) + 1} de {quiz?.total_questions || "?"}
         </Badge>
         {timeLeft != null && (
-          <Badge className={`${timeLeft <= 5 ? "bg-red-100 text-red-700 animate-pulse" : "bg-slate-100 text-slate-700"}`}>
+          <Badge className={`${timeLeft <= 5 ? "bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 animate-pulse" : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"}`}>
             <Timer className="h-3 w-3 mr-1" />{timeLeft}s
           </Badge>
         )}

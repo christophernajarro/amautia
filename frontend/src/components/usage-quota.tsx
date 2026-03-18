@@ -35,7 +35,7 @@ export function UsageQuota() {
   const generationsAlertColor = generationsPercent > 80 ? "bg-red-500" : generationsPercent > 50 ? "bg-amber-500" : "bg-emerald-500";
 
   return (
-    <Card className="bg-gradient-to-r from-slate-50 to-white">
+    <Card className="bg-gradient-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-800/50">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm">Plan: {usage.plan}</CardTitle>
@@ -51,12 +51,12 @@ export function UsageQuota() {
         {/* Corrections */}
         <div>
           <div className="flex items-center justify-between text-xs mb-1">
-            <span className="text-slate-600">Correcciones</span>
-            <span className="font-mono text-slate-500">
+            <span className="text-slate-600 dark:text-slate-300">Correcciones</span>
+            <span className="font-mono text-slate-500 dark:text-slate-400">
               {usage.corrections.used} / {usage.corrections.unlimited ? "∞" : usage.corrections.limit}
             </span>
           </div>
-          <div className="w-full bg-slate-200 rounded-full h-2">
+          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
             <div className={`h-2 rounded-full transition-all ${correctionsAlertColor}`}
               style={{ width: `${correctionsPercent}%` }} />
           </div>
@@ -65,19 +65,19 @@ export function UsageQuota() {
         {/* Generations */}
         <div>
           <div className="flex items-center justify-between text-xs mb-1">
-            <span className="text-slate-600">Generaciones</span>
-            <span className="font-mono text-slate-500">
+            <span className="text-slate-600 dark:text-slate-300">Generaciones</span>
+            <span className="font-mono text-slate-500 dark:text-slate-400">
               {usage.generations.used} / {usage.generations.unlimited ? "∞" : usage.generations.limit}
             </span>
           </div>
-          <div className="w-full bg-slate-200 rounded-full h-2">
+          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
             <div className={`h-2 rounded-full transition-all ${generationsAlertColor}`}
               style={{ width: `${generationsPercent}%` }} />
           </div>
         </div>
 
         {/* Expires */}
-        <div className="text-xs text-slate-500 pt-1 border-t">
+        <div className="text-xs text-slate-500 dark:text-slate-400 pt-1 border-t">
           {usage.expires_at && (
             <>
               Vence:{" "}

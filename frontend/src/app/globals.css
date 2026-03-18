@@ -121,11 +121,19 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground text-[15px] leading-relaxed;
   }
   html {
     @apply font-sans scroll-smooth;
+    font-size: 16px;
   }
+  /* Minimum touch target for accessibility */
+  main button, main [role="button"] {
+    min-height: 36px;
+  }
+  /* Make small text more readable */
+  .text-xs { font-size: 0.8125rem !important; /* 13px instead of 12px */ }
+  .text-sm { font-size: 0.9375rem !important; /* 15px instead of 14px */ }
 }
 
 /* ─── Amautia custom animations ─── */

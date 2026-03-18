@@ -160,7 +160,7 @@ export default function GamificacionPage() {
                         {new Date(entry.created_at).toLocaleDateString("es-PE", { day: "numeric", month: "short" })}
                       </p>
                     </div>
-                    <Badge className="bg-emerald-100 text-emerald-700">+{entry.points}</Badge>
+                    <Badge className="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">+{entry.points}</Badge>
                   </div>
                 ))}
               </div>

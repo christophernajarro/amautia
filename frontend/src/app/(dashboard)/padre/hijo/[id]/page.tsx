@@ -157,9 +157,9 @@ export default function ChildDetailPage() {
                       </div>
                     </div>
                     <Badge className={
-                      (subj.average || 0) >= 14 ? "bg-emerald-100 text-emerald-700" :
-                      (subj.average || 0) >= 11 ? "bg-amber-100 text-amber-700" :
-                      "bg-red-100 text-red-700"
+                      (subj.average || 0) >= 14 ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300" :
+                      (subj.average || 0) >= 11 ? "bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300" :
+                      "bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300"
                     }>
                       {subj.average?.toFixed(1) || "-"}
                     </Badge>
@@ -200,9 +200,9 @@ export default function ChildDetailPage() {
                     <TableCell className="text-slate-500 dark:text-slate-400">{exam.subject_name || "-"}</TableCell>
                     <TableCell className="text-center">
                       <Badge className={
-                        (exam.score || 0) >= 14 ? "bg-emerald-100 text-emerald-700" :
-                        (exam.score || 0) >= 11 ? "bg-amber-100 text-amber-700" :
-                        "bg-red-100 text-red-700"
+                        (exam.score || 0) >= 14 ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300" :
+                        (exam.score || 0) >= 11 ? "bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300" :
+                        "bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300"
                       }>
                         {exam.score ?? "-"}
                       </Badge>

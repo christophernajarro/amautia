@@ -240,10 +240,10 @@ export default function IAConfigPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
-                          {m.is_default_correction && <Badge className="text-xs bg-emerald-100 text-emerald-700">Correccion</Badge>}
-                          {m.is_default_generation && <Badge className="text-xs bg-blue-100 text-blue-700">Generacion</Badge>}
-                          {m.is_default_tutor && <Badge className="text-xs bg-purple-100 text-purple-700">Tutor</Badge>}
-                          {m.is_default_vision && <Badge className="text-xs bg-amber-100 text-amber-700">Vision</Badge>}
+                          {m.is_default_correction && <Badge className="text-xs bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">Corrección</Badge>}
+                          {m.is_default_generation && <Badge className="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">Generación</Badge>}
+                          {m.is_default_tutor && <Badge className="text-xs bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300">Tutor</Badge>}
+                          {m.is_default_vision && <Badge className="text-xs bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">Visión</Badge>}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -301,7 +301,7 @@ export default function IAConfigPage() {
           <DialogHeader><DialogTitle>Editar proveedor: {editingProvider?.name}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div><Label>Nombre</Label><Input value={providerForm.name} onChange={(e) => setProviderForm({ ...providerForm, name: e.target.value })} /></div>
-            <div><Label>Slug (no editable)</Label><Input value={providerForm.slug} disabled className="bg-slate-50" /></div>
+            <div><Label>Slug (no editable)</Label><Input value={providerForm.slug} disabled className="bg-slate-50 dark:bg-slate-800" /></div>
             <div><Label>API Key (dejar vacio para no cambiar)</Label><Input type="password" placeholder="Nueva API key..." value={providerForm.api_key} onChange={(e) => setProviderForm({ ...providerForm, api_key: e.target.value })} /></div>
             <div className="flex items-center gap-2">
               <Switch checked={providerForm.is_active} onCheckedChange={(checked) => setProviderForm({ ...providerForm, is_active: checked })} />
@@ -401,10 +401,10 @@ export default function IAConfigPage() {
           </p>
           <div className="grid grid-cols-2 gap-3 mt-4">
             {[
-              { task: "correction", label: "Correccion", color: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100" },
-              { task: "generation", label: "Generacion", color: "bg-blue-50 text-blue-700 hover:bg-blue-100" },
-              { task: "tutor", label: "Tutor", color: "bg-purple-50 text-purple-700 hover:bg-purple-100" },
-              { task: "vision", label: "Vision", color: "bg-amber-50 text-amber-700 hover:bg-amber-100" },
+              { task: "correction", label: "Corrección", color: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/50" },
+              { task: "generation", label: "Generación", color: "bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50" },
+              { task: "tutor", label: "Tutor", color: "bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50" },
+              { task: "vision", label: "Visión", color: "bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50" },
             ].map(({ task, label, color }) => (
               <Button key={task} variant="outline" className={color}
                 disabled={setDefaultModel.isPending}

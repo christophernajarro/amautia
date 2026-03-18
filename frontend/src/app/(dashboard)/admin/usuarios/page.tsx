@@ -18,9 +18,10 @@ import { ROLE_LABELS } from "@/lib/constants";
 import { toast } from "sonner";
 
 const roleBadge: Record<string, string> = {
-  superadmin: "bg-red-100 text-red-700",
-  profesor: "bg-blue-100 text-blue-700",
-  alumno: "bg-green-100 text-green-700",
+  superadmin: "bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300",
+  profesor: "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300",
+  alumno: "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300",
+  padre: "bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300",
 };
 
 export default function UsuariosPage() {

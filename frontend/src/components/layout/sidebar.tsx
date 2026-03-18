@@ -33,22 +33,22 @@ const adminLinks = [
 ];
 
 const profesorLinks = [
-  { href: "/profesor", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/profesor/materias", label: "Materias", icon: BookOpen },
-  { href: "/profesor/alumnos", label: "Alumnos", icon: Users },
-  { href: "/profesor/alumnos/importar", label: "Importar CSV", icon: UploadCloud },
+  { href: "/profesor", label: "Inicio", icon: LayoutDashboard },
+  { href: "/profesor/materias", label: "Materias y Alumnos", icon: BookOpen },
   { href: "/profesor/examenes", label: "Exámenes", icon: FileText },
-  { href: "/profesor/generar", label: "Generar Examen", icon: Sparkles },
-  { href: "/profesor/banco-preguntas", label: "Banco Preguntas", icon: Database },
+  { href: "/profesor/generar", label: "Generar con IA", icon: Sparkles },
+  { href: "/profesor/banco-preguntas", label: "Banco de Preguntas", icon: Database },
+  { type: "separator" as const, label: "Aula" },
   { href: "/profesor/quiz-en-vivo", label: "Quiz en Vivo", icon: Zap },
   { href: "/profesor/calificaciones", label: "Calificaciones", icon: ClipboardList },
-  { href: "/profesor/evaluacion-pares", label: "Evaluación Pares", icon: ClipboardCheck },
-  { href: "/profesor/plagio", label: "Plagio", icon: ShieldAlert },
-  { href: "/profesor/analiticas", label: "Analíticas", icon: BarChart3 },
   { href: "/profesor/mensajes", label: "Mensajes", icon: MessageCircle },
-  { href: "/profesor/certificados", label: "Certificados", icon: Award },
+  { type: "separator" as const, label: "Análisis" },
   { href: "/profesor/estadisticas", label: "Estadísticas", icon: BarChart3 },
-];
+  { href: "/profesor/analiticas", label: "Analíticas Avanzadas", icon: BarChart3 },
+  { href: "/profesor/plagio", label: "Plagio", icon: ShieldAlert },
+  { href: "/profesor/evaluacion-pares", label: "Evaluación por Pares", icon: ClipboardCheck },
+  { href: "/profesor/certificados", label: "Certificados", icon: Award },
+] as const;
 
 const alumnoLinks = [
   { href: "/alumno", label: "Dashboard", icon: LayoutDashboard },
@@ -104,7 +104,14 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
       {/* Navigation */}
       <ScrollArea className="flex-1 px-3 py-3">
         <nav className="space-y-0.5">
-          {links.map((link) => {
+          {links.map((link: any, i: number) => {
+            if (link.type === "separator") {
+              return (
+                <div key={`sep-${i}`} className="pt-4 pb-1.5 px-3">
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-white/20">{link.label}</span>
+                </div>
+              );
+            }
             const isActive = pathname === link.href || (link.href !== `/${user.role}` && link.href !== "/admin" && pathname.startsWith(link.href));
             return (
               <Link
@@ -112,13 +119,13 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
                 href={link.href}
                 onClick={onClose}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150",
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[14px] font-medium transition-all duration-150",
                   isActive
                     ? "bg-amber-500/10 text-amber-300 border border-amber-500/15"
                     : "text-white/40 hover:bg-white/[0.04] hover:text-white/70 border border-transparent"
                 )}
               >
-                <link.icon className={cn("h-4 w-4", isActive ? "text-amber-400" : "")} />
+                <link.icon className={cn("h-[18px] w-[18px]", isActive ? "text-amber-400" : "")} />
                 {link.label}
               </Link>
             );

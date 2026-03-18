@@ -123,7 +123,7 @@ export default function LTIPage() {
                     <TableCell className="text-sm font-mono text-slate-500 max-w-xs truncate">{reg.issuer}</TableCell>
                     <TableCell className="text-sm font-mono text-slate-500">{reg.client_id}</TableCell>
                     <TableCell className="text-center">
-                      <Badge className={reg.is_active ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-700"}>
+                      <Badge className={reg.is_active ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300" : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"}>
                         {reg.is_active ? "Activo" : "Inactivo"}
                       </Badge>
                     </TableCell>
