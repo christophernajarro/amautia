@@ -49,6 +49,16 @@ async def request_payment(data: PaymentRequest, db: AsyncSession = Depends(get_d
     plan = (await db.execute(select(Plan).where(Plan.id == data.plan_id))).scalar_one_or_none()
     if not plan:
         raise HTTPException(404, "Plan no encontrado")
+    # Check for existing pending payment for the same plan
+    existing_pending = (await db.execute(
+        select(Payment).where(
+            Payment.user_id == user.id,
+            Payment.plan_id == plan.id,
+            Payment.status == "pending",
+        )
+    )).scalar_one_or_none()
+    if existing_pending:
+        raise HTTPException(400, "Ya tienes un pago pendiente para este plan")
     payment = Payment(user_id=user.id, plan_id=plan.id, amount=plan.price_monthly,
                       method=data.method, reference_code=data.reference_code)
     db.add(payment)
@@ -62,12 +72,19 @@ async def request_payment(data: PaymentRequest, db: AsyncSession = Depends(get_d
 
 @router.get("/my-payments", response_model=list[PaymentResponse])
 async def my_payments(db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
-    result = await db.execute(select(Payment).where(Payment.user_id == user.id).order_by(desc(Payment.created_at)))
-    payments = result.scalars().all()
+    result = await db.execute(
+        select(Payment, User.email, Plan.name)
+        .join(User, User.id == Payment.user_id)
+        .join(Plan, Plan.id == Payment.plan_id)
+        .where(Payment.user_id == user.id)
+        .order_by(desc(Payment.created_at))
+    )
+    rows = result.all()
     return [PaymentResponse(id=str(p.id), user_id=str(p.user_id), plan_id=str(p.plan_id),
+            user_email=email, plan_name=plan_name,
             amount=float(p.amount), currency=p.currency, method=p.method, receipt_url=p.receipt_url,
             reference_code=p.reference_code, status=p.status, rejection_reason=p.rejection_reason,
-            created_at=p.created_at.isoformat()) for p in payments]
+            created_at=p.created_at.isoformat()) for p, email, plan_name in rows]
 
 
 @router.get("/my-subscription", response_model=SubscriptionResponse)
@@ -97,11 +114,15 @@ async def upload_receipt(plan_id: str = Form(...), amount: float = Form(...),
     if not plan:
         # Try by ID
         plan = (await db.execute(select(Plan).where(Plan.id == plan_id))).scalar_one_or_none()
-    
+    if not plan:
+        raise HTTPException(404, "Plan no encontrado")
+    if amount <= 0:
+        raise HTTPException(400, "El monto debe ser mayor a 0")
+
     receipt_url = await save_file(file, f"receipts/{str(user.id)}")
     
     payment = Payment(
-        user_id=user.id, plan_id=plan.id if plan else None,
+        user_id=user.id, plan_id=plan.id,
         amount=Decimal(str(amount)), method=payment_method,
         receipt_url=receipt_url, status="pending",
     )

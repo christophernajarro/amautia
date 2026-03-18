@@ -20,8 +20,17 @@ export default function ExamenDetailPage() {
   useEffect(() => {
     const token = getTokens().access;
     if (token && id) {
-      apiFetch(`/student-exams/${id}`, { token }).then((d) => {
-        setDetail(d);
+      apiFetch<any>(`/alumno/exams/${id}/resultado`, { token }).then((d) => {
+        // Map backend response to the shape the UI expects
+        setDetail({
+          ...d,
+          feedback: d.general_feedback,
+          status: "corrected",
+          answers: (d.answers || []).map((a: any) => ({
+            ...a,
+            correct: a.is_correct,
+          })),
+        });
         setLoading(false);
       }).catch(() => setLoading(false));
     }
@@ -37,7 +46,7 @@ export default function ExamenDetailPage() {
 
   if (!detail) return (
     <div className="text-center py-12">
-      <p className="text-slate-500">Examen no encontrado</p>
+      <p className="text-slate-500 dark:text-slate-400">Examen no encontrado</p>
       <Link href="/alumno/examenes"><Button variant="link">Volver</Button></Link>
     </div>
   );
@@ -70,12 +79,12 @@ export default function ExamenDetailPage() {
             />
             <div className="flex-1 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Puntaje obtenido</span>
+                <span className="text-slate-500 dark:text-slate-400">Puntaje obtenido</span>
                 <strong>{detail.total_score ?? "—"} pts</strong>
               </div>
               {detail.corrected_at && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500">Corregido el</span>
+                  <span className="text-slate-500 dark:text-slate-400">Corregido el</span>
                   <span>{new Date(detail.corrected_at).toLocaleDateString("es-PE")}</span>
                 </div>
               )}
@@ -88,14 +97,14 @@ export default function ExamenDetailPage() {
             </div>
           </div>
           {detail.feedback && (
-            <div className="mt-4 p-3 bg-slate-50 rounded-lg">
-              <p className="text-sm text-slate-600"><strong>Retroalimentación general:</strong> {detail.feedback}</p>
+            <div className="mt-4 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+              <p className="text-sm text-slate-600 dark:text-slate-300"><strong>Retroalimentación general:</strong> {detail.feedback}</p>
             </div>
           )}
           {detail.profesor_notes && (
-            <div className="mt-3 p-3 bg-indigo-50 rounded-lg flex gap-2">
-              <MessageSquare className="h-4 w-4 text-indigo-600 mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-indigo-800"><strong>Nota del profesor:</strong> {detail.profesor_notes}</p>
+            <div className="mt-3 p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg flex gap-2">
+              <MessageSquare className="h-4 w-4 text-indigo-600 dark:text-indigo-400 mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-indigo-800 dark:text-indigo-300"><strong>Nota del profesor:</strong> {detail.profesor_notes}</p>
             </div>
           )}
         </CardContent>
@@ -123,14 +132,14 @@ export default function ExamenDetailPage() {
                       )}
                     </div>
                     {ans.feedback && (
-                      <p className="text-sm text-slate-600 ml-6">{ans.feedback}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 ml-6">{ans.feedback}</p>
                     )}
                     {ans.suggestion && (
-                      <p className="text-xs text-indigo-600 ml-6 mt-1">💡 {ans.suggestion}</p>
+                      <p className="text-xs text-indigo-600 dark:text-indigo-400 ml-6 mt-1">{ans.suggestion}</p>
                     )}
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <span className={`text-lg font-bold ${ans.correct ? "text-emerald-600" : "text-red-600"}`}>
+                    <span className={`text-lg font-bold ${ans.correct ? "text-emerald-600" : "text-red-600 dark:text-red-400"}`}>
                       {ans.score ?? 0}
                     </span>
                     <span className="text-slate-400 text-sm">/{ans.max_score ?? "—"}</span>

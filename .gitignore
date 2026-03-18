@@ -11,9 +11,12 @@ out/
 
 # Environment
 .env
+.env.*
 .env.local
 .env.*.local
 backend/.env
+frontend/.env.local
+*.env.prod
 
 # IDE
 .vscode/
@@ -37,3 +40,14 @@ build/
 
 # Misc
 *.log
+
+# Test screenshots
+test-screenshots/
+*.png
+!frontend/public/icons/*.png
+
+# Playwright
+.playwright-mcp/
+
+# Uploaded files
+backend/uploads/exams/

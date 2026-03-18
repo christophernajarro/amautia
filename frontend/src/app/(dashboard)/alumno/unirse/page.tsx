@@ -40,7 +40,7 @@ export default function UnirsePage() {
 
         <CardContent className="p-6 space-y-5">
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">Código de clase</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Código de clase</label>
             <Input
               placeholder="Ej: A1B2C3D4"
               value={code}
@@ -52,13 +52,13 @@ export default function UnirsePage() {
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 text-center">
+            <div className="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-400 text-center">
               {error}
             </div>
           )}
 
           {success ? (
-            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl text-center">
               <CheckCircle className="h-10 w-10 text-emerald-600 mx-auto mb-2" />
               <p className="font-semibold text-emerald-900">¡Te uniste exitosamente!</p>
               <p className="text-sm text-emerald-700 mt-1">
@@ -85,21 +85,21 @@ export default function UnirsePage() {
       {/* Help section */}
       <Card>
         <CardContent className="p-5">
-          <h3 className="font-medium text-slate-900 mb-3 flex items-center gap-2">
+          <h3 className="font-medium text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2">
             <Keyboard className="h-4 w-4 text-slate-400" />
             ¿Cómo obtener el código?
           </h3>
-          <ol className="space-y-3 text-sm text-slate-600">
+          <ol className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
             <li className="flex items-start gap-3">
-              <span className="h-6 w-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold shrink-0">1</span>
+              <span className="h-6 w-6 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-bold shrink-0">1</span>
               <span>Tu profesor crea una sección en Amautia</span>
             </li>
             <li className="flex items-start gap-3">
-              <span className="h-6 w-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold shrink-0">2</span>
+              <span className="h-6 w-6 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-bold shrink-0">2</span>
               <span>Te comparte el código de clase (8 caracteres)</span>
             </li>
             <li className="flex items-start gap-3">
-              <span className="h-6 w-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold shrink-0">3</span>
+              <span className="h-6 w-6 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-bold shrink-0">3</span>
               <span>Ingresa el código aquí y ¡listo! Ya estás inscrito</span>
             </li>
           </ol>

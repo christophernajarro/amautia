@@ -2,10 +2,11 @@ import uuid
 import secrets
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, desc
+from sqlalchemy import select, func, desc, update
 from app.core.database import get_db
 from app.core.dependencies import get_profesor
 from app.core.security import hash_password
+from app.core.utils import parse_uuid
 from app.models.user import User
 from app.models.subject import Subject
 from app.models.section import Section, SectionStudent
@@ -15,10 +16,26 @@ from app.schemas.profesor import (
     SubjectResponse, SubjectCreateRequest, SubjectUpdateRequest,
     SectionResponse, SectionCreateRequest, SectionUpdateRequest,
     StudentResponse, AddStudentRequest,
-    ExamResponse, ExamCreateRequest, ProfesorDashboard,
+    ExamResponse, ExamCreateRequest, ProfesorDashboard, ScoreRange,
 )
 
 router = APIRouter()
+
+
+async def _verify_section_ownership(db: AsyncSession, section_id, user_id):
+    """Verify the section belongs to a subject owned by this professor."""
+    result = await db.execute(
+        select(Section).where(Section.id == section_id)
+    )
+    section = result.scalar_one_or_none()
+    if not section:
+        raise HTTPException(404, "Seccion no encontrada")
+    subj = await db.execute(
+        select(Subject).where(Subject.id == section.subject_id, Subject.profesor_id == user_id)
+    )
+    if not subj.scalar_one_or_none():
+        raise HTTPException(403, "No tienes permisos sobre esta seccion")
+    return section
 
 
 def _gen_code():
@@ -43,27 +60,73 @@ async def profesor_dashboard(db: AsyncSession = Depends(get_db), user: User = De
     recent_exams = [ExamResponse(id=str(e.id), title=e.title, description=e.description, section_id=str(e.section_id),
                     profesor_id=str(e.profesor_id), total_points=float(e.total_points), grading_scale=e.grading_scale,
                     status=e.status, created_at=e.created_at.isoformat()) for e in recent]
-    return ProfesorDashboard(total_subjects=total_subjects, total_sections=total_sections,
-                             total_students=total_students, total_exams=total_exams, recent_exams=recent_exams)
+
+    # Analytics: score distribution, average, pass rate
+    average_score = 0.0
+    pass_rate = 0.0
+    score_distribution: list[ScoreRange] = []
+
+    exam_ids = (await db.execute(select(Exam.id).where(Exam.profesor_id == user.id))).scalars().all()
+    if exam_ids:
+        percentages = (await db.execute(
+            select(StudentExam.percentage).where(
+                StudentExam.exam_id.in_(exam_ids),
+                StudentExam.status == "corrected",
+                StudentExam.percentage.isnot(None),
+            )
+        )).scalars().all()
+        scores = [float(p) for p in percentages]
+        if scores:
+            average_score = sum(scores) / len(scores)
+            pass_rate = (sum(1 for s in scores if s >= 50) / len(scores)) * 100
+            ranges = [
+                ("0-5", 0, 25), ("6-10", 26, 50), ("11-13", 51, 65),
+                ("14-16", 66, 80), ("17-18", 81, 90), ("19-20", 91, 100),
+            ]
+            score_distribution = [
+                ScoreRange(range=r, count=sum(1 for s in scores if mn <= s <= mx))
+                for r, mn, mx in ranges
+            ]
+
+    return ProfesorDashboard(
+        total_subjects=total_subjects, total_sections=total_sections,
+        total_students=total_students, total_exams=total_exams, recent_exams=recent_exams,
+        average_score=round(average_score, 1), pass_rate=round(pass_rate, 1),
+        score_distribution=score_distribution,
+    )
 
 
 # ─── Subjects CRUD ───
 
 @router.get("/subjects", response_model=list[SubjectResponse])
 async def list_subjects(db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
-    result = await db.execute(select(Subject).where(Subject.profesor_id == user.id).order_by(Subject.name))
-    subjects = result.scalars().all()
-    responses = []
-    for s in subjects:
-        sec_count = (await db.execute(select(func.count(Section.id)).where(Section.subject_id == s.id))).scalar() or 0
-        section_ids = (await db.execute(select(Section.id).where(Section.subject_id == s.id))).scalars().all()
-        stu_count = 0
-        if section_ids:
-            stu_count = (await db.execute(select(func.count(SectionStudent.id)).where(SectionStudent.section_id.in_(section_ids)))).scalar() or 0
-        responses.append(SubjectResponse(id=str(s.id), name=s.name, description=s.description, color=s.color,
-                icon=s.icon, profesor_id=str(s.profesor_id), sections_count=sec_count, students_count=stu_count,
-                created_at=s.created_at.isoformat()))
-    return responses
+    # Single query with subqueries to avoid N+1
+    sec_count_sub = (
+        select(func.count(Section.id))
+        .where(Section.subject_id == Subject.id)
+        .correlate(Subject)
+        .scalar_subquery()
+    )
+    stu_count_sub = (
+        select(func.count(SectionStudent.id))
+        .join(Section, Section.id == SectionStudent.section_id)
+        .where(Section.subject_id == Subject.id)
+        .correlate(Subject)
+        .scalar_subquery()
+    )
+    result = await db.execute(
+        select(Subject, sec_count_sub.label("sec_count"), stu_count_sub.label("stu_count"))
+        .where(Subject.profesor_id == user.id)
+        .order_by(Subject.name)
+    )
+    return [
+        SubjectResponse(
+            id=str(s.id), name=s.name, description=s.description, color=s.color,
+            icon=s.icon, profesor_id=str(s.profesor_id), sections_count=sec_count,
+            students_count=stu_count, created_at=s.created_at.isoformat(),
+        )
+        for s, sec_count, stu_count in result.all()
+    ]
 
 
 @router.post("/subjects", response_model=SubjectResponse, status_code=201)
@@ -125,7 +188,7 @@ async def create_section(subject_id: str, data: SectionCreateRequest, db: AsyncS
     subj = await db.execute(select(Subject).where(Subject.id == subject_id, Subject.profesor_id == user.id))
     if not subj.scalar_one_or_none():
         raise HTTPException(404, "Materia no encontrada")
-    section = Section(name=data.name, subject_id=uuid.UUID(subject_id), class_code=_gen_code(), academic_period=data.academic_period)
+    section = Section(name=data.name, subject_id=parse_uuid(subject_id, "subject_id"), class_code=_gen_code(), academic_period=data.academic_period)
     db.add(section)
     await db.commit()
     await db.refresh(section)
@@ -170,10 +233,7 @@ async def delete_section(section_id: str, db: AsyncSession = Depends(get_db), us
 
 @router.post("/sections/{section_id}/regenerate-code")
 async def regenerate_code(section_id: str, db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
-    result = await db.execute(select(Section).where(Section.id == section_id))
-    section = result.scalar_one_or_none()
-    if not section:
-        raise HTTPException(404, "Sección no encontrada")
+    section = await _verify_section_ownership(db, section_id, user.id)
     section.class_code = _gen_code()
     await db.commit()
     return {"class_code": section.class_code}
@@ -183,6 +243,7 @@ async def regenerate_code(section_id: str, db: AsyncSession = Depends(get_db), u
 
 @router.get("/sections/{section_id}/students", response_model=list[StudentResponse])
 async def list_students(section_id: str, db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
+    await _verify_section_ownership(db, section_id, user.id)
     result = await db.execute(
         select(User, SectionStudent.joined_at)
         .join(SectionStudent, SectionStudent.student_id == User.id)
@@ -196,11 +257,13 @@ async def list_students(section_id: str, db: AsyncSession = Depends(get_db), use
 
 @router.post("/sections/{section_id}/students", response_model=StudentResponse, status_code=201)
 async def add_student(section_id: str, data: AddStudentRequest, db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
+    await _verify_section_ownership(db, section_id, user.id)
     # Find or create student
     result = await db.execute(select(User).where(User.email == data.email))
     student = result.scalar_one_or_none()
     if not student:
-        student = User(email=data.email, password_hash=hash_password(data.password or "alumno123"),
+        default_pw = data.password or secrets.token_urlsafe(12)
+        student = User(email=data.email, password_hash=hash_password(default_pw),
                        first_name=data.first_name, last_name=data.last_name, role="alumno",
                        is_active=True, is_verified=True)
         db.add(student)
@@ -210,7 +273,7 @@ async def add_student(section_id: str, data: AddStudentRequest, db: AsyncSession
         SectionStudent.section_id == section_id, SectionStudent.student_id == student.id))
     if existing.scalar_one_or_none():
         raise HTTPException(400, "Alumno ya está en esta sección")
-    ss = SectionStudent(section_id=uuid.UUID(section_id), student_id=student.id)
+    ss = SectionStudent(section_id=parse_uuid(section_id, "section_id"), student_id=student.id)
     db.add(ss)
     await db.commit()
     return StudentResponse(id=str(student.id), email=student.email, first_name=student.first_name,
@@ -219,6 +282,7 @@ async def add_student(section_id: str, data: AddStudentRequest, db: AsyncSession
 
 @router.delete("/sections/{section_id}/students/{student_id}")
 async def remove_student(section_id: str, student_id: str, db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
+    await _verify_section_ownership(db, section_id, user.id)
     result = await db.execute(select(SectionStudent).where(
         SectionStudent.section_id == section_id, SectionStudent.student_id == student_id))
     ss = result.scalar_one_or_none()
@@ -232,11 +296,12 @@ async def remove_student(section_id: str, student_id: str, db: AsyncSession = De
 # ─── Exams ───
 
 @router.get("/exams", response_model=list[ExamResponse])
-async def list_exams(section_id: str | None = None, db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
+async def list_exams(section_id: str | None = None, skip: int = 0, limit: int = 50,
+                     db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
     q = select(Exam).where(Exam.profesor_id == user.id)
     if section_id:
         q = q.where(Exam.section_id == section_id)
-    q = q.order_by(desc(Exam.created_at))
+    q = q.order_by(desc(Exam.created_at)).offset(skip).limit(limit)
     result = await db.execute(q)
     exams = result.scalars().all()
     return [ExamResponse(id=str(e.id), title=e.title, description=e.description, section_id=str(e.section_id),
@@ -246,6 +311,8 @@ async def list_exams(section_id: str | None = None, db: AsyncSession = Depends(g
 
 @router.post("/exams", response_model=ExamResponse, status_code=201)
 async def create_exam(data: ExamCreateRequest, db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
+    if data.total_points <= 0:
+        raise HTTPException(400, "El puntaje total debe ser mayor a 0")
     # Verify section exists and belongs to this profesor
     section = (await db.execute(
         select(Section).join(Subject, Subject.id == Section.subject_id)
@@ -253,7 +320,7 @@ async def create_exam(data: ExamCreateRequest, db: AsyncSession = Depends(get_db
     )).scalar_one_or_none()
     if not section:
         raise HTTPException(404, "Sección no encontrada o no te pertenece")
-    exam = Exam(title=data.title, description=data.description, section_id=uuid.UUID(data.section_id),
+    exam = Exam(title=data.title, description=data.description, section_id=parse_uuid(data.section_id, "section_id"),
                 profesor_id=user.id, total_points=data.total_points, grading_scale=data.grading_scale)
     db.add(exam)
     await db.commit()
@@ -315,23 +382,23 @@ async def import_students_csv(section_id: str, file: UploadFile = File(...),
         if existing:
             # Just enroll if not already enrolled
             enrolled = (await db.execute(
-                sel(SectionStudent).where(SectionStudent.section_id == uuid.UUID(section_id),
+                sel(SectionStudent).where(SectionStudent.section_id == parse_uuid(section_id, "section_id"),
                                           SectionStudent.student_id == existing.id)
             )).scalar_one_or_none()
             if not enrolled:
-                db.add(SectionStudent(section_id=uuid.UUID(section_id), student_id=existing.id))
+                db.add(SectionStudent(section_id=parse_uuid(section_id, "section_id"), student_id=existing.id))
                 skipped += 1
             continue
 
         # Create new student
         student = User(
-            email=email, password_hash=hash_password("amautia2026"),
+            email=email, password_hash=hash_password(secrets.token_urlsafe(12)),
             first_name=first_name or email.split("@")[0],
             last_name=last_name, role="alumno", is_active=True, phone=phone,
         )
         db.add(student)
         await db.flush()
-        db.add(SectionStudent(section_id=uuid.UUID(section_id), student_id=student.id))
+        db.add(SectionStudent(section_id=parse_uuid(section_id, "section_id"), student_id=student.id))
         created += 1
 
         # Welcome email

@@ -182,6 +182,8 @@ class PaymentResponse(BaseModel):
     id: str
     user_id: str
     plan_id: str
+    user_email: str | None = None
+    plan_name: str | None = None
     amount: float
     currency: str
     method: str

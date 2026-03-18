@@ -5,16 +5,29 @@ class JoinSectionRequest(BaseModel):
     class_code: str
 
 
+class RecentExamItem(BaseModel):
+    id: str
+    title: str
+    date: str
+    score: float | None = None
+    status: str
+
+
 class AlumnoDashboard(BaseModel):
     total_sections: int
+    total_subjects: int = 0
     total_exams: int
     average_score: float | None = None
-    recent_exams: list = []
+    exercises_completed: int = 0
+    accuracy: float = 0
+    active_plans: int = 0
+    recent_exams: list[RecentExamItem] = []
 
 
 class AlumnoSectionResponse(BaseModel):
     id: str
     name: str
+    subject_id: str
     subject_name: str
     subject_color: str
     class_code: str

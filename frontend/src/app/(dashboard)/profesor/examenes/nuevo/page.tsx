@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Upload, FileText, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 export default function NuevoExamenPage() {
   const router = useRouter();
@@ -26,15 +27,23 @@ export default function NuevoExamenPage() {
   });
   const [examId, setExamId] = useState<string | null>(null);
   const [sections, setSections] = useState<any[]>([]);
+  const [selectedSubjectId, setSelectedSubjectId] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const loadSections = async (subjectId: string) => {
-    const token = getTokens().access;
-    const data = await apiFetch<any[]>(`/profesor/subjects/${subjectId}/sections`, { token: token! });
-    setSections(data);
+    try {
+      const token = getTokens().access;
+      const data = await apiFetch<any[]>(`/profesor/subjects/${subjectId}/sections`, { token: token! });
+      setSections(data);
+    } catch (e: any) {
+      setErrorMsg(e.message || "Error al cargar secciones");
+      setSections([]);
+    }
   };
 
   const handleCreate = async () => {
     setLoading(true);
+    setErrorMsg("");
     try {
       const token = getTokens().access;
       const result = await apiFetch<any>("/profesor/exams", {
@@ -43,7 +52,7 @@ export default function NuevoExamenPage() {
       setExamId(result.id);
       setStep(2);
     } catch (e: any) {
-      alert(e.message);
+      setErrorMsg(e.message || "Error al crear examen");
     }
     setLoading(false);
   };
@@ -51,32 +60,41 @@ export default function NuevoExamenPage() {
   const handleUploadRef = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0] || !examId) return;
     setLoading(true);
-    const token = getTokens().access;
-    const formData = new FormData();
-    formData.append("file", e.target.files[0]);
-    await fetch(`http://localhost:8000/api/v1/profesor/exams/${examId}/reference`, {
-      method: "POST", headers: { Authorization: `Bearer ${token}` }, body: formData,
-    });
-    // Process with AI
-    await apiFetch(`/profesor/exams/${examId}/process-reference`, { method: "POST", token: token! });
-    setStep(3);
+    setErrorMsg("");
+    try {
+      const token = getTokens().access;
+      const formData = new FormData();
+      formData.append("file", e.target.files[0]);
+      await apiFetch(`/profesor/exams/${examId}/reference`, {
+        method: "POST", token: token!, body: formData,
+      });
+      // Process with AI
+      await apiFetch(`/profesor/exams/${examId}/process-reference`, { method: "POST", token: token! });
+      setStep(3);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Error al procesar el archivo de referencia");
+    }
     setLoading(false);
   };
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      <Breadcrumb items={[
+        { label: "Exámenes", href: "/profesor/examenes" },
+        { label: "Nuevo examen" },
+      ]} />
       <div className="flex items-center gap-3">
-        <Link href="/profesor/examenes"><Button variant="ghost" size="sm"><ArrowLeft className="h-4 w-4" /></Button></Link>
+        <Link href="/profesor/examenes"><Button variant="ghost" size="sm" aria-label="Volver"><ArrowLeft className="h-4 w-4" /></Button></Link>
         <div>
           <h1 className="text-2xl font-bold">Nuevo Examen</h1>
-          <p className="text-slate-500">Paso {step} de 3</p>
+          <p className="text-slate-500 dark:text-slate-400">Paso {step} de 3</p>
         </div>
       </div>
 
       {/* Step indicators */}
       <div className="flex gap-2">
         {[1, 2, 3].map((s) => (
-          <div key={s} className={`h-2 flex-1 rounded-full ${s <= step ? "bg-indigo-600" : "bg-slate-200"}`} />
+          <div key={s} className={`h-2 flex-1 rounded-full ${s <= step ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`} />
         ))}
       </div>
 
@@ -97,8 +115,8 @@ export default function NuevoExamenPage() {
             <div>
               <Label>Materia</Label>
               {isLoading ? <Skeleton className="h-10" /> : (
-                <Select onValueChange={(v: string) => loadSections(v)}>
-                  <SelectTrigger><SelectValue placeholder="Selecciona una materia" /></SelectTrigger>
+                <Select value={selectedSubjectId} onValueChange={(v: string) => { setSelectedSubjectId(v); loadSections(v); }}>
+                  <SelectTrigger><SelectValue placeholder="Selecciona una materia">{subjects?.find((s: any) => s.id === selectedSubjectId)?.name}</SelectValue></SelectTrigger>
                   <SelectContent>
                     {subjects?.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                   </SelectContent>
@@ -108,8 +126,8 @@ export default function NuevoExamenPage() {
             {sections.length > 0 && (
               <div>
                 <Label>Sección</Label>
-                <Select onValueChange={(v: string) => setForm({ ...form, section_id: v })}>
-                  <SelectTrigger><SelectValue placeholder="Selecciona una sección" /></SelectTrigger>
+                <Select value={form.section_id} onValueChange={(v: string) => setForm({ ...form, section_id: v })}>
+                  <SelectTrigger><SelectValue placeholder="Selecciona una sección">{sections.find((s: any) => s.id === form.section_id)?.name ? `${sections.find((s: any) => s.id === form.section_id).name} (${sections.find((s: any) => s.id === form.section_id).class_code})` : undefined}</SelectValue></SelectTrigger>
                   <SelectContent>
                     {sections.map((s: any) => (
                       <SelectItem key={s.id} value={s.id}>{s.name} ({s.class_code})</SelectItem>
@@ -136,6 +154,7 @@ export default function NuevoExamenPage() {
                 </Select>
               </div>
             </div>
+            {errorMsg && <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 p-3 rounded-lg">{errorMsg}</p>}
             <Button onClick={handleCreate} disabled={loading || !form.title || !form.section_id}
               className="w-full bg-indigo-600 hover:bg-indigo-700">
               {loading ? "Creando..." : "Continuar"}
@@ -148,10 +167,10 @@ export default function NuevoExamenPage() {
         <Card>
           <CardHeader><CardTitle>Subir examen de referencia</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:border-indigo-400 transition-colors">
-              <Upload className="h-10 w-10 text-slate-300 mx-auto mb-4" />
+            <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center hover:border-indigo-400 transition-colors">
+              <Upload className="h-10 w-10 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
               <p className="font-medium mb-1">Sube tu examen resuelto</p>
-              <p className="text-sm text-slate-500 mb-4">PDF, imagen o Word con las respuestas correctas</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">PDF, imagen o Word con las respuestas correctas</p>
               <input type="file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" onChange={handleUploadRef}
                 className="block mx-auto text-sm" disabled={loading} />
             </div>
@@ -161,7 +180,8 @@ export default function NuevoExamenPage() {
                 <span>Procesando con IA...</span>
               </div>
             )}
-            <Button variant="outline" onClick={() => setStep(3)}>Omitir y agregar preguntas manualmente</Button>
+            {errorMsg && <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 p-3 rounded-lg">{errorMsg}</p>}
+            <Button variant="outline" onClick={() => setStep(3)}>Omitir</Button>
           </CardContent>
         </Card>
       )}
@@ -172,11 +192,13 @@ export default function NuevoExamenPage() {
           <CardContent className="space-y-4 text-center">
             <FileText className="h-16 w-16 text-indigo-600 mx-auto" />
             <p className="text-lg font-medium">Tu examen está listo</p>
-            <p className="text-slate-500">Ahora puedes subir los exámenes de tus alumnos para corregirlos con IA</p>
+            <p className="text-slate-500 dark:text-slate-400">Ahora sube los exámenes de tus alumnos para que la IA los corrija automáticamente</p>
             <div className="flex gap-3 justify-center">
-              <Link href="/profesor/examenes"><Button variant="outline">Ver exámenes</Button></Link>
+              <Link href="/profesor/examenes"><Button variant="outline">Ver todos los exámenes</Button></Link>
               <Button className="bg-indigo-600 hover:bg-indigo-700"
-                onClick={() => router.push("/profesor/examenes")}>Ir a corregir</Button>
+                onClick={() => router.push(`/profesor/examenes/${examId}`)}>
+                <Upload className="h-4 w-4 mr-2" />Subir exámenes de alumnos
+              </Button>
             </div>
           </CardContent>
         </Card>

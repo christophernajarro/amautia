@@ -118,9 +118,17 @@ class ExamCreateRequest(BaseModel):
         return v.strip()
 
 
+class ScoreRange(BaseModel):
+    range: str
+    count: int
+
+
 class ProfesorDashboard(BaseModel):
     total_subjects: int
     total_sections: int
     total_students: int
     total_exams: int
     recent_exams: list[ExamResponse] = []
+    average_score: float = 0
+    pass_rate: float = 0
+    score_distribution: list[ScoreRange] = []

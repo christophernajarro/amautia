@@ -6,23 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScoreDistribution } from "@/components/charts/score-distribution";
 import { ProgressRing } from "@/components/charts/progress-ring";
 import { ActivityChart } from "@/components/charts/activity-chart";
-import { BarChart3, Users, FileText, CheckCircle } from "lucide-react";
-
-const mockActivity = [
-  { date: "Sem 1", exams: 1, corrections: 3 },
-  { date: "Sem 2", exams: 2, corrections: 8 },
-  { date: "Sem 3", exams: 1, corrections: 5 },
-  { date: "Sem 4", exams: 3, corrections: 12 },
-];
-
-const mockScores = [
-  { range: "0-5", count: 1 },
-  { range: "6-10", count: 3 },
-  { range: "11-13", count: 5 },
-  { range: "14-16", count: 8 },
-  { range: "17-18", count: 4 },
-  { range: "19-20", count: 2 },
-];
+import { BarChart3, Users, FileText, CheckCircle, CalendarOff } from "lucide-react";
 
 export default function EstadisticasPage() {
   const { data: stats, isLoading } = useProfesorDashboard();
@@ -35,14 +19,14 @@ export default function EstadisticasPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Estadísticas</h1>
-        <p className="text-slate-500">Rendimiento general de tus alumnos</p>
+        <p className="text-slate-500 dark:text-slate-400">Rendimiento general de tus alumnos</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-4">
         <Card>
           <CardContent className="pt-6 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center">
-              <FileText className="h-6 w-6 text-indigo-600" />
+            <div className="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center">
+              <FileText className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
             </div>
             <div>
               {isLoading ? <Skeleton className="h-8 w-12" /> : <p className="text-2xl font-bold">{(stats as any)?.total_exams || 0}</p>}
@@ -52,8 +36,8 @@ export default function EstadisticasPage() {
         </Card>
         <Card>
           <CardContent className="pt-6 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-emerald-50 flex items-center justify-center">
-              <CheckCircle className="h-6 w-6 text-emerald-600" />
+            <div className="h-12 w-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
+              <CheckCircle className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{correctedExams}</p>
@@ -63,8 +47,8 @@ export default function EstadisticasPage() {
         </Card>
         <Card>
           <CardContent className="pt-6 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-violet-50 flex items-center justify-center">
-              <Users className="h-6 w-6 text-violet-600" />
+            <div className="h-12 w-12 rounded-xl bg-violet-50 dark:bg-violet-950/30 flex items-center justify-center">
+              <Users className="h-6 w-6 text-violet-600 dark:text-violet-400" />
             </div>
             <div>
               {isLoading ? <Skeleton className="h-8 w-12" /> : <p className="text-2xl font-bold">{(stats as any)?.total_students || 0}</p>}
@@ -74,8 +58,8 @@ export default function EstadisticasPage() {
         </Card>
         <Card>
           <CardContent className="pt-6 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-amber-50 flex items-center justify-center">
-              <BarChart3 className="h-6 w-6 text-amber-600" />
+            <div className="h-12 w-12 rounded-xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
+              <BarChart3 className="h-6 w-6 text-amber-600 dark:text-amber-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{correctionRate}%</p>
@@ -89,13 +73,21 @@ export default function EstadisticasPage() {
         <Card>
           <CardHeader><CardTitle>Actividad mensual</CardTitle></CardHeader>
           <CardContent>
-            <ActivityChart data={mockActivity} />
+            {(stats as any)?.weekly_activity?.length > 0 ? (
+              <ActivityChart data={(stats as any).weekly_activity} />
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8 text-slate-400 dark:text-slate-500">
+                <CalendarOff className="h-10 w-10 mb-2" />
+                <p className="text-sm font-medium">Sin datos de actividad</p>
+                <p className="text-xs mt-1">Los datos aparecerán cuando haya más correcciones</p>
+              </div>
+            )}
           </CardContent>
         </Card>
         <Card>
           <CardHeader><CardTitle>Distribución de notas</CardTitle></CardHeader>
           <CardContent>
-            <ScoreDistribution data={mockScores} />
+            <ScoreDistribution data={(stats as any)?.score_distribution || []} />
           </CardContent>
         </Card>
       </div>
@@ -104,13 +96,13 @@ export default function EstadisticasPage() {
         <Card>
           <CardHeader><CardTitle>Promedio general</CardTitle></CardHeader>
           <CardContent className="flex justify-center py-4">
-            <ProgressRing value={72} color="#4f46e5" label="Todas las secciones" />
+            <ProgressRing value={(stats as any)?.average_score ?? 0} color="#4f46e5" label="Todas las secciones" />
           </CardContent>
         </Card>
         <Card>
           <CardHeader><CardTitle>Tasa de aprobación</CardTitle></CardHeader>
           <CardContent className="flex justify-center py-4">
-            <ProgressRing value={85} color="#10b981" label="Nota ≥ 11" />
+            <ProgressRing value={(stats as any)?.pass_rate ?? 0} color="#10b981" label="Nota ≥ 11" />
           </CardContent>
         </Card>
         <Card>

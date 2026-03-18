@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User, Mail, Phone, Shield, Save, CheckCircle } from "lucide-react";
+import { ROLE_LABELS } from "@/lib/constants";
 
 export default function PerfilPage() {
   const [user, setUser] = useState<any>(null);
@@ -17,7 +18,11 @@ export default function PerfilPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [form, setForm] = useState({ first_name: "", last_name: "", phone: "" });
+  const [saveError, setSaveError] = useState("");
   const [passwordForm, setPasswordForm] = useState({ current: "", new_password: "", confirm: "" });
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordChanged, setPasswordChanged] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
 
   useEffect(() => {
     const token = getTokens().access;
@@ -26,19 +31,22 @@ export default function PerfilPage() {
         setUser(data);
         setForm({ first_name: data.first_name || "", last_name: data.last_name || "", phone: data.phone || "" });
         setLoading(false);
+      }).catch(() => {
+        setLoading(false);
       });
     }
   }, []);
 
   const handleSave = async () => {
     setSaving(true);
+    setSaveError("");
     try {
       const token = getTokens().access;
       await apiFetch("/auth/me", { method: "PUT", token: token!, body: JSON.stringify(form) });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (e: any) {
-      alert(e.message);
+      setSaveError(e.message || "Error al guardar");
     }
     setSaving(false);
   };
@@ -54,20 +62,20 @@ export default function PerfilPage() {
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Mi Perfil</h1>
-        <p className="text-slate-500">Administra tu información personal</p>
+        <p className="text-slate-500 dark:text-slate-400">Administra tu información personal</p>
       </div>
 
       <Card>
         <CardHeader>
           <div className="flex items-center gap-4">
-            <div className="h-16 w-16 rounded-full bg-indigo-100 flex items-center justify-center">
-              <User className="h-8 w-8 text-indigo-600" />
+            <div className="h-16 w-16 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center">
+              <User className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
             </div>
             <div>
               <h2 className="text-lg font-semibold">{user?.first_name} {user?.last_name}</h2>
               <div className="flex items-center gap-2 mt-1">
-                <Badge>{user?.role}</Badge>
-                <span className="text-sm text-slate-500">{user?.email}</span>
+                <Badge>{ROLE_LABELS[user?.role] || user?.role}</Badge>
+                <span className="text-sm text-slate-500 dark:text-slate-400">{user?.email}</span>
               </div>
             </div>
           </div>
@@ -90,7 +98,7 @@ export default function PerfilPage() {
           <div>
             <Label>Email</Label>
             <div className="flex items-center gap-2">
-              <Input value={user?.email || ""} disabled className="bg-slate-50" />
+              <Input value={user?.email || ""} disabled className="bg-slate-50 dark:bg-slate-800" />
               <Mail className="h-4 w-4 text-slate-400" />
             </div>
           </div>
@@ -101,6 +109,7 @@ export default function PerfilPage() {
               <Phone className="h-4 w-4 text-slate-400" />
             </div>
           </div>
+          {saveError && <p className="text-sm text-red-600 dark:text-red-400">{saveError}</p>}
           <Button onClick={handleSave} disabled={saving} className="bg-indigo-600 hover:bg-indigo-700">
             {saved ? (
               <><CheckCircle className="h-4 w-4 mr-2" />Guardado</>
@@ -131,8 +140,34 @@ export default function PerfilPage() {
                 onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })} />
             </div>
           </div>
-          <Button variant="outline" disabled={!passwordForm.current || !passwordForm.new_password || passwordForm.new_password !== passwordForm.confirm}>
-            <Shield className="h-4 w-4 mr-2" />Cambiar contraseña
+          {passwordError && <p className="text-sm text-red-600 dark:text-red-400">{passwordError}</p>}
+          {passwordChanged && <p className="text-sm text-emerald-600">Contraseña cambiada exitosamente</p>}
+          <Button variant="outline"
+            disabled={!passwordForm.current || !passwordForm.new_password || passwordForm.new_password !== passwordForm.confirm || changingPassword}
+            onClick={async () => {
+              setChangingPassword(true);
+              setPasswordError("");
+              setPasswordChanged(false);
+              try {
+                const token = getTokens().access;
+                await apiFetch("/auth/change-password", {
+                  method: "PUT",
+                  token: token!,
+                  body: JSON.stringify({
+                    current_password: passwordForm.current,
+                    new_password: passwordForm.new_password,
+                  }),
+                });
+                setPasswordChanged(true);
+                setPasswordForm({ current: "", new_password: "", confirm: "" });
+                setTimeout(() => setPasswordChanged(false), 3000);
+              } catch (e: any) {
+                setPasswordError(e.message || "Error al cambiar contraseña");
+              }
+              setChangingPassword(false);
+            }}
+          >
+            <Shield className="h-4 w-4 mr-2" />{changingPassword ? "Cambiando..." : "Cambiar contraseña"}
           </Button>
         </CardContent>
       </Card>

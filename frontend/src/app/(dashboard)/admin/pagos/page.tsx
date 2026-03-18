@@ -46,12 +46,10 @@ export default function PagosPage() {
     if (!selectedPayment || !rejectReason.trim()) return;
     setRejecting(true);
     const token = getTokens().access;
-    const formData = new FormData();
-    formData.append("reason", rejectReason);
-    await fetch(`http://localhost:8000/api/v1/admin/payments/${selectedPayment.id}/reject`, {
+    await apiFetch(`/admin/payments/${selectedPayment.id}/reject`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
+      token: token!,
+      body: JSON.stringify({ reason: rejectReason }),
     });
     setShowDetail(false);
     setRejectReason("");
@@ -72,33 +70,33 @@ export default function PagosPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Gestionar Pagos</h1>
-        <p className="text-slate-500">Verificar y aprobar pagos de suscripciones</p>
+        <p className="text-slate-500 dark:text-slate-400">Verificar y aprobar pagos de suscripciones</p>
       </div>
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-4">
         <Card>
           <CardContent className="pt-4 pb-4 text-center">
-            <p className="text-2xl font-bold text-amber-600">{stats.pending}</p>
-            <p className="text-sm text-slate-500">Pendientes</p>
+            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{stats.pending}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Pendientes</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4 pb-4 text-center">
             <p className="text-2xl font-bold text-emerald-600">{stats.approved}</p>
-            <p className="text-sm text-slate-500">Aprobados</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Aprobados</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4 pb-4 text-center">
-            <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
-            <p className="text-sm text-slate-500">Rechazados</p>
+            <p className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.rejected}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Rechazados</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4 pb-4 text-center">
-            <p className="text-2xl font-bold text-indigo-600">S/ {stats.total_amount.toFixed(2)}</p>
-            <p className="text-sm text-slate-500">Ingresos</p>
+            <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">S/ {stats.total_amount.toFixed(2)}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Ingresos</p>
           </CardContent>
         </Card>
       </div>
@@ -128,7 +126,7 @@ export default function PagosPage() {
               </TableHeader>
               <TableBody>
                 {payments.map((p) => (
-                  <TableRow key={p.id} className={p.status === "pending" ? "bg-amber-50" : ""}>
+                  <TableRow key={p.id} className={p.status === "pending" ? "bg-amber-50 dark:bg-amber-950/30" : ""}>
                     <TableCell className="font-medium text-sm">
                       {p.user_email || "Anónimo"}
                     </TableCell>
@@ -150,7 +148,7 @@ export default function PagosPage() {
                         )}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-xs text-slate-500">
+                    <TableCell className="text-xs text-slate-500 dark:text-slate-400">
                       {new Date(p.created_at).toLocaleDateString("es-PE")}
                     </TableCell>
                     <TableCell>
@@ -183,25 +181,25 @@ export default function PagosPage() {
           </DialogHeader>
           {selectedPayment && (
             <div className="space-y-4">
-              <div className="bg-slate-50 rounded-lg p-4 space-y-2">
+              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Usuario:</span>
+                  <span className="text-slate-600 dark:text-slate-300">Usuario:</span>
                   <strong>{selectedPayment.user_email}</strong>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Plan:</span>
+                  <span className="text-slate-600 dark:text-slate-300">Plan:</span>
                   <strong>{selectedPayment.plan_name}</strong>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Monto:</span>
+                  <span className="text-slate-600 dark:text-slate-300">Monto:</span>
                   <strong>S/ {selectedPayment.amount?.toFixed(2)}</strong>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Método:</span>
+                  <span className="text-slate-600 dark:text-slate-300">Método:</span>
                   <strong>{selectedPayment.method.toUpperCase()}</strong>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Fecha:</span>
+                  <span className="text-slate-600 dark:text-slate-300">Fecha:</span>
                   <strong>{new Date(selectedPayment.created_at).toLocaleDateString("es-PE")}</strong>
                 </div>
               </div>
@@ -235,7 +233,7 @@ export default function PagosPage() {
                   disabled={approving}
                   className="flex-1 bg-emerald-600 hover:bg-emerald-700"
                 >
-                  {approving ? "Aprobando..." : "✓ Aprobar"}
+                  {approving ? "Aprobando..." : "Aprobar"}
                 </Button>
                 <Button
                   onClick={handleReject}
@@ -243,7 +241,7 @@ export default function PagosPage() {
                   variant="destructive"
                   className="flex-1"
                 >
-                  {rejecting ? "Rechazando..." : "✗ Rechazar"}
+                  {rejecting ? "Rechazando..." : "Rechazar"}
                 </Button>
               </div>
             </div>

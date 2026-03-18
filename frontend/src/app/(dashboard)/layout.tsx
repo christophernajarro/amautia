@@ -16,12 +16,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (!isLoading && !user) {
       router.push("/login");
+      return;
     }
-  }, [user, isLoading, router]);
+    // Role-based access control: prevent accessing other roles' pages
+    if (!isLoading && user && pathname) {
+      const rolePrefix = pathname.split("/")[1]; // admin, profesor, alumno
+      if (rolePrefix === "admin" && user.role !== "superadmin") {
+        router.push(ROLE_ROUTES[user.role] || "/");
+      } else if (rolePrefix === "profesor" && user.role !== "profesor" && user.role !== "superadmin") {
+        router.push(ROLE_ROUTES[user.role] || "/");
+      } else if (rolePrefix === "alumno" && user.role !== "alumno" && user.role !== "superadmin") {
+        router.push(ROLE_ROUTES[user.role] || "/");
+      } else if (rolePrefix === "padre" && user.role !== "padre" && user.role !== "superadmin") {
+        router.push(ROLE_ROUTES[user.role] || "/");
+      }
+    }
+  }, [user, isLoading, router, pathname]);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
           <p className="text-sm text-muted-foreground">Cargando...</p>
@@ -33,9 +47,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <Sidebar user={user} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="lg:pl-64">
+      <div className="lg:pl-60">
         <Navbar user={user} onMenuClick={() => setSidebarOpen(true)} />
         <main className="p-6">
           {children}

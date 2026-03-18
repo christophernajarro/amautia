@@ -6,8 +6,9 @@ import { cn } from "@/lib/utils";
 import { User } from "@/types/user";
 import {
   LayoutDashboard, BookOpen, Users, FileText, Sparkles, GraduationCap,
-  CreditCard, Settings, Brain, BarChart3, Bell, Shield, Wallet,
-  ClipboardList, X, LogOut, UploadCloud
+  CreditCard, Settings, Brain, BarChart3, Bell, Wallet,
+  ClipboardList, X, LogOut, UploadCloud, Trophy, Layers, MessageCircle,
+  Award, Zap, Database, ClipboardCheck, ShieldAlert, Link2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -25,6 +26,8 @@ const adminLinks = [
   { href: "/admin/pagos", label: "Pagos", icon: Wallet },
   { href: "/admin/planes", label: "Planes", icon: CreditCard },
   { href: "/admin/ia", label: "Configuración IA", icon: Brain },
+  { href: "/admin/certificados", label: "Certificados", icon: Award },
+  { href: "/admin/lti", label: "Integraciones LTI", icon: Link2 },
   { href: "/admin/config", label: "Configuración", icon: Settings },
   { href: "/admin/logs", label: "Logs", icon: ClipboardList },
 ];
@@ -36,6 +39,14 @@ const profesorLinks = [
   { href: "/profesor/alumnos/importar", label: "Importar CSV", icon: UploadCloud },
   { href: "/profesor/examenes", label: "Exámenes", icon: FileText },
   { href: "/profesor/generar", label: "Generar Examen", icon: Sparkles },
+  { href: "/profesor/banco-preguntas", label: "Banco Preguntas", icon: Database },
+  { href: "/profesor/quiz-en-vivo", label: "Quiz en Vivo", icon: Zap },
+  { href: "/profesor/calificaciones", label: "Calificaciones", icon: ClipboardList },
+  { href: "/profesor/evaluacion-pares", label: "Evaluación Pares", icon: ClipboardCheck },
+  { href: "/profesor/plagio", label: "Plagio", icon: ShieldAlert },
+  { href: "/profesor/analiticas", label: "Analíticas", icon: BarChart3 },
+  { href: "/profesor/mensajes", label: "Mensajes", icon: MessageCircle },
+  { href: "/profesor/certificados", label: "Certificados", icon: Award },
   { href: "/profesor/estadisticas", label: "Estadísticas", icon: BarChart3 },
 ];
 
@@ -44,9 +55,17 @@ const alumnoLinks = [
   { href: "/alumno/unirse", label: "Unirme a clase", icon: GraduationCap },
   { href: "/alumno/materias", label: "Mis Materias", icon: BookOpen },
   { href: "/alumno/examenes", label: "Mis Exámenes", icon: FileText },
-  { href: "/alumno/calificaciones", label: "Calificaciones", icon: ClipboardList },
   { href: "/alumno/tutor", label: "Tutor IA", icon: Brain },
+  { href: "/alumno/flashcards", label: "Flashcards", icon: Layers },
+  { href: "/alumno/quiz-en-vivo", label: "Quiz en Vivo", icon: Zap },
+  { href: "/alumno/gamificacion", label: "Gamificación", icon: Trophy },
+  { href: "/alumno/mensajes", label: "Mensajes", icon: MessageCircle },
+  { href: "/alumno/certificados", label: "Certificados", icon: Award },
   { href: "/alumno/progreso", label: "Mi Progreso", icon: BarChart3 },
+];
+
+const padreLinks = [
+  { href: "/padre", label: "Dashboard", icon: LayoutDashboard },
 ];
 
 function getLinks(role: string) {
@@ -54,6 +73,7 @@ function getLinks(role: string) {
     case "superadmin": return adminLinks;
     case "profesor": return profesorLinks;
     case "alumno": return alumnoLinks;
+    case "padre": return padreLinks;
     default: return [];
   }
 }
@@ -64,24 +84,26 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
   const links = getLinks(user.role);
 
   const content = (
-    <div className="flex h-full flex-col bg-indigo-950 text-white">
-      <div className="flex items-center gap-2 px-6 py-5 border-b border-indigo-900">
-        <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center">
-          <BookOpen className="h-5 w-5 text-white" />
+    <div className="flex h-full flex-col bg-[#09090b] text-white">
+      {/* Header */}
+      <div className="flex items-center gap-2.5 px-5 py-5 border-b border-white/[0.06]">
+        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-md shadow-amber-500/15">
+          <GraduationCap className="h-4.5 w-4.5 text-white" />
         </div>
-        <span className="text-lg font-bold">Amautia</span>
+        <span className="text-[15px] font-semibold tracking-tight">Amautia</span>
         <Button
           variant="ghost"
           size="icon"
-          className="ml-auto lg:hidden text-white hover:bg-indigo-900"
+          className="ml-auto lg:hidden text-white/40 hover:bg-white/[0.06] hover:text-white"
           onClick={onClose}
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         </Button>
       </div>
 
-      <ScrollArea className="flex-1 px-3 py-4">
-        <nav className="space-y-1">
+      {/* Navigation */}
+      <ScrollArea className="flex-1 px-3 py-3">
+        <nav className="space-y-0.5">
           {links.map((link) => {
             const isActive = pathname === link.href || (link.href !== `/${user.role}` && link.href !== "/admin" && pathname.startsWith(link.href));
             return (
@@ -90,13 +112,13 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
                 href={link.href}
                 onClick={onClose}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150",
                   isActive
-                    ? "bg-indigo-800 text-white"
-                    : "text-indigo-200 hover:bg-indigo-900 hover:text-white"
+                    ? "bg-amber-500/10 text-amber-300 border border-amber-500/15"
+                    : "text-white/40 hover:bg-white/[0.04] hover:text-white/70 border border-transparent"
                 )}
               >
-                <link.icon className="h-5 w-5" />
+                <link.icon className={cn("h-4 w-4", isActive ? "text-amber-400" : "")} />
                 {link.label}
               </Link>
             );
@@ -104,16 +126,32 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
         </nav>
       </ScrollArea>
 
-      <div className="border-t border-indigo-900 p-3 space-y-1">
+      {/* Footer */}
+      <div className="border-t border-white/[0.06] p-3 space-y-0.5">
+        <Link
+          href="/notificaciones"
+          onClick={onClose}
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150 border",
+            pathname === "/notificaciones"
+              ? "bg-amber-500/10 text-amber-300 border-amber-500/15"
+              : "text-white/40 hover:bg-white/[0.04] hover:text-white/70 border-transparent"
+          )}
+        >
+          <Bell className="h-4 w-4" />
+          Notificaciones
+        </Link>
         <Link
           href="/perfil"
           onClick={onClose}
           className={cn(
-            "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-            pathname === "/perfil" ? "bg-indigo-800 text-white" : "text-indigo-200 hover:bg-indigo-900 hover:text-white"
+            "flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150 border",
+            pathname === "/perfil"
+              ? "bg-amber-500/10 text-amber-300 border-amber-500/15"
+              : "text-white/40 hover:bg-white/[0.04] hover:text-white/70 border-transparent"
           )}
         >
-          <Settings className="h-5 w-5" />
+          <Settings className="h-4 w-4" />
           Mi Perfil
         </Link>
         {user.role !== "superadmin" && (
@@ -121,21 +159,38 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
             href="/suscripcion"
             onClick={onClose}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-              pathname === "/suscripcion" ? "bg-indigo-800 text-white" : "text-indigo-200 hover:bg-indigo-900 hover:text-white"
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-150 border",
+              pathname === "/suscripcion"
+                ? "bg-amber-500/10 text-amber-300 border-amber-500/15"
+                : "text-white/40 hover:bg-white/[0.04] hover:text-white/70 border-transparent"
             )}
           >
-            <CreditCard className="h-5 w-5" />
+            <CreditCard className="h-4 w-4" />
             Suscripción
           </Link>
         )}
-        <button
-          onClick={logout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-300 hover:bg-red-900/30 hover:text-red-200 transition-colors"
-        >
-          <LogOut className="h-5 w-5" />
-          Cerrar sesión
-        </button>
+
+        {/* User info + logout */}
+        <div className="mt-2 pt-2 border-t border-white/[0.06]">
+          <div className="flex items-center gap-3 px-3 py-2">
+            <div className="h-7 w-7 rounded-full bg-white/[0.06] flex items-center justify-center text-[11px] font-semibold text-white/50 uppercase">
+              {user.first_name?.[0]}{user.last_name?.[0]}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] font-medium text-white/70 truncate">
+                {user.first_name} {user.last_name}
+              </p>
+              <p className="text-[11px] text-white/25 truncate">{user.email}</p>
+            </div>
+          </div>
+          <button
+            onClick={logout}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium text-red-400/60 hover:bg-red-500/10 hover:text-red-300 transition-all duration-150"
+          >
+            <LogOut className="h-4 w-4" />
+            Cerrar sesión
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -143,15 +198,15 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
   return (
     <>
       {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
+      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-60 lg:flex-col border-r border-white/[0.06]">
         {content}
       </div>
 
       {/* Mobile sidebar */}
       {open && (
         <>
-          <div className="fixed inset-0 z-50 bg-black/50 lg:hidden" onClick={onClose} />
-          <div className="fixed inset-y-0 left-0 z-50 w-64 lg:hidden">
+          <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm lg:hidden" onClick={onClose} />
+          <div className="fixed inset-y-0 left-0 z-50 w-60 lg:hidden">
             {content}
           </div>
         </>

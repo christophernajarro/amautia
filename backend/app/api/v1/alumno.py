@@ -1,7 +1,7 @@
 import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, desc
+from sqlalchemy import select, func, desc, distinct
 from app.core.database import get_db
 from app.core.dependencies import get_alumno
 from app.models.user import User
@@ -9,8 +9,10 @@ from app.models.subject import Subject
 from app.models.section import Section, SectionStudent
 from app.models.exam import Exam
 from app.models.student_exam import StudentExam
+from app.models.tutor import PracticeExercise, StudyPlan
 from app.schemas.alumno import (
     JoinSectionRequest, AlumnoDashboard, AlumnoSectionResponse, AlumnoExamResponse,
+    RecentExamItem,
 )
 
 router = APIRouter()
@@ -22,8 +24,18 @@ async def alumno_dashboard(db: AsyncSession = Depends(get_db), user: User = Depe
         select(SectionStudent.section_id).where(SectionStudent.student_id == user.id)
     )).scalars().all()
     total_sections = len(section_ids)
+
+    # Count distinct subjects from enrolled sections
+    total_subjects = 0
+    if section_ids:
+        total_subjects = (await db.execute(
+            select(func.count(distinct(Section.subject_id)))
+            .where(Section.id.in_(section_ids))
+        )).scalar() or 0
+
     total_exams = 0
     avg_score = None
+    recent_exams: list[RecentExamItem] = []
     if section_ids:
         total_exams = (await db.execute(
             select(func.count(StudentExam.id)).where(StudentExam.student_id == user.id)
@@ -33,7 +45,61 @@ async def alumno_dashboard(db: AsyncSession = Depends(get_db), user: User = Depe
                 StudentExam.student_id == user.id, StudentExam.status == "corrected")
         )).scalar()
         avg_score = float(avg) if avg else None
-    return AlumnoDashboard(total_sections=total_sections, total_exams=total_exams, average_score=avg_score)
+
+        # Recent exams (last 5)
+        recent_rows = (await db.execute(
+            select(StudentExam, Exam.title)
+            .join(Exam, Exam.id == StudentExam.exam_id)
+            .where(StudentExam.student_id == user.id)
+            .order_by(desc(StudentExam.created_at))
+            .limit(5)
+        )).all()
+        recent_exams = [
+            RecentExamItem(
+                id=str(se.id),
+                title=title,
+                date=(se.corrected_at or se.created_at).isoformat(),
+                score=float(se.total_score) if se.total_score is not None else None,
+                status=se.status,
+            )
+            for se, title in recent_rows
+        ]
+
+    # Exercises completed (from PracticeExercise model)
+    exercises_completed = (await db.execute(
+        select(func.count(PracticeExercise.id)).where(
+            PracticeExercise.student_id == user.id,
+            PracticeExercise.completed_at.isnot(None),
+        )
+    )).scalar() or 0
+
+    # Accuracy: correct / completed exercises
+    correct_exercises = (await db.execute(
+        select(func.count(PracticeExercise.id)).where(
+            PracticeExercise.student_id == user.id,
+            PracticeExercise.is_correct == True,
+        )
+    )).scalar() or 0
+    accuracy = (correct_exercises / exercises_completed * 100) if exercises_completed else 0
+
+    # Active study plans
+    active_plans = (await db.execute(
+        select(func.count(StudyPlan.id)).where(
+            StudyPlan.student_id == user.id,
+            StudyPlan.status == "active",
+        )
+    )).scalar() or 0
+
+    return AlumnoDashboard(
+        total_sections=total_sections,
+        total_subjects=total_subjects,
+        total_exams=total_exams,
+        average_score=avg_score,
+        exercises_completed=exercises_completed,
+        accuracy=round(accuracy, 1),
+        active_plans=active_plans,
+        recent_exams=recent_exams,
+    )
 
 
 @router.post("/join")
@@ -65,20 +131,23 @@ async def my_sections(db: AsyncSession = Depends(get_db), user: User = Depends(g
     )
     rows = result.all()
     return [AlumnoSectionResponse(
-        id=str(sec.id), name=sec.name, subject_name=subj.name, subject_color=subj.color,
-        class_code=sec.class_code, profesor_name=f"{fname} {lname}", joined_at=joined.isoformat()
+        id=str(sec.id), name=sec.name, subject_id=str(subj.id), subject_name=subj.name,
+        subject_color=subj.color, class_code=sec.class_code,
+        profesor_name=f"{fname} {lname}", joined_at=joined.isoformat()
     ) for sec, subj, joined, fname, lname in rows]
 
 
 @router.get("/exams", response_model=list[AlumnoExamResponse])
-async def my_exams(db: AsyncSession = Depends(get_db), user: User = Depends(get_alumno)):
+async def my_exams(skip: int = 0, limit: int = 50,
+                   db: AsyncSession = Depends(get_db), user: User = Depends(get_alumno)):
     result = await db.execute(
         select(StudentExam, Exam.title, Subject.name)
         .join(Exam, Exam.id == StudentExam.exam_id)
         .join(Section, Section.id == Exam.section_id)
         .join(Subject, Subject.id == Section.subject_id)
-        .where(StudentExam.student_id == user.id)
+        .where(StudentExam.student_id == user.id, Exam.status == "published")
         .order_by(desc(StudentExam.created_at))
+        .offset(skip).limit(limit)
     )
     rows = result.all()
     return [AlumnoExamResponse(
@@ -120,6 +189,10 @@ async def exam_resultado(student_exam_id: str, db: AsyncSession = Depends(get_db
         raise HTTPException(400, "El examen aún no ha sido corregido")
 
     exam = (await db.execute(select(Exam).where(Exam.id == se.exam_id))).scalar_one()
+
+    # Students can only see results once the professor has published them
+    if exam.status != "published":
+        raise HTTPException(403, "Los resultados aún no han sido publicados por el profesor")
 
     # Get answers with question text
     answers_raw = (await db.execute(

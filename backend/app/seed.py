@@ -1,9 +1,12 @@
 import asyncio
+import logging
 from datetime import datetime, timezone, timedelta
 from sqlalchemy import select
 from app.core.database import engine, async_session, Base
 from app.core.security import hash_password
 from app.models import *
+
+logger = logging.getLogger(__name__)
 
 async def seed():
     async with engine.begin() as conn:
@@ -13,7 +16,7 @@ async def seed():
         # Check if admin exists
         result = await db.execute(select(User).where(User.email == "admin@amautia.com"))
         if result.scalar_one_or_none():
-            print("Seed data already exists, skipping.")
+            logger.info("Seed data already exists, skipping.")
             return
 
         # Create superadmin
@@ -74,11 +77,8 @@ async def seed():
             db.add(config)
 
         await db.commit()
-        print("Seed data created successfully!")
-        print("Test users:")
-        print("  admin@amautia.com / admin123 (superadmin)")
-        print("  profesor@amautia.com / profesor123 (profesor)")
-        print("  alumno@amautia.com / alumno123 (alumno)")
+        logger.info("Seed data created successfully!")
+        logger.info("Test users: admin@amautia.com, profesor@amautia.com, alumno@amautia.com")
 
 if __name__ == "__main__":
     asyncio.run(seed())

@@ -4,10 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BookOpen, GraduationCap } from "lucide-react";
+import { BookOpen, GraduationCap, Loader2, AlertCircle, Users } from "lucide-react";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -38,111 +37,165 @@ export default function RegisterPage() {
   const update = (field: string, value: string) => setForm({ ...form, [field]: value });
 
   return (
-    <Card className="shadow-xl border-0">
-      <CardHeader className="text-center pb-2">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <div className="h-10 w-10 rounded-lg bg-indigo-600 flex items-center justify-center">
-            <BookOpen className="h-6 w-6 text-white" />
+    <div className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl p-8 shadow-2xl shadow-black/40">
+      <div className="text-center mb-6">
+        <div className="flex items-center justify-center gap-2.5 mb-3">
+          <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+            <GraduationCap className="h-6 w-6 text-white" />
           </div>
-          <CardTitle className="text-2xl font-bold text-indigo-950">Amautia</CardTitle>
+          <span className="text-2xl font-bold tracking-tight text-white">Amautia</span>
         </div>
-        <CardDescription>Crea tu cuenta</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant={form.role === "profesor" ? "default" : "outline"}
-              className={form.role === "profesor" ? "flex-1 bg-indigo-600" : "flex-1"}
-              onClick={() => update("role", "profesor")}
-            >
-              <BookOpen className="h-4 w-4 mr-1" /> Profesor
-            </Button>
-            <Button
-              type="button"
-              variant={form.role === "alumno" ? "default" : "outline"}
-              className={form.role === "alumno" ? "flex-1 bg-indigo-600" : "flex-1"}
-              onClick={() => update("role", "alumno")}
-            >
-              <GraduationCap className="h-4 w-4 mr-1" /> Alumno
-            </Button>
-          </div>
+        <p className="text-sm text-white/40">Crea tu cuenta</p>
+      </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-2">
-              <Label htmlFor="first_name">Nombre</Label>
-              <Input
-                id="first_name"
-                value={form.first_name}
-                onChange={(e) => update("first_name", e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="last_name">Apellido</Label>
-              <Input
-                id="last_name"
-                value={form.last_name}
-                onChange={(e) => update("last_name", e.target.value)}
-                required
-              />
-            </div>
-          </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Role toggle */}
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => update("role", "profesor")}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border ${
+              form.role === "profesor"
+                ? "bg-amber-500/10 border-amber-500/30 text-amber-300"
+                : "bg-white/[0.02] border-white/[0.08] text-white/40 hover:text-white/60 hover:border-white/[0.12]"
+            }`}
+          >
+            <BookOpen className="h-4 w-4" /> Profesor
+          </button>
+          <button
+            type="button"
+            onClick={() => update("role", "alumno")}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border ${
+              form.role === "alumno"
+                ? "bg-amber-500/10 border-amber-500/30 text-amber-300"
+                : "bg-white/[0.02] border-white/[0.08] text-white/40 hover:text-white/60 hover:border-white/[0.12]"
+            }`}
+          >
+            <GraduationCap className="h-4 w-4" /> Alumno
+          </button>
+          <button
+            type="button"
+            onClick={() => update("role", "padre")}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border ${
+              form.role === "padre"
+                ? "bg-amber-500/10 border-amber-500/30 text-amber-300"
+                : "bg-white/[0.02] border-white/[0.08] text-white/40 hover:text-white/60 hover:border-white/[0.12]"
+            }`}
+          >
+            <Users className="h-4 w-4" /> Padre
+          </button>
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Correo electrónico</Label>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="first_name" className="text-white/50 text-xs font-medium uppercase tracking-wider">
+              Nombre
+            </Label>
             <Input
-              id="email"
-              type="email"
-              value={form.email}
-              onChange={(e) => update("email", e.target.value)}
+              id="first_name"
+              name="first_name"
+              autoComplete="given-name"
+              value={form.first_name}
+              onChange={(e) => update("first_name", e.target.value)}
               required
+              className="h-11 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus:border-amber-500/40 focus:ring-amber-500/20"
             />
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="last_name" className="text-white/50 text-xs font-medium uppercase tracking-wider">
+              Apellido
+            </Label>
             <Input
-              id="password"
-              type="password"
-              value={form.password}
-              onChange={(e) => update("password", e.target.value)}
+              id="last_name"
+              name="last_name"
+              autoComplete="family-name"
+              value={form.last_name}
+              onChange={(e) => update("last_name", e.target.value)}
               required
-              minLength={6}
+              className="h-11 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus:border-amber-500/40 focus:ring-amber-500/20"
             />
           </div>
-
-          {form.role === "alumno" && (
-            <div className="space-y-2">
-              <Label htmlFor="class_code">Código de clase (opcional)</Label>
-              <Input
-                id="class_code"
-                placeholder="Ej: ABC12345"
-                value={form.class_code}
-                onChange={(e) => update("class_code", e.target.value)}
-              />
-            </div>
-          )}
-
-          {error && (
-            <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md">
-              {error}
-            </div>
-          )}
-
-          <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={loading}>
-            {loading ? "Creando cuenta..." : "Crear cuenta"}
-          </Button>
-        </form>
-
-        <div className="mt-4 text-center text-sm text-muted-foreground">
-          ¿Ya tienes cuenta?{" "}
-          <Link href="/login" className="text-indigo-600 hover:underline font-medium">
-            Inicia sesión
-          </Link>
         </div>
-      </CardContent>
-    </Card>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="email" className="text-white/50 text-xs font-medium uppercase tracking-wider">
+            Correo electrónico
+          </Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            value={form.email}
+            onChange={(e) => update("email", e.target.value)}
+            required
+            className="h-11 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus:border-amber-500/40 focus:ring-amber-500/20"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="password" className="text-white/50 text-xs font-medium uppercase tracking-wider">
+            Contraseña
+          </Label>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            value={form.password}
+            onChange={(e) => update("password", e.target.value)}
+            required
+            minLength={6}
+            placeholder="Mínimo 6 caracteres"
+            className="h-11 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus:border-amber-500/40 focus:ring-amber-500/20"
+          />
+        </div>
+
+        {form.role === "alumno" && (
+          <div className="space-y-1.5">
+            <Label htmlFor="class_code" className="text-white/50 text-xs font-medium uppercase tracking-wider">
+              Código de clase (opcional)
+            </Label>
+            <Input
+              id="class_code"
+              name="class_code"
+              placeholder="Ej: ABC12345"
+              value={form.class_code}
+              onChange={(e) => update("class_code", e.target.value)}
+              className="h-11 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus:border-amber-500/40 focus:ring-amber-500/20"
+            />
+          </div>
+        )}
+
+        {error && (
+          <div className="flex items-start gap-2 text-sm text-red-300 bg-red-500/10 border border-red-500/20 p-3 rounded-lg">
+            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            {error}
+          </div>
+        )}
+
+        <Button
+          type="submit"
+          className="w-full h-11 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-semibold shadow-lg shadow-amber-500/20 transition-all duration-200"
+          disabled={loading}
+        >
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Creando cuenta...
+            </>
+          ) : (
+            "Crear cuenta"
+          )}
+        </Button>
+      </form>
+
+      <div className="mt-5 text-center text-sm text-white/30">
+        ¿Ya tienes cuenta?{" "}
+        <Link href="/login" className="text-amber-400/80 hover:text-amber-300 font-medium transition-colors">
+          Inicia sesión
+        </Link>
+      </div>
+    </div>
   );
 }

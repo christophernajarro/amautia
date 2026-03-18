@@ -1,4 +1,5 @@
 """Check and enforce plan limits."""
+from app.config import get_settings
 from app.models.user import User
 from app.models.subscription import Subscription
 from app.models.student_exam import StudentExam
@@ -44,13 +45,18 @@ async def can_correct_exam(user_id, db: AsyncSession) -> tuple[bool, str]:
     """Check if user can correct another exam."""
     plan = await get_user_plan(user_id, db)
     if not plan:
-        # Free tier: allow 5 corrections total for demo/trial
+        # Free tier: allow 5 corrections per user for demo/trial
         from app.models.student_exam import StudentExam
+        from app.models.exam import Exam
         total = (await db.execute(
-            select(func.count(StudentExam.id)).where(StudentExam.status == "corrected")
+            select(func.count(StudentExam.id)).where(
+                StudentExam.status == "corrected",
+                StudentExam.exam_id.in_(select(Exam.id).where(Exam.profesor_id == user_id))
+            )
         )).scalar() or 0
-        if total < 5:
-            return True, f"Trial: {5 - total} corrections remaining"
+        limit = get_settings().TRIAL_MAX_CORRECTIONS
+        if total < limit:
+            return True, f"Trial: {limit - total} corrections remaining"
         return False, "Trial limit reached. Subscribe for more."
 
     if plan["max_corrections_month"] == -1:  # Unlimited
@@ -72,8 +78,9 @@ async def can_generate_exam(user_id, db: AsyncSession) -> tuple[bool, str]:
         total = (await db.execute(
             select(func.count(GeneratedExam.id)).where(GeneratedExam.profesor_id == user_id)
         )).scalar() or 0
-        if total < 3:
-            return True, f"Trial: {3 - total} generations remaining"
+        limit = get_settings().TRIAL_MAX_GENERATIONS
+        if total < limit:
+            return True, f"Trial: {limit - total} generations remaining"
         return False, "Trial limit reached. Subscribe for more."
 
     if plan["max_generations_month"] == -1:  # Unlimited
@@ -87,11 +94,12 @@ async def can_generate_exam(user_id, db: AsyncSession) -> tuple[bool, str]:
 
 
 async def increment_corrections_count(user_id, count: int = 1, db: AsyncSession = None):
-    """Increment correction usage."""
+    """Increment correction usage atomically."""
     if not db:
         return
 
     from app.models.subscription import Subscription
+    from sqlalchemy import update as sql_update
 
     sub = (await db.execute(
         select(Subscription).where(
@@ -101,16 +109,21 @@ async def increment_corrections_count(user_id, count: int = 1, db: AsyncSession 
     )).scalar_one_or_none()
 
     if sub:
-        sub.corrections_used = (sub.corrections_used or 0) + count
+        await db.execute(
+            sql_update(Subscription)
+            .where(Subscription.id == sub.id)
+            .values(corrections_used=Subscription.corrections_used + count)
+        )
         await db.commit()
 
 
 async def increment_generations_count(user_id, count: int = 1, db: AsyncSession = None):
-    """Increment generation usage."""
+    """Increment generation usage atomically."""
     if not db:
         return
 
     from app.models.subscription import Subscription
+    from sqlalchemy import update as sql_update
 
     sub = (await db.execute(
         select(Subscription).where(
@@ -120,7 +133,11 @@ async def increment_generations_count(user_id, count: int = 1, db: AsyncSession 
     )).scalar_one_or_none()
 
     if sub:
-        sub.generations_used = (sub.generations_used or 0) + count
+        await db.execute(
+            sql_update(Subscription)
+            .where(Subscription.id == sub.id)
+            .values(generations_used=Subscription.generations_used + count)
+        )
         await db.commit()
 
 

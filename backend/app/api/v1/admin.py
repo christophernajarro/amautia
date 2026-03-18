@@ -2,10 +2,12 @@ import uuid
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, desc
+from sqlalchemy import select, func, desc, update
 from app.core.database import get_db
 from app.core.dependencies import get_admin
 from app.core.security import hash_password
+from app.core.utils import parse_uuid
+from app.core.crypto import encrypt_value, decrypt_value
 from app.models.user import User
 from app.models.plan import Plan
 from app.models.subscription import Subscription
@@ -110,7 +112,10 @@ async def update_user(user_id: str, data: UserUpdateRequest, db: AsyncSession = 
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(404, "Usuario no encontrado")
+    ALLOWED_FIELDS = {"first_name", "last_name", "role", "phone", "is_active", "is_verified"}
     for field, value in data.model_dump(exclude_unset=True).items():
+        if field not in ALLOWED_FIELDS:
+            raise HTTPException(400, f"Campo no permitido: {field}")
         setattr(user, field, value)
     await db.commit()
     await db.refresh(user)
@@ -132,10 +137,20 @@ async def toggle_user_status(user_id: str, data: StatusToggle, db: AsyncSession 
 
 @router.delete("/users/{user_id}")
 async def delete_user(user_id: str, db: AsyncSession = Depends(get_db), admin: User = Depends(get_admin)):
+    # Prevent admin from deleting themselves
+    if str(admin.id) == user_id:
+        raise HTTPException(400, "No puedes eliminar tu propia cuenta de administrador")
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
     if not user:
         raise HTTPException(404, "Usuario no encontrado")
+    # Prevent deleting the last superadmin
+    if user.role == "admin":
+        admin_count = (await db.execute(
+            select(func.count(User.id)).where(User.role == "admin", User.is_active == True)
+        )).scalar() or 0
+        if admin_count <= 1:
+            raise HTTPException(400, "No se puede eliminar el ultimo administrador del sistema")
     await db.delete(user)
     await db.commit()
     return {"ok": True}
@@ -216,7 +231,8 @@ async def list_providers(db: AsyncSession = Depends(get_db), admin: User = Depen
 
 @router.post("/ai/providers", response_model=AIProviderResponse, status_code=201)
 async def create_provider(data: AIProviderCreateRequest, db: AsyncSession = Depends(get_db), admin: User = Depends(get_admin)):
-    provider = AIProvider(name=data.name, slug=data.slug, api_key_encrypted=data.api_key,
+    encrypted_key = encrypt_value(data.api_key) if data.api_key else None
+    provider = AIProvider(name=data.name, slug=data.slug, api_key_encrypted=encrypted_key,
                           is_active=data.is_active, config=data.config)
     db.add(provider)
     await db.commit()
@@ -234,7 +250,7 @@ async def update_provider(provider_id: str, data: AIProviderUpdateRequest, db: A
     if data.name is not None:
         provider.name = data.name
     if data.api_key is not None:
-        provider.api_key_encrypted = data.api_key
+        provider.api_key_encrypted = encrypt_value(data.api_key) if data.api_key else None
     if data.is_active is not None:
         provider.is_active = data.is_active
     if data.config is not None:
@@ -262,8 +278,42 @@ async def test_provider(provider_id: str, db: AsyncSession = Depends(get_db), ad
     provider = result.scalar_one_or_none()
     if not provider:
         raise HTTPException(404, "Proveedor no encontrado")
-    # TODO: Actually test the provider connection
-    return {"status": "ok", "message": f"Conexión con {provider.name} exitosa (stub)"}
+    slug = provider.slug.lower()
+    if not provider.api_key_encrypted:
+        raise HTTPException(400, "No hay API key configurada para este proveedor")
+    try:
+        api_key = decrypt_value(provider.api_key_encrypted)
+    except Exception:
+        raise HTTPException(400, "Error al desencriptar la API key. Verifique la configuración de FERNET_KEY.")
+    import httpx
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            if slug == "openai":
+                resp = await client.get("https://api.openai.com/v1/models",
+                    headers={"Authorization": f"Bearer {api_key}"})
+                if resp.status_code != 200:
+                    raise HTTPException(400, f"Error OpenAI: {resp.status_code} - {resp.text[:200]}")
+            elif slug == "gemini":
+                resp = await client.get(
+                    "https://generativelanguage.googleapis.com/v1beta/models",
+                    params={"key": api_key})
+                if resp.status_code != 200:
+                    raise HTTPException(400, f"Error Gemini: {resp.status_code} - {resp.text[:200]}")
+            elif slug == "anthropic":
+                resp = await client.post("https://api.anthropic.com/v1/messages",
+                    headers={"x-api-key": api_key, "anthropic-version": "2023-06-01"},
+                    json={"model": "claude-haiku-4-5-20251001", "max_tokens": 10, "messages": [{"role": "user", "content": "ping"}]})
+                if resp.status_code != 200:
+                    raise HTTPException(400, f"Error Anthropic: {resp.status_code} - {resp.text[:200]}")
+            else:
+                return {"status": "warning", "message": f"Proveedor '{slug}' no soporta test automático"}
+    except httpx.TimeoutException:
+        raise HTTPException(400, f"Timeout al conectar con {provider.name}")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(400, f"Error de conexión: {str(e)}")
+    return {"status": "ok", "message": f"Conexión con {provider.name} exitosa"}
 
 
 # ─── AI Models ───
@@ -281,7 +331,7 @@ async def list_models(db: AsyncSession = Depends(get_db), admin: User = Depends(
 
 @router.post("/ai/models", response_model=AIModelResponse, status_code=201)
 async def create_model(data: AIModelCreateRequest, db: AsyncSession = Depends(get_db), admin: User = Depends(get_admin)):
-    model = AIModel(provider_id=uuid.UUID(data.provider_id), name=data.name, model_id=data.model_id,
+    model = AIModel(provider_id=parse_uuid(data.provider_id, "provider_id"), name=data.name, model_id=data.model_id,
                     supports_vision=data.supports_vision, supports_text=data.supports_text,
                     max_tokens=data.max_tokens, is_active=data.is_active)
     db.add(model)
@@ -351,25 +401,36 @@ async def delete_model(model_id: str, db: AsyncSession = Depends(get_db), admin:
 @router.get("/payments", response_model=list[PaymentResponse])
 async def list_payments(status_filter: str | None = None, limit: int = 50, offset: int = 0,
                         db: AsyncSession = Depends(get_db), admin: User = Depends(get_admin)):
-    q = select(Payment).order_by(desc(Payment.created_at))
+    q = (select(Payment, User.email, Plan.name)
+         .join(User, Payment.user_id == User.id, isouter=True)
+         .join(Plan, Payment.plan_id == Plan.id, isouter=True)
+         .order_by(desc(Payment.created_at)))
     if status_filter:
         q = q.where(Payment.status == status_filter)
     q = q.offset(offset).limit(limit)
     result = await db.execute(q)
-    payments = result.scalars().all()
+    rows = result.all()
     return [PaymentResponse(id=str(p.id), user_id=str(p.user_id), plan_id=str(p.plan_id),
+            user_email=email, plan_name=plan_name,
             amount=float(p.amount), currency=p.currency, method=p.method, receipt_url=p.receipt_url,
             reference_code=p.reference_code, status=p.status, rejection_reason=p.rejection_reason,
-            created_at=p.created_at.isoformat()) for p in payments]
+            created_at=p.created_at.isoformat()) for p, email, plan_name in rows]
 
 
 @router.get("/payments/{payment_id}", response_model=PaymentResponse)
 async def get_payment(payment_id: str, db: AsyncSession = Depends(get_db), admin: User = Depends(get_admin)):
-    result = await db.execute(select(Payment).where(Payment.id == payment_id))
-    p = result.scalar_one_or_none()
-    if not p:
+    result = await db.execute(
+        select(Payment, User.email, Plan.name)
+        .join(User, Payment.user_id == User.id, isouter=True)
+        .join(Plan, Payment.plan_id == Plan.id, isouter=True)
+        .where(Payment.id == payment_id)
+    )
+    row = result.one_or_none()
+    if not row:
         raise HTTPException(404, "Pago no encontrado")
+    p, email, plan_name = row
     return PaymentResponse(id=str(p.id), user_id=str(p.user_id), plan_id=str(p.plan_id),
+            user_email=email, plan_name=plan_name,
             amount=float(p.amount), currency=p.currency, method=p.method, receipt_url=p.receipt_url,
             reference_code=p.reference_code, status=p.status, rejection_reason=p.rejection_reason,
             created_at=p.created_at.isoformat())
@@ -381,6 +442,8 @@ async def approve_payment(payment_id: str, db: AsyncSession = Depends(get_db), a
     payment = result.scalar_one_or_none()
     if not payment:
         raise HTTPException(404, "Pago no encontrado")
+    if payment.status != "pending":
+        raise HTTPException(400, f"El pago ya fue {payment.status}")
     payment.status = "approved"
     payment.reviewed_by = admin.id
     payment.reviewed_at = datetime.now(timezone.utc)
@@ -392,6 +455,13 @@ async def approve_payment(payment_id: str, db: AsyncSession = Depends(get_db), a
         from app.models.plan import Plan
         plan = (await db.execute(select(Plan).where(Plan.id == payment.plan_id))).scalar_one_or_none()
         if plan:
+            # Expire old active subscriptions
+            await db.execute(
+                update(Subscription).where(
+                    Subscription.user_id == payment.user_id,
+                    Subscription.status == "active"
+                ).values(status="expired")
+            )
             now = datetime.now(timezone.utc)
             sub = Subscription(user_id=payment.user_id, plan_id=plan.id, status="active",
                                starts_at=now, expires_at=now + timedelta(days=30))
@@ -402,12 +472,13 @@ async def approve_payment(payment_id: str, db: AsyncSession = Depends(get_db), a
     # Email notification
     import asyncio
     from app.services.email_service import send_payment_approved
+    from app.api.v1.auth import safe_send_email
     from app.models.user import User as UserModel
     user = (await db.execute(select(UserModel).where(UserModel.id == payment.user_id))).scalar_one_or_none()
     if user and payment.plan_id:
         from app.models.plan import Plan
         plan = (await db.execute(select(Plan).where(Plan.id == payment.plan_id))).scalar_one_or_none()
-        asyncio.create_task(send_payment_approved(user.email, user.first_name, plan.name if plan else "Premium"))
+        asyncio.create_task(safe_send_email(send_payment_approved(user.email, user.first_name, plan.name if plan else "Premium")))
 
     return {"ok": True}
 
@@ -418,6 +489,8 @@ async def reject_payment(payment_id: str, data: PaymentRejectRequest, db: AsyncS
     payment = result.scalar_one_or_none()
     if not payment:
         raise HTTPException(404, "Pago no encontrado")
+    if payment.status != "pending":
+        raise HTTPException(400, f"El pago ya fue {payment.status}")
     payment.status = "rejected"
     payment.rejection_reason = data.reason
     payment.reviewed_by = admin.id

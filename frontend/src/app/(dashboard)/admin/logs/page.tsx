@@ -13,8 +13,8 @@ export default function LogsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Logs de actividad</h1>
-        <p className="text-slate-500">Registro de actividad del sistema</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Logs de actividad</h1>
+        <p className="text-slate-500 dark:text-slate-400">Registro de actividad del sistema</p>
       </div>
 
       <Card>
@@ -24,7 +24,7 @@ export default function LogsPage() {
           ) : logs?.length === 0 ? (
             <div className="flex flex-col items-center py-12">
               <ScrollText className="h-12 w-12 text-slate-300 mb-4" />
-              <p className="text-slate-500">No hay registros de actividad</p>
+              <p className="text-slate-500 dark:text-slate-400">No hay registros de actividad</p>
             </div>
           ) : (
             <Table>
@@ -41,7 +41,7 @@ export default function LogsPage() {
                   <TableRow key={log.id}>
                     <TableCell className="text-sm">{new Date(log.created_at).toLocaleString("es-PE")}</TableCell>
                     <TableCell className="font-medium">{log.action}</TableCell>
-                    <TableCell className="text-slate-500">{log.entity_type || "—"}</TableCell>
+                    <TableCell className="text-slate-500 dark:text-slate-400">{log.entity_type || "—"}</TableCell>
                     <TableCell className="text-xs text-slate-400 max-w-xs truncate">
                       {log.details ? JSON.stringify(log.details) : "—"}
                     </TableCell>

@@ -15,8 +15,8 @@ export default function AlumnoMateriasPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Mis Materias</h1>
-          <p className="text-slate-500">Secciones en las que estás inscrito</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Mis Materias</h1>
+          <p className="text-slate-500 dark:text-slate-400">Secciones en las que estás inscrito</p>
         </div>
         <Link href="/alumno/unirse"><Button className="bg-indigo-600 hover:bg-indigo-700"><Plus className="h-4 w-4 mr-2" />Unirme</Button></Link>
       </div>
@@ -26,9 +26,9 @@ export default function AlumnoMateriasPage() {
       ) : sections?.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center py-12">
-            <BookOpen className="h-12 w-12 text-slate-300 mb-4" />
+            <BookOpen className="h-12 w-12 text-slate-300 dark:text-slate-600 mb-4" />
             <h3 className="text-lg font-medium mb-1">Sin materias</h3>
-            <p className="text-sm text-slate-500 mb-4">Únete a una clase con el código de tu profesor</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Únete a una clase con el código de tu profesor</p>
             <Link href="/alumno/unirse"><Button className="bg-indigo-600 hover:bg-indigo-700">Unirme a clase</Button></Link>
           </CardContent>
         </Card>
@@ -43,7 +43,7 @@ export default function AlumnoMateriasPage() {
                   </div>
                   <div>
                     <h3 className="font-medium">{s.subject_name}</h3>
-                    <p className="text-sm text-slate-500">{s.name}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{s.name}</p>
                     <div className="flex items-center gap-1 mt-2 text-xs text-slate-400">
                       <User className="h-3 w-3" />{s.profesor_name}
                     </div>

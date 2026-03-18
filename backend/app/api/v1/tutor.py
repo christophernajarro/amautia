@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc
 from app.core.database import get_db
 from app.core.dependencies import get_alumno
+from app.core.utils import parse_uuid
 from app.models.user import User
 from app.models.tutor import TutorChat, TutorMessage, StudyPlan, StudyPlanTopic, PracticeExercise
 from app.models.student_exam import StudentExam
@@ -21,9 +22,11 @@ router = APIRouter()
 # ─── Chat ───
 
 @router.get("/chats")
-async def list_chats(db: AsyncSession = Depends(get_db), user: User = Depends(get_alumno)):
+async def list_chats(skip: int = 0, limit: int = 50,
+                     db: AsyncSession = Depends(get_db), user: User = Depends(get_alumno)):
     chats = (await db.execute(
         select(TutorChat).where(TutorChat.student_id == user.id).order_by(desc(TutorChat.updated_at))
+        .offset(skip).limit(limit)
     )).scalars().all()
     return [{"id": str(c.id), "title": c.title or "Nueva conversación",
              "is_active": c.is_active, "created_at": c.created_at.isoformat()} for c in chats]
@@ -32,7 +35,7 @@ async def list_chats(db: AsyncSession = Depends(get_db), user: User = Depends(ge
 @router.post("/chats")
 async def create_chat(subject_id: str = Form(None), title: str = Form("Nueva conversación"),
                       db: AsyncSession = Depends(get_db), user: User = Depends(get_alumno)):
-    chat = TutorChat(student_id=user.id, subject_id=uuid.UUID(subject_id) if subject_id else None, title=title)
+    chat = TutorChat(student_id=user.id, subject_id=parse_uuid(subject_id, "subject_id") if subject_id else None, title=title)
     db.add(chat)
     await db.commit()
     await db.refresh(chat)
@@ -65,31 +68,47 @@ async def send_message(chat_id: str, content: str = Form(...), stream: bool = Fo
     if not chat:
         raise HTTPException(404, "Chat no encontrado")
 
-    # Save user message
+    # Save user message and commit before streaming to prevent message loss
     user_msg = TutorMessage(chat_id=chat.id, role="user", content=content)
     db.add(user_msg)
+    await db.commit()
 
-    # Build conversation history
-    messages = (await db.execute(
+    # Build conversation history as structured messages
+    history_rows = (await db.execute(
         select(TutorMessage).where(TutorMessage.chat_id == chat.id).order_by(TutorMessage.created_at).limit(20)
     )).scalars().all()
 
-    history = "\n".join([f"{'Alumno' if m.role == 'user' else 'Tutor'}: {m.content}" for m in messages])
-    prompt = f"Historial:\n{history}\n\nAlumno: {content}\n\nTutor:"
+    # Build a structured prompt with clear message boundaries
+    history_parts = []
+    for m in history_rows:
+        role_label = "Alumno" if m.role == "user" else "Tutor (Amautia)"
+        history_parts.append(f"[{role_label}]\n{m.content}")
+    history_block = "\n\n".join(history_parts)
+
+    prompt = (
+        f"{TUTOR_SYSTEM}\n\n"
+        f"=== Historial de conversación ===\n{history_block}\n\n"
+        f"[Alumno]\n{content}\n\n"
+        f"[Tutor (Amautia)]\n"
+    ) if TUTOR_SYSTEM else (
+        f"=== Historial de conversación ===\n{history_block}\n\n"
+        f"[Alumno]\n{content}\n\n"
+        f"[Tutor (Amautia)]\n"
+    )
 
     ai_config = await get_ai_config(db, "tutor")
 
     if stream:
         async def generate():
             full_response = ""
-            stream_prompt = f"{TUTOR_SYSTEM}\n\n{prompt}" if TUTOR_SYSTEM else prompt
-            async for chunk in stream_ai(stream_prompt, config=ai_config):
+            async for chunk in stream_ai(prompt, config=ai_config):
                 full_response += chunk
                 yield f"data: {json.dumps({'text': chunk})}\n\n"
 
-            # Save assistant message
-            async with get_db().__anext__() as session:
-                assistant_msg = TutorMessage(chat_id=uuid.UUID(chat_id), role="assistant", content=full_response)
+            # Save assistant message using a fresh session
+            from app.core.database import async_session
+            async with async_session() as session:
+                assistant_msg = TutorMessage(chat_id=parse_uuid(chat_id, "chat_id"), role="assistant", content=full_response)
                 session.add(assistant_msg)
                 await session.commit()
 
@@ -97,13 +116,12 @@ async def send_message(chat_id: str, content: str = Form(...), stream: bool = Fo
 
         return StreamingResponse(generate(), media_type="text/event-stream")
     else:
-        full_prompt = f"{TUTOR_SYSTEM}\n\n{prompt}" if TUTOR_SYSTEM else prompt
-        response = await call_ai(full_prompt, config=ai_config)
+        response = await call_ai(prompt, config=ai_config)
         assistant_msg = TutorMessage(chat_id=chat.id, role="assistant", content=response)
         db.add(assistant_msg)
 
         # Update chat title from first message
-        if not messages:
+        if not history_rows:
             chat.title = content[:50]
 
         await db.commit()
@@ -140,7 +158,7 @@ async def generate_study_plan(subject_id: str = Form(None),
     response = await call_ai(prompt, config=ai_config)
     data = extract_json(response)
 
-    plan = StudyPlan(student_id=user.id, subject_id=uuid.UUID(subject_id) if subject_id else None,
+    plan = StudyPlan(student_id=user.id, subject_id=parse_uuid(subject_id, "subject_id") if subject_id else None,
                      title=data.get("title", "Plan de estudio") if data else "Plan de estudio",
                      generated_plan=data, status="active")
     db.add(plan)
@@ -166,7 +184,7 @@ async def study_plan_detail(plan_id: str, db: AsyncSession = Depends(get_db), us
     plan = (await db.execute(select(StudyPlan).where(
         StudyPlan.id == plan_id, StudyPlan.student_id == user.id))).scalar_one_or_none()
     if not plan:
-        raise HTTPException(404)
+        raise HTTPException(404, "Recurso no encontrado")
 
     topics = (await db.execute(
         select(StudyPlanTopic).where(StudyPlanTopic.study_plan_id == plan.id).order_by(StudyPlanTopic.order_index)
@@ -185,16 +203,23 @@ async def study_plan_detail(plan_id: str, db: AsyncSession = Depends(get_db), us
 @router.patch("/study-plans/{plan_id}/topics/{topic_id}")
 async def update_topic_progress(plan_id: str, topic_id: str, status: str = Form("completed"),
                                 db: AsyncSession = Depends(get_db), user: User = Depends(get_alumno)):
-    topic = (await db.execute(select(StudyPlanTopic).where(StudyPlanTopic.id == topic_id))).scalar_one_or_none()
+    # Verify the study plan belongs to the current student
+    plan_check = (await db.execute(select(StudyPlan).where(
+        StudyPlan.id == plan_id, StudyPlan.student_id == user.id))).scalar_one_or_none()
+    if not plan_check:
+        raise HTTPException(404, "Recurso no encontrado")
+
+    topic = (await db.execute(select(StudyPlanTopic).where(
+        StudyPlanTopic.id == topic_id, StudyPlanTopic.study_plan_id == parse_uuid(plan_id, "plan_id")))).scalar_one_or_none()
     if not topic:
-        raise HTTPException(404)
+        raise HTTPException(404, "Recurso no encontrado")
     topic.status = status
     if status == "completed":
         topic.exercises_completed = topic.exercises_total
 
     # Update plan progress
     all_topics = (await db.execute(
-        select(StudyPlanTopic).where(StudyPlanTopic.study_plan_id == uuid.UUID(plan_id))
+        select(StudyPlanTopic).where(StudyPlanTopic.study_plan_id == parse_uuid(plan_id, "plan_id"))
     )).scalars().all()
     completed = sum(1 for t in all_topics if t.status == "completed")
     plan = (await db.execute(select(StudyPlan).where(StudyPlan.id == plan_id))).scalar_one()
@@ -238,7 +263,7 @@ Responde SOLO con JSON."""
         for ex in data["exercises"]:
             pe = PracticeExercise(
                 student_id=user.id,
-                topic_id=uuid.UUID(topic_id) if topic_id else None,
+                topic_id=parse_uuid(topic_id, "topic_id") if topic_id else None,
                 question_text=ex.get("text", ""), question_type=ex.get("type", "open"),
                 correct_answer=ex.get("answer", ""), difficulty=ex.get("difficulty", difficulty),
             )
@@ -256,7 +281,7 @@ async def submit_exercise(exercise_id: str, answer: str = Form(...),
     ex = (await db.execute(select(PracticeExercise).where(
         PracticeExercise.id == exercise_id, PracticeExercise.student_id == user.id))).scalar_one_or_none()
     if not ex:
-        raise HTTPException(404)
+        raise HTTPException(404, "Recurso no encontrado")
 
     ai_config = await get_ai_config(db, "correction")
     prompt = f"""Evalúa esta respuesta:

@@ -9,17 +9,15 @@ import {
   Users, GraduationCap, FileText, CreditCard, TrendingUp,
   ArrowRight, DollarSign, CheckCircle, UserPlus, Activity,
 } from "lucide-react";
-import { ActivityChart } from "@/components/charts/activity-chart";
-
 export default function AdminDashboard() {
   const { data: stats, isLoading } = useAdminStats();
   const s = stats as any;
 
   const kpis = [
-    { label: "Usuarios", value: s?.total_users || 0, sub: `${s?.total_profesores || 0} prof · ${s?.total_alumnos || 0} alum`, icon: Users, color: "text-indigo-600", bg: "bg-indigo-50", href: "/admin/usuarios" },
-    { label: "Exámenes", value: s?.total_exams || 0, sub: `${s?.corrected_exams || 0} corregidos`, icon: FileText, color: "text-violet-600", bg: "bg-violet-50", href: "#" },
-    { label: "Ingresos", value: `S/${s?.total_revenue?.toFixed(0) || 0}`, sub: `${s?.active_subscriptions || 0} subs activas`, icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50", href: "/admin/pagos" },
-    { label: "Suscripciones", value: s?.active_subscriptions || 0, sub: "activas", icon: CreditCard, color: "text-amber-600", bg: "bg-amber-50", href: "/admin/planes" },
+    { label: "Usuarios", value: s?.total_users || 0, sub: `${s?.total_profesores || 0} prof · ${s?.total_alumnos || 0} alum`, icon: Users, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-950/50", href: "/admin/usuarios" },
+    { label: "Exámenes", value: s?.total_exams || 0, sub: `${s?.total_corrections || 0} corregidos`, icon: FileText, color: "text-violet-600", bg: "bg-violet-50 dark:bg-violet-950/50", href: "#" },
+    { label: "Ingresos", value: `S/${s?.total_revenue?.toFixed(0) || 0}`, sub: `${s?.active_subscriptions || 0} subs activas`, icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/50", href: "/admin/pagos" },
+    { label: "Suscripciones", value: s?.active_subscriptions || 0, sub: "activas", icon: CreditCard, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/50", href: "/admin/planes" },
   ];
 
   const quickActions = [
@@ -29,23 +27,12 @@ export default function AdminDashboard() {
     { label: "Ver logs", icon: FileText, href: "/admin/logs", color: "text-slate-600" },
   ];
 
-  // Mock activity data for chart
-  const activityData = [
-    { date: "Lun", registros: 3, exams: 1, corrections: 2 },
-    { date: "Mar", registros: 5, exams: 2, corrections: 4 },
-    { date: "Mié", registros: 2, exams: 3, corrections: 1 },
-    { date: "Jue", registros: 4, exams: 1, corrections: 3 },
-    { date: "Vie", registros: 6, exams: 4, corrections: 5 },
-    { date: "Sáb", registros: 1, exams: 0, corrections: 0 },
-    { date: "Dom", registros: 0, exams: 0, corrections: 0 },
-  ];
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Panel de Administración</h1>
-          <p className="text-slate-500">Vista general del sistema Amautia</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Panel de Administración</h1>
+          <p className="text-slate-500 dark:text-slate-400">Vista general del sistema Amautia</p>
         </div>
       </div>
 
@@ -57,11 +44,11 @@ export default function AdminDashboard() {
               <CardContent className="pt-6 pb-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm text-slate-500">{kpi.label}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{kpi.label}</p>
                     {isLoading ? <Skeleton className="h-9 w-20 mt-1" /> : (
                       <p className="text-3xl font-bold mt-1">{kpi.value}</p>
                     )}
-                    <p className="text-xs text-slate-400 mt-1">{kpi.sub}</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{kpi.sub}</p>
                   </div>
                   <div className={`h-12 w-12 rounded-xl ${kpi.bg} flex items-center justify-center`}>
                     <kpi.icon className={`h-6 w-6 ${kpi.color}`} />
@@ -83,7 +70,9 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ActivityChart data={activityData} />
+            <div className="flex items-center justify-center h-[250px] text-slate-400 dark:text-slate-500 text-sm">
+              Sin datos de actividad semanal
+            </div>
           </CardContent>
         </Card>
 
@@ -97,7 +86,7 @@ export default function AdminDashboard() {
                     <action.icon className={`h-5 w-5 ${action.color}`} />
                     <span className="text-sm">{action.label}</span>
                   </span>
-                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-slate-600 transition-colors" />
+                  <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-slate-600 dark:text-slate-600 dark:group-hover:text-slate-400 transition-colors" />
                 </Button>
               </Link>
             ))}
@@ -115,25 +104,25 @@ export default function AdminDashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-50">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30">
               <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
               <div>
-                <p className="text-sm font-medium text-emerald-900">API Backend</p>
-                <p className="text-xs text-emerald-700">Operativo</p>
+                <p className="text-sm font-medium text-emerald-900 dark:text-emerald-200">API Backend</p>
+                <p className="text-xs text-emerald-700 dark:text-emerald-400">Operativo</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-50">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30">
               <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
               <div>
-                <p className="text-sm font-medium text-emerald-900">Base de datos</p>
-                <p className="text-xs text-emerald-700">PostgreSQL activo</p>
+                <p className="text-sm font-medium text-emerald-900 dark:text-emerald-200">Base de datos</p>
+                <p className="text-xs text-emerald-700 dark:text-emerald-400">PostgreSQL activo</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-50">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/30">
               <div className="h-3 w-3 rounded-full bg-amber-500" />
               <div>
-                <p className="text-sm font-medium text-amber-900">Motor IA</p>
-                <p className="text-xs text-amber-700">Mock (sin API key)</p>
+                <p className="text-sm font-medium text-amber-900 dark:text-amber-200">Motor IA</p>
+                <p className="text-xs text-amber-700 dark:text-amber-400">Mock (sin API key)</p>
               </div>
             </div>
           </div>
