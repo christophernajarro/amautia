@@ -125,21 +125,25 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground leading-relaxed;
-    font-size: 1rem;
+    @apply bg-background text-foreground;
+    font-size: 1.0625rem; /* 17px base */
+    line-height: 1.65;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
   }
   html {
     @apply font-sans scroll-smooth;
-    font-size: 16px;
+    font-size: 17px; /* Root size — all rem values scale from this */
   }
-  /* ─── Readable font sizes for education users (30-60 years) ─── */
-  .text-xs { font-size: 0.8125rem !important; line-height: 1.5 !important; }  /* 13px */
-  .text-sm { font-size: 0.9375rem !important; line-height: 1.5 !important; }  /* 15px */
-  .text-base { font-size: 1rem !important; }                                   /* 16px */
-  .text-lg { font-size: 1.125rem !important; }                                 /* 18px */
-  .text-xl { font-size: 1.3rem !important; }                                   /* ~21px */
-  .text-2xl { font-size: 1.625rem !important; }                                /* 26px */
-  .text-3xl { font-size: 2rem !important; }                                    /* 32px */
+  /* ─── Scaled font sizes for education users (30-60 years) ─── */
+  .text-xs  { font-size: 0.824rem !important; line-height: 1.5 !important; }  /* ~14px */
+  .text-sm  { font-size: 0.941rem !important; line-height: 1.55 !important; } /* ~16px */
+  .text-base { font-size: 1rem !important; line-height: 1.65 !important; }    /* 17px */
+  .text-lg  { font-size: 1.176rem !important; }                               /* 20px */
+  .text-xl  { font-size: 1.412rem !important; }                               /* 24px */
+  .text-2xl { font-size: 1.765rem !important; }                               /* 30px */
+  .text-3xl { font-size: 2.118rem !important; }                               /* 36px */
+  .text-4xl { font-size: 2.588rem !important; }                               /* 44px */
   /* ─── Comfortable touch targets (WCAG) ─── */
   main button, main [role="button"], main a.inline-flex {
     min-height: 44px;

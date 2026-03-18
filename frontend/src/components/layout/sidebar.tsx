@@ -107,8 +107,8 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
           {links.map((link: any, i: number) => {
             if (link.type === "separator") {
               return (
-                <div key={`sep-${i}`} className="pt-4 pb-1.5 px-3">
-                  <span className="text-[10px] font-semibold uppercase tracking-widest text-white/20">{link.label}</span>
+                <div key={`sep-${i}`} className="pt-5 pb-2 px-3">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-white/25">{link.label}</span>
                 </div>
               );
             }
@@ -119,13 +119,13 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
                 href={link.href}
                 onClick={onClose}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-[14px] font-medium transition-all duration-150",
+                  "flex items-center gap-3.5 rounded-lg px-3.5 py-3 text-[15px] font-medium transition-all duration-150",
                   isActive
                     ? "bg-amber-500/10 text-amber-300 border border-amber-500/15"
                     : "text-white/40 hover:bg-white/[0.04] hover:text-white/70 border border-transparent"
                 )}
               >
-                <link.icon className={cn("h-[18px] w-[18px]", isActive ? "text-amber-400" : "")} />
+                <link.icon className={cn("h-5 w-5", isActive ? "text-amber-400" : "")} />
                 {link.label}
               </Link>
             );
