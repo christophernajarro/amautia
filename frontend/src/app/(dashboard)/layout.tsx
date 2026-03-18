@@ -47,11 +47,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-background">
       <Sidebar user={user} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="lg:pl-60">
+      <div className="lg:pl-64">
         <Navbar user={user} onMenuClick={() => setSidebarOpen(true)} />
-        <main className="p-6">
+        <main className="px-6 py-8 lg:px-10 lg:py-10">
           {children}
         </main>
       </div>

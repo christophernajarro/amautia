@@ -205,7 +205,7 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
   return (
     <>
       {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-60 lg:flex-col border-r border-white/[0.06]">
+      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col border-r border-white/[0.06]">
         {content}
       </div>
 
@@ -213,7 +213,7 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
       {open && (
         <>
           <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm lg:hidden" onClick={onClose} />
-          <div className="fixed inset-y-0 left-0 z-50 w-60 lg:hidden">
+          <div className="fixed inset-y-0 left-0 z-50 w-64 lg:hidden">
             {content}
           </div>
         </>

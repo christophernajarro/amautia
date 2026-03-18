@@ -26,18 +26,18 @@ export default function ProfesorDashboard() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Mi Panel</h1>
-          <p className="text-slate-500 dark:text-slate-400">Bienvenido de vuelta, profesor</p>
+          <h1 className="text-3xl font-bold text-foreground">Mi Panel</h1>
+          <p className="text-base text-muted-foreground mt-1">Bienvenido de vuelta, profesor</p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
           <Link href="/profesor/examenes/nuevo" className="flex-1 sm:flex-initial">
-            <Button className="bg-indigo-600 hover:bg-indigo-700 w-full sm:w-auto">
-              <Plus className="h-4 w-4 mr-2" />Nuevo examen
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto h-12 text-base px-6">
+              <Plus className="h-5 w-5 mr-2" />Nuevo examen
             </Button>
           </Link>
           <Link href="/profesor/generar" className="flex-1 sm:flex-initial">
-            <Button variant="outline" className="w-full sm:w-auto">
-              <Sparkles className="h-4 w-4 mr-2" />Generar con IA
+            <Button variant="outline" className="w-full sm:w-auto h-12 text-base px-6">
+              <Sparkles className="h-5 w-5 mr-2" />Generar con IA
             </Button>
           </Link>
         </div>
