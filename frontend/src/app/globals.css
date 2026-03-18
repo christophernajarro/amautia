@@ -205,6 +205,7 @@
   animation: gradient-shift 6s ease-in-out infinite;
 }
 .animate-marquee { animation: marquee 40s linear infinite; }
+.animate-marquee-reverse { animation: marquee 45s linear infinite reverse; }
 .animate-pulse-ring { animation: pulse-ring 2s ease-out infinite; }
 
 /* Grain texture overlay */
