@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /profesor
+Disallow: /alumno
+Disallow: /padre
+Disallow: /perfil
+Disallow: /api/
+
+Sitemap: https://amautia.com/sitemap.xml

@@ -93,6 +93,190 @@ const faqs = [
   { q: "¿Cómo funciona el soporte?", a: "Ofrecemos soporte por email para el plan Básico, soporte prioritario por chat para Profesional, y soporte 24/7 con línea directa para el plan Institucional." },
 ];
 
+/* ─── Structured Data (SEO / AEO) ────────────────────────────────── */
+function StructuredData() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Amautia",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "url": "https://amautia.com",
+        "description": "Plataforma educativa con IA para corrección automática de exámenes, generación de evaluaciones y tutor IA personalizado para profesores en Latinoamérica.",
+        "offers": [
+          {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "PEN",
+            "name": "Plan Gratuito",
+            "description": "14 días de prueba gratis"
+          },
+          {
+            "@type": "Offer",
+            "price": "29",
+            "priceCurrency": "PEN",
+            "name": "Plan Básico"
+          },
+          {
+            "@type": "Offer",
+            "price": "59",
+            "priceCurrency": "PEN",
+            "name": "Plan Profesional"
+          },
+          {
+            "@type": "Offer",
+            "price": "149",
+            "priceCurrency": "PEN",
+            "name": "Plan Institucional"
+          }
+        ],
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "ratingCount": "127",
+          "bestRating": "5"
+        },
+        "featureList": [
+          "Corrección automática de exámenes con IA",
+          "Generación de exámenes con inteligencia artificial",
+          "Tutor IA personalizado para cada alumno",
+          "Quiz en vivo con PIN",
+          "Banco de preguntas reutilizable",
+          "Libro de calificaciones digital",
+          "Estadísticas y analíticas psicométricas",
+          "Evaluación por pares",
+          "Detección de plagio",
+          "Certificados digitales"
+        ]
+      },
+      {
+        "@type": "Organization",
+        "name": "Amautia",
+        "url": "https://amautia.com",
+        "logo": "https://amautia.com/icons/icon-512.png",
+        "sameAs": [],
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "PE",
+          "addressLocality": "Lima"
+        },
+        "areaServed": [
+          { "@type": "Country", "name": "Peru" },
+          { "@type": "Country", "name": "Colombia" },
+          { "@type": "Country", "name": "Mexico" },
+          { "@type": "Country", "name": "Chile" },
+          { "@type": "Country", "name": "Argentina" }
+        ],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": "soporte@amautia.com",
+          "contactType": "customer support",
+          "availableLanguage": "Spanish"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "¿Cómo funciona la corrección de exámenes con IA de Amautia?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Subes una foto o PDF del examen modelo con las respuestas correctas, luego subes los exámenes de tus alumnos. La IA compara cada respuesta con la clave, asigna puntaje según tu rúbrica y genera retroalimentación personalizada en menos de 30 segundos."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Qué tan precisa es la corrección automática con IA?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "La IA de Amautia alcanza un 94% de precisión en corrección. Siempre puedes revisar y ajustar las calificaciones antes de publicar los resultados a los alumnos."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Amautia funciona en Perú, Colombia y México?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Sí, Amautia está disponible para profesores en toda Latinoamérica. Más de 500 profesores en Perú, Colombia, México, Chile y Argentina ya usan la plataforma. Los pagos se aceptan en moneda local."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Cuánto cuesta Amautia?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Amautia ofrece 14 días de prueba gratuita. Los planes van desde S/29/mes (Básico) hasta S/149/mes (Institucional). No se requiere tarjeta de crédito para empezar."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Qué formatos de examen acepta Amautia?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Amautia acepta PDF, imágenes (JPG, PNG) y documentos Word. Puedes tomar una foto directamente desde tu celular o escanear el examen."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Amautia incluye un tutor IA para los alumnos?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Sí, cada alumno tiene acceso a un tutor IA personalizado que explica sus errores, resuelve dudas, genera ejercicios de práctica y crea planes de estudio adaptados a sus necesidades."
+            }
+          }
+        ]
+      },
+      {
+        "@type": "HowTo",
+        "name": "Cómo corregir exámenes con IA usando Amautia",
+        "description": "Guía paso a paso para corregir exámenes automáticamente con inteligencia artificial en Amautia.",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "position": 1,
+            "name": "Sube el examen de referencia",
+            "text": "Fotografía o escanea el examen modelo con las respuestas correctas y súbelo a Amautia."
+          },
+          {
+            "@type": "HowToStep",
+            "position": 2,
+            "name": "La IA corrige automáticamente",
+            "text": "Sube los exámenes de tus alumnos. La IA los procesa en paralelo, comparando cada respuesta con la clave."
+          },
+          {
+            "@type": "HowToStep",
+            "position": 3,
+            "name": "Revisa y publica resultados",
+            "text": "Revisa las calificaciones generadas, ajusta si es necesario y comparte los resultados con retroalimentación personalizada."
+          }
+        ],
+        "totalTime": "PT2M"
+      },
+      {
+        "@type": "WebSite",
+        "name": "Amautia",
+        "url": "https://amautia.com",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://amautia.com/?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        },
+        "inLanguage": "es"
+      }
+    ]
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
+
 /* ─── Page ───────────────────────────────────────────────────────── */
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
@@ -110,6 +294,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#06060a] text-white overflow-x-hidden">
+      <StructuredData />
       {/* ═══════ NAV ═══════ */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-[#06060a]/90 backdrop-blur-2xl border-b border-white/[0.06] shadow-2xl shadow-black/20" : ""}`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 lg:px-8 h-20">
