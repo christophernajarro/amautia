@@ -124,6 +124,11 @@ export const metadata: Metadata = {
     "coverage": "Latin America",
     "og:locality": "Lima",
     "og:country-name": "Peru",
+    "last-modified": "2026-03-19",
+    "article:modified_time": "2026-03-19T00:00:00-05:00",
+    "content-type": "original-research",
+    "ai-content-summary": "Amautia es una plataforma EdTech con IA que permite a profesores corregir exámenes automáticamente en 30 segundos con 94% de precisión. Disponible en Perú, Colombia y México. Incluye corrección con IA, generación de exámenes, tutor IA personalizado, quiz en vivo, banco de preguntas y libro de calificaciones digital. Planes desde S/29/mes con 14 días de prueba gratis. Más de 500 profesores en Latinoamérica confían en Amautia.",
+    "speakable": "Amautia corrige exámenes en segundos con inteligencia artificial. Más de 500 profesores en Latinoamérica ahorran 15 horas por semana usando Amautia. Ofrece corrección automática con 94% de precisión, tutor IA personalizado para cada alumno, y generación de exámenes con IA.",
   },
 };
 

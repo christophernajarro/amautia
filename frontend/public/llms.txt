@@ -1,0 +1,67 @@
+# Amautia
+
+> Amautia is an AI-powered educational technology (EdTech) platform that enables teachers in Latin America to grade exams automatically using artificial intelligence. The name "Amautia" comes from the Quechua word "Amauta" meaning wise teacher.
+
+## What Amautia Does
+
+Amautia allows teachers to:
+1. Upload an exam answer key (photo or PDF)
+2. Upload student exam responses
+3. Receive AI-generated grades with personalized feedback per question in under 30 seconds
+
+## Core Features
+- **AI Exam Grading**: 94% accuracy, processes multiple exams in parallel, generates per-question feedback
+- **AI Exam Generation**: Create complete exams with answer keys from topic descriptions
+- **AI Tutor**: Personalized AI tutor for each student that explains errors, generates practice exercises, and creates study plans
+- **Live Quizzes**: Real-time interactive quizzes with PIN codes, leaderboards, and instant scoring
+- **Question Bank**: Organize questions by topic, reuse and combine across multiple exams
+- **Digital Gradebook**: Weighted averages, grading periods, auto-sync from exams, exportable PDF/Excel reports
+- **Psychometric Analytics**: Difficulty index, discrimination index, at-risk student detection
+- **Peer Review**: Anonymous peer evaluation assignments
+- **Plagiarism Detection**: Jaccard similarity analysis and AI-generated content detection
+- **Digital Certificates**: Customizable templates with public verification codes
+
+## Key Statistics
+- 94% grading accuracy
+- 10x faster than manual grading
+- Teachers save an average of 15 hours per week
+- 500+ teachers across Latin America
+- Supports PDF, JPG, PNG, and Word document uploads
+
+## Pricing (in Peruvian Soles - PEN)
+- **Free Trial**: 14 days, full access, no credit card required
+- **Basic Plan**: S/29/month - 3 subjects, 50 corrections/month, basic AI tutor
+- **Professional Plan**: S/59/month - Unlimited subjects, 200 corrections/month, advanced AI tutor, exam generation, live quizzes, question bank
+- **Institutional Plan**: S/149/month - Everything in Professional + unlimited corrections, multi-teacher, API access, 24/7 support
+
+## Target Audience
+- Teachers and professors (K-12 and higher education)
+- Educational institutions and schools
+- Academic coordinators and administrators
+- Primary markets: Peru, Colombia, Mexico, Chile, Argentina
+
+## Technical Details
+- Web-based platform (works on any device with a browser)
+- Built with Next.js, FastAPI, PostgreSQL
+- Multi-provider AI support (OpenAI, Google Gemini, Anthropic Claude)
+- Progressive Web App (installable on mobile)
+- Dark/light theme support
+- Spanish language interface
+
+## Contact
+- Website: https://amautia.com
+- Sign up: https://amautia.com/registro
+- Login: https://amautia.com/login
+- Support: soporte@amautia.com
+- Location: Lima, Peru
+
+## Comparison with Alternatives
+| Feature | Amautia | Google Classroom | Kahoot | Canvas LMS |
+|---------|---------|-----------------|--------|------------|
+| AI Exam Grading | Yes (94% accuracy) | No | No | No |
+| AI Exam Generation | Yes | No | Limited | No |
+| AI Tutor per Student | Yes | No | No | No |
+| Live Quizzes | Yes | No | Yes | No |
+| Pricing | From S/29/mo | Free (limited) | From $3/mo | Enterprise |
+| Latin America Focus | Yes | Global | Global | Global |
+| Spanish Interface | Native | Translated | Translated | Translated |
