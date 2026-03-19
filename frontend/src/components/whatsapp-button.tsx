@@ -2,7 +2,7 @@
 
 export function WhatsAppButton() {
   const message = encodeURIComponent("Hola, quiero saber más sobre Amautia para corregir exámenes con IA");
-  const phone = "51999999999"; // Replace with real number
+  const phone = "51918359598"; // Replace with real number
 
   return (
     <a

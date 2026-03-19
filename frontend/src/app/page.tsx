@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { DemoModal } from "@/components/demo-modal";
 
 /* ─── CountUp ────────────────────────────────────────────────────── */
 function CountUp({ end, suffix = "", prefix = "", duration = 2000 }: { end: number; suffix?: string; prefix?: string; duration?: number }) {
@@ -70,12 +71,12 @@ const stats = [
 ];
 
 const testimonials = [
-  { quote: "Reduje el tiempo de corrección de 4 horas a 10 minutos. La retroalimentación que genera la IA es increíblemente detallada.", author: "Prof. María García", institution: "Colegio San Marcos, Lima" },
-  { quote: "Mis alumnos mejoraron un 30% en sus notas usando el tutor IA. Es como tener un asistente para cada uno.", author: "Prof. Carlos Rivera", institution: "Universidad Nacional de Ingeniería" },
-  { quote: "Generar exámenes variados ahora me toma 2 minutos. Antes me llevaba toda la tarde del domingo.", author: "Prof. Ana Flores", institution: "I.E. Túpac Amaru, Cusco" },
-  { quote: "Las estadísticas me ayudan a identificar exactamente qué temas necesitan refuerzo antes del examen final.", author: "Prof. José Quispe", institution: "Colegio Nacional, Ica" },
-  { quote: "El tutor IA le da confianza a mis alumnos para preguntar sin miedo. Lo usan más que el WhatsApp.", author: "Prof. Rosa Chávez", institution: "I.E. María Auxiliadora, Trujillo" },
-  { quote: "La corrección automática me devolvió las tardes con mi familia. No exagero, me cambió la vida.", author: "Prof. Luis Mendoza", institution: "Colegio San José, Arequipa" },
+  { quote: "Reduje el tiempo de corrección de 4 horas a 10 minutos. La retroalimentación que genera la IA es increíblemente detallada.", author: "Prof. María García", institution: "Colegio San Marcos, Lima", photo: "/testimonials/maria.jpg" },
+  { quote: "Mis alumnos mejoraron un 30% en sus notas usando el tutor IA. Es como tener un asistente para cada uno.", author: "Prof. Carlos Rivera", institution: "Universidad Nacional de Ingeniería", photo: "/testimonials/carlos.jpg" },
+  { quote: "Generar exámenes variados ahora me toma 2 minutos. Antes me llevaba toda la tarde del domingo.", author: "Prof. Ana Flores", institution: "I.E. Túpac Amaru, Cusco", photo: "/testimonials/ana.jpg" },
+  { quote: "Las estadísticas me ayudan a identificar exactamente qué temas necesitan refuerzo antes del examen final.", author: "Prof. José Quispe", institution: "Colegio Nacional, Ica", photo: "/testimonials/jose.jpg" },
+  { quote: "El tutor IA le da confianza a mis alumnos para preguntar sin miedo. Lo usan más que el WhatsApp.", author: "Prof. Rosa Chávez", institution: "I.E. María Auxiliadora, Trujillo", photo: "/testimonials/rosa.jpg" },
+  { quote: "La corrección automática me devolvió las tardes con mi familia. No exagero, me cambió la vida.", author: "Prof. Luis Mendoza", institution: "Colegio San José, Arequipa", photo: "/testimonials/luis.jpg" },
 ];
 
 const plans = [
@@ -171,7 +172,7 @@ function StructuredData() {
         ],
         "contactPoint": {
           "@type": "ContactPoint",
-          "email": "soporte@amautia.com",
+          "email": "ventas@necs.pe",
           "contactType": "customer support",
           "availableLanguage": "Spanish"
         }
@@ -282,6 +283,7 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [annual, setAnnual] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
@@ -359,11 +361,9 @@ export default function LandingPage() {
                     Comienza gratis <ArrowRight className="h-5 w-5" />
                   </button>
                 </Link>
-                <a href="#proceso">
-                  <button className="h-14 px-8 rounded-xl border border-white/[0.1] text-lg font-medium flex items-center gap-2 hover:bg-white/[0.04] transition-all">
-                    <Play className="h-4 w-4" /> Ver cómo funciona ▶
-                  </button>
-                </a>
+                <button onClick={() => setShowDemo(true)} className="h-14 px-8 rounded-xl border border-white/[0.1] text-lg font-medium flex items-center gap-2 hover:bg-white/[0.04] transition-all">
+                  <Play className="h-4 w-4" /> Ver demostración
+                </button>
               </motion.div>
 
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.5 }} className="flex flex-wrap gap-6 mt-8 text-sm text-white/35">
@@ -532,9 +532,7 @@ export default function LandingPage() {
                     <div className="flex gap-0.5 mb-4">{[...Array(5)].map((_, j) => <Star key={j} className="h-4 w-4 fill-amber-400 text-amber-400" />)}</div>
                     <p className="text-[15px] text-white/60 leading-relaxed mb-5">&ldquo;{t.quote}&rdquo;</p>
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-500/20 to-violet-500/20 flex items-center justify-center text-sm font-bold text-white/60">
-                        {t.author.split(" ").slice(1).map(n => n[0]).join("")}
-                      </div>
+                      <img src={t.photo} alt={t.author} className="h-11 w-11 rounded-full object-cover border-2 border-white/10" />
                       <div>
                         <p className="text-sm font-semibold text-white/80">{t.author}</p>
                         <p className="text-xs text-white/30">{t.institution}</p>
@@ -596,7 +594,7 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href={plan.name === "Institucional" ? "mailto:ventas@amautia.com?subject=Demo%20Plan%20Institucional" : "/registro"}>
+                <Link href={plan.name === "Institucional" ? "mailto:ventas@necs.pe?subject=Demo%20Plan%20Institucional" : "/registro"}>
                   <button className={`w-full h-12 rounded-xl font-semibold transition-all ${plan.popular ? "bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:from-amber-400 hover:to-amber-500 shadow-lg shadow-amber-500/20" : "border border-white/[0.1] text-white hover:bg-white/[0.04]"}`}>
                     {plan.name === "Institucional" ? "Agendar demostración" : plan.popular ? "Empezar ahora" : "Empezar gratis"}
                   </button>
@@ -668,7 +666,7 @@ export default function LandingPage() {
             </div>
             {[
               { title: "Producto", links: [["Funciones", "#funciones"], ["Precios", "#precios"], ["Integraciones", "#"]] },
-              { title: "Recursos", links: [["Blog", "#"], ["Tutoriales", "#"], ["Soporte", "mailto:soporte@amautia.com"]] },
+              { title: "Recursos", links: [["Blog", "#"], ["Tutoriales", "#"], ["Soporte", "mailto:ventas@necs.pe"]] },
               { title: "Legal", links: [["Términos", "#"], ["Privacidad", "#"], ["Cookies", "#"]] },
             ].map((col) => (
               <div key={col.title}>
@@ -695,10 +693,13 @@ export default function LandingPage() {
             Prueba gratis 14 días
           </button>
         </Link>
-        <a href="https://wa.me/51999999999?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20Amautia" target="_blank" rel="noopener noreferrer" className="h-12 w-12 rounded-xl bg-[#25D366] flex items-center justify-center shrink-0">
+        <a href="https://wa.me/51918359598?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20Amautia" target="_blank" rel="noopener noreferrer" className="h-12 w-12 rounded-xl bg-[#25D366] flex items-center justify-center shrink-0">
           <MessageCircle className="h-5 w-5 text-white" />
         </a>
       </div>
+
+      {/* Demo Modal */}
+      <DemoModal open={showDemo} onClose={() => setShowDemo(false)} />
     </div>
   );
 }
