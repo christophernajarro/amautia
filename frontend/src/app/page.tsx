@@ -281,6 +281,7 @@ function StructuredData() {
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [annual, setAnnual] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
@@ -360,7 +361,7 @@ export default function LandingPage() {
                 </Link>
                 <a href="#proceso">
                   <button className="h-14 px-8 rounded-xl border border-white/[0.1] text-lg font-medium flex items-center gap-2 hover:bg-white/[0.04] transition-all">
-                    <Play className="h-4 w-4" /> Ver demostración
+                    <Play className="h-4 w-4" /> Ver cómo funciona ▶
                   </button>
                 </a>
               </motion.div>
@@ -557,14 +558,36 @@ export default function LandingPage() {
             <p className="text-lg text-white/40 mt-4">Paga con Yape, Plin o transferencia bancaria</p>
           </motion.div>
 
+          {/* Urgency banner */}
+          <div className="text-center mb-8">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm font-medium">
+              <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" /><span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" /></span>
+              Oferta de lanzamiento: primeros 100 profesores con 30% de descuento
+            </span>
+          </div>
+
+          {/* Monthly / Annual toggle */}
+          <div className="flex items-center justify-center gap-4 mb-12">
+            <span className={`text-sm font-medium ${!annual ? "text-white" : "text-white/40"}`}>Mensual</span>
+            <button
+              onClick={() => setAnnual(!annual)}
+              className={`relative h-8 w-14 rounded-full transition-colors ${annual ? "bg-amber-500" : "bg-white/10"}`}
+            >
+              <div className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform ${annual ? "translate-x-7" : "translate-x-1"}`} />
+            </button>
+            <span className={`text-sm font-medium ${annual ? "text-white" : "text-white/40"}`}>
+              Anual <span className="text-amber-400 font-bold">-20%</span>
+            </span>
+          </div>
+
           <div className="grid md:grid-cols-3 gap-6 items-start">
             {plans.map((plan, i) => (
               <motion.div key={plan.name} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className={`rounded-2xl p-8 border transition-all duration-500 ${plan.popular ? "bg-gradient-to-b from-amber-500/[0.08] to-transparent border-amber-500/30 scale-[1.03] shadow-xl shadow-amber-500/[0.05]" : "bg-white/[0.02] border-white/[0.06] hover:border-white/[0.12]"}`}>
                 {plan.popular && <span className="inline-block text-xs font-bold uppercase tracking-[0.15em] text-amber-400 bg-amber-400/[0.1] px-3 py-1 rounded-full mb-4">Más popular</span>}
                 <h3 className="text-xl font-bold">{plan.name}</h3>
                 <div className="mt-4 mb-6">
-                  <span className="text-5xl font-extrabold">S/{plan.price}</span>
-                  <span className="text-white/40 ml-2">/mes</span>
+                  <span className="text-5xl font-extrabold">S/{annual ? Math.round(parseInt(plan.price) * 0.8) : plan.price}</span>
+                  <span className="text-white/40 ml-2">/{annual ? "mes (facturado anual)" : "mes"}</span>
                 </div>
                 <ul className="space-y-3.5 mb-8">
                   {plan.features.map((f) => (
@@ -573,9 +596,9 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/registro">
+                <Link href={plan.name === "Institucional" ? "mailto:ventas@amautia.com?subject=Demo%20Plan%20Institucional" : "/registro"}>
                   <button className={`w-full h-12 rounded-xl font-semibold transition-all ${plan.popular ? "bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:from-amber-400 hover:to-amber-500 shadow-lg shadow-amber-500/20" : "border border-white/[0.1] text-white hover:bg-white/[0.04]"}`}>
-                    {plan.popular ? "Empezar ahora" : "Empezar gratis"}
+                    {plan.name === "Institucional" ? "Agendar demostración" : plan.popular ? "Empezar ahora" : "Empezar gratis"}
                   </button>
                 </Link>
               </motion.div>
@@ -631,7 +654,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════ FOOTER ═══════ */}
-      <footer className="border-t border-white/[0.04] py-16">
+      <footer className="border-t border-white/[0.04] py-16 pb-24 lg:pb-16">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-10 mb-12">
             <div>
@@ -664,6 +687,18 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Sticky mobile CTA */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-[#06060a]/95 backdrop-blur-xl border-t border-white/[0.06] p-4 flex gap-3">
+        <Link href="/registro" className="flex-1">
+          <button className="w-full h-12 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-base">
+            Prueba gratis 14 días
+          </button>
+        </Link>
+        <a href="https://wa.me/51999999999?text=Hola%2C%20quiero%20saber%20m%C3%A1s%20sobre%20Amautia" target="_blank" rel="noopener noreferrer" className="h-12 w-12 rounded-xl bg-[#25D366] flex items-center justify-center shrink-0">
+          <MessageCircle className="h-5 w-5 text-white" />
+        </a>
+      </div>
     </div>
   );
 }

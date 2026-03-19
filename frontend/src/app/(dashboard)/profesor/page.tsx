@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useProfesorDashboard } from "@/lib/api-hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,10 +11,21 @@ import { ProgressRing } from "@/components/charts/progress-ring";
 import { ScoreDistribution } from "@/components/charts/score-distribution";
 import Link from "next/link";
 import { UsageQuota } from "@/components/usage-quota";
+import { OnboardingWizard } from "@/components/onboarding-wizard";
+import { ReferralBanner } from "@/components/referral-banner";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function ProfesorDashboard() {
   const { data: stats, isLoading } = useProfesorDashboard();
   const isNewUser = !isLoading && stats && (stats as any)?.total_subjects === 0;
+  const user = useAuthStore((s) => s.user);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && stats && (stats as any)?.total_subjects === 0 && !localStorage.getItem("onboarding_done")) {
+      setShowOnboarding(true);
+    }
+  }, [isLoading, stats]);
 
   const kpis = [
     { label: "Materias", value: (stats as any)?.total_subjects || 0, icon: BookOpen, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-950/50", href: "/profesor/materias" },
@@ -24,6 +36,14 @@ export default function ProfesorDashboard() {
 
   return (
     <div className="space-y-6">
+      <OnboardingWizard
+        userName={user?.first_name || "Profesor"}
+        open={showOnboarding}
+        onClose={() => {
+          setShowOnboarding(false);
+          localStorage.setItem("onboarding_done", "true");
+        }}
+      />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Mi Panel</h1>
@@ -44,6 +64,8 @@ export default function ProfesorDashboard() {
       </div>
 
       <UsageQuota />
+
+      <ReferralBanner userEmail={user?.email || ""} />
 
       {isNewUser && (
         <Card className="border-indigo-200 dark:border-indigo-800 bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-950/50 dark:to-violet-950/50">

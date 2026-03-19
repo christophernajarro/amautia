@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import { Toaster } from "@/components/ui/sonner";
+import { WhatsAppButton } from "@/components/whatsapp-button";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -168,6 +169,7 @@ export default function RootLayout({
       >
         <Providers>{children}</Providers>
         <Toaster richColors position="top-right" />
+        <WhatsAppButton />
       </body>
     </html>
   );

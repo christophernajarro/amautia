@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { getTokens } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export function UsageQuota() {
   const [usage, setUsage] = useState<any>(null);
@@ -35,6 +37,7 @@ export function UsageQuota() {
   const generationsAlertColor = generationsPercent > 80 ? "bg-red-500" : generationsPercent > 50 ? "bg-amber-500" : "bg-emerald-500";
 
   return (
+    <>
     <Card className="bg-gradient-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-800/50">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
@@ -87,5 +90,21 @@ export function UsageQuota() {
         </div>
       </CardContent>
     </Card>
+    {(correctionsPercent > 80 || generationsPercent > 80) && (
+      <div className="mt-3 p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-800">
+        <p className="font-semibold text-amber-900 dark:text-amber-200 mb-1">
+          {correctionsPercent >= 100 ? "¡Cuota agotada!" : "Tu cuota está por agotarse"}
+        </p>
+        <p className="text-sm text-amber-700 dark:text-amber-300 mb-3">
+          Actualiza tu plan para seguir corrigiendo sin límites.
+        </p>
+        <Link href="/suscripcion">
+          <Button size="sm" className="bg-amber-500 hover:bg-amber-400 text-black font-semibold">
+            Ver planes <ArrowRight className="h-4 w-4 ml-1" />
+          </Button>
+        </Link>
+      </div>
+    )}
+    </>
   );
 }
