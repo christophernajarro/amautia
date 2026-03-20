@@ -51,6 +51,9 @@ class Settings(BaseSettings):
     SMTP_PASS: str = ""
     SMTP_TLS: bool = True
 
+    # Encryption
+    FERNET_KEY: str = ""
+
     class Config:
         env_file = ".env"
 

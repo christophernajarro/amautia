@@ -178,12 +178,38 @@ def _extract_docx_text(data: bytes) -> str:
 
 
 async def get_ai_config(db: AsyncSession, purpose: str = "correction") -> dict:
-    """Get active AI provider config, fallback to mock if none configured."""
-    r = await db.execute(select(AIProvider).where(AIProvider.is_active == True))
-    provider = r.scalar_one_or_none()
-    if not provider:
+    """Get active AI provider + model config, fallback to mock if none configured."""
+    # Find the default model for this purpose
+    field_map = {
+        "correction": AIModel.is_default_correction,
+        "generation": AIModel.is_default_generation,
+        "tutor": AIModel.is_default_tutor,
+        "vision": AIModel.is_default_vision,
+    }
+    filter_field = field_map.get(purpose, AIModel.is_default_correction)
+
+    r = await db.execute(
+        select(AIModel, AIProvider)
+        .join(AIProvider, AIModel.provider_id == AIProvider.id)
+        .where(filter_field == True, AIProvider.is_active == True, AIModel.is_active == True)
+    )
+    row = r.first()
+
+    # Fallback: any active model from any active provider
+    if not row:
+        r = await db.execute(
+            select(AIModel, AIProvider)
+            .join(AIProvider, AIModel.provider_id == AIProvider.id)
+            .where(AIProvider.is_active == True, AIModel.is_active == True)
+        )
+        row = r.first()
+
+    if not row:
         return {"provider": "mock", "model": "mock", "api_key": None}
-    # Decrypt the API key before passing to AI callers
+
+    model, provider = row
+
+    # Decrypt the API key
     api_key = None
     if provider.api_key_encrypted:
         try:
@@ -191,11 +217,12 @@ async def get_ai_config(db: AsyncSession, purpose: str = "correction") -> dict:
         except Exception:
             logger.error("Failed to decrypt API key for provider %s — check FERNET_KEY", provider.slug)
             return {"provider": "mock", "model": "mock", "api_key": None}
+
     return {
         "provider": provider.slug,
-        "model": provider.model_id,
+        "model": model.model_id,
         "api_key": api_key,
-        "max_tokens": provider.max_tokens,
+        "max_tokens": model.max_tokens,
     }
 
 
