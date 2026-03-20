@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
-import { BookOpen, FileText, BarChart3, Brain, Trophy, Target, ArrowRight } from "lucide-react";
+import { BookOpen, FileText, BarChart3, Brain, Trophy, Target, ArrowRight, TrendingUp, Minus, TrendingDown } from "lucide-react";
 import { ProgressRing } from "@/components/charts/progress-ring";
 
 export default function AlumnoDashboard() {
@@ -41,14 +41,14 @@ export default function AlumnoDashboard() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((kpi) => (
           <Link key={kpi.label} href={kpi.href}>
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <Card className="hover:shadow-md transition-all duration-200 cursor-pointer">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
                   <div className={`h-12 w-12 rounded-xl ${kpi.bg} flex items-center justify-center`}>
                     <kpi.icon className={`h-6 w-6 ${kpi.color}`} />
                   </div>
                   <div>
-                    {isLoading ? <Skeleton className="h-8 w-12" /> : (
+                    {isLoading ? <Skeleton className="h-8 w-16 rounded" /> : (
                       <p className="text-2xl font-bold">{kpi.value}</p>
                     )}
                     <p className="text-sm text-slate-500 dark:text-slate-400">{kpi.label}</p>
@@ -84,7 +84,14 @@ export default function AlumnoDashboard() {
                       </div>
                       <div className="flex items-center gap-2">
                         {exam.score != null && (
-                          <span className={`text-sm font-bold ${exam.score >= 14 ? "text-emerald-600" : exam.score >= 11 ? "text-amber-600" : "text-red-600"}`}>
+                          <span className={`inline-flex items-center gap-1 text-sm font-bold ${exam.score >= 14 ? "text-emerald-600" : exam.score >= 11 ? "text-amber-600" : "text-red-600"}`}>
+                            {exam.score >= 14 ? (
+                              <TrendingUp className="h-3.5 w-3.5" />
+                            ) : exam.score >= 10 ? (
+                              <Minus className="h-3.5 w-3.5" />
+                            ) : (
+                              <TrendingDown className="h-3.5 w-3.5" />
+                            )}
                             {exam.score}/20
                           </span>
                         )}
@@ -98,7 +105,9 @@ export default function AlumnoDashboard() {
               </div>
             ) : (
               <div className="flex flex-col items-center py-8">
-                <FileText className="h-10 w-10 text-slate-200 dark:text-slate-700 mb-3" />
+                <div className="h-16 w-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+                  <FileText className="h-8 w-8 text-slate-300 dark:text-slate-600" />
+                </div>
                 <p className="text-slate-500 dark:text-slate-400 text-sm">No tienes exámenes aún</p>
                 <Link href="/alumno/unirse">
                   <Button variant="link" className="text-indigo-600 mt-2">

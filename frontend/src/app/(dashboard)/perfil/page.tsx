@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User, Mail, Phone, Shield, Save, CheckCircle } from "lucide-react";
+import { User, Mail, Phone, Shield, Save, CheckCircle, AlertCircle } from "lucide-react";
 import { ROLE_LABELS } from "@/lib/constants";
 
 export default function PerfilPage() {
@@ -86,31 +86,31 @@ export default function PerfilPage() {
         <CardHeader><CardTitle>Información personal</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Nombre</Label>
-              <Input value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} />
+            <div className="space-y-1.5">
+              <Label htmlFor="first_name">Nombre</Label>
+              <Input id="first_name" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} />
             </div>
-            <div>
-              <Label>Apellido</Label>
-              <Input value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} />
+            <div className="space-y-1.5">
+              <Label htmlFor="last_name">Apellido</Label>
+              <Input id="last_name" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} />
             </div>
           </div>
-          <div>
-            <Label>Email</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="email">Email</Label>
             <div className="flex items-center gap-2">
-              <Input value={user?.email || ""} disabled className="bg-slate-50 dark:bg-slate-800" />
+              <Input id="email" value={user?.email || ""} disabled className="bg-slate-50 dark:bg-slate-800" />
               <Mail className="h-4 w-4 text-slate-400" />
             </div>
           </div>
-          <div>
-            <Label>Teléfono</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="phone">Teléfono</Label>
             <div className="flex items-center gap-2">
-              <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+51 999 999 999" />
+              <Input id="phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+51 999 999 999" />
               <Phone className="h-4 w-4 text-slate-400" />
             </div>
           </div>
-          {saveError && <p className="text-sm text-red-600 dark:text-red-400">{saveError}</p>}
-          <Button onClick={handleSave} disabled={saving} title={saving ? "Guardando..." : undefined} className="bg-indigo-600 hover:bg-indigo-700">
+          {saveError && <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1.5"><AlertCircle className="h-4 w-4 shrink-0" />{saveError}</p>}
+          <Button onClick={handleSave} disabled={saving} title={saving ? "Guardando..." : undefined} className="bg-indigo-600 hover:bg-indigo-700 transition-all duration-200">
             {saved ? (
               <><CheckCircle className="h-4 w-4 mr-2" />Guardado</>
             ) : saving ? "Guardando..." : (
@@ -123,28 +123,29 @@ export default function PerfilPage() {
       <Card>
         <CardHeader><CardTitle>Seguridad</CardTitle></CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <Label>Contraseña actual</Label>
-            <Input type="password" value={passwordForm.current}
+          <div className="space-y-1.5">
+            <Label htmlFor="current_password">Contraseña actual</Label>
+            <Input id="current_password" type="password" value={passwordForm.current}
               onChange={(e) => setPasswordForm({ ...passwordForm, current: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Nueva contraseña</Label>
-              <Input type="password" value={passwordForm.new_password}
+            <div className="space-y-1.5">
+              <Label htmlFor="new_password">Nueva contraseña</Label>
+              <Input id="new_password" type="password" value={passwordForm.new_password}
                 onChange={(e) => setPasswordForm({ ...passwordForm, new_password: e.target.value })} />
             </div>
-            <div>
-              <Label>Confirmar</Label>
-              <Input type="password" value={passwordForm.confirm}
+            <div className="space-y-1.5">
+              <Label htmlFor="confirm_password">Confirmar contraseña</Label>
+              <Input id="confirm_password" type="password" value={passwordForm.confirm}
                 onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })} />
             </div>
           </div>
-          {passwordError && <p className="text-sm text-red-600 dark:text-red-400">{passwordError}</p>}
-          {passwordChanged && <p className="text-sm text-emerald-600">Contraseña cambiada exitosamente</p>}
+          {passwordError && <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1.5"><AlertCircle className="h-4 w-4 shrink-0" />{passwordError}</p>}
+          {passwordChanged && <p className="text-sm text-emerald-600 flex items-center gap-1.5"><CheckCircle className="h-4 w-4 shrink-0" />Contraseña cambiada exitosamente</p>}
           <Button variant="outline"
             disabled={!passwordForm.current || !passwordForm.new_password || passwordForm.new_password !== passwordForm.confirm || changingPassword}
-            title={changingPassword ? "Procesando..." : !passwordForm.current ? "Ingresa tu contraseña actual" : !passwordForm.new_password ? "Ingresa una nueva contraseña" : passwordForm.new_password !== passwordForm.confirm ? "Las contraseñas no coinciden" : undefined}
+            title={changingPassword ? "Procesando..." : !passwordForm.current ? "Ingresa contraseña actual" : !passwordForm.new_password ? "Ingresa nueva contraseña" : passwordForm.new_password !== passwordForm.confirm ? "Las contraseñas no coinciden" : undefined}
+            className="transition-all duration-200"
             onClick={async () => {
               setChangingPassword(true);
               setPasswordError("");

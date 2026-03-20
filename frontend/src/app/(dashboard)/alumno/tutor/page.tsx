@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { apiFetch } from "@/lib/api";
 import { getTokens } from "@/lib/auth";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Brain, Send, Plus, MessageSquare, Sparkles, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Brain, Send, Plus, MessageSquare, Sparkles, ArrowLeft, Loader2, AlertCircle, Bot, RotateCcw } from "lucide-react";
 
 interface Chat {
   id: string;
@@ -35,6 +35,44 @@ export default function TutorPage() {
 
   const [subjects, setSubjects] = useState<string[]>([]);
   const token = typeof window !== "undefined" ? getTokens().access : null;
+
+  const isErrorMessage = useCallback((msg: Message) => {
+    return msg.role === "assistant" && (
+      msg.id === "err" ||
+      msg.content.startsWith("Error al") ||
+      msg.content.startsWith("Sin respuesta")
+    );
+  }, []);
+
+  const retryLastMessage = useCallback(async () => {
+    const lastUserMsg = [...messages].reverse().find((m) => m.role === "user");
+    if (!lastUserMsg || !activeChat) return;
+    // Remove the error message
+    setMessages((prev) => prev.filter((m) => !isErrorMessage(m) || prev.indexOf(m) !== prev.length - 1));
+    setSending(true);
+    try {
+      const fd = new FormData();
+      fd.append("content", lastUserMsg.content);
+      const data = await apiFetch<any>(`/alumno/tutor/chats/${activeChat}/message`, {
+        method: "POST", token: token!, body: fd,
+      });
+      const aiMsg: Message = {
+        id: data.id || (Date.now() + 1).toString(),
+        role: "assistant",
+        content: data.content || data.message || "Sin respuesta",
+        created_at: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, aiMsg]);
+    } catch {
+      setMessages((prev) => [...prev, {
+        id: "err",
+        role: "assistant",
+        content: "Error al obtener respuesta. Intenta de nuevo.",
+        created_at: new Date().toISOString(),
+      }]);
+    }
+    setSending(false);
+  }, [messages, activeChat, token, isErrorMessage]);
 
   useEffect(() => {
     if (!token) return;
@@ -120,7 +158,7 @@ export default function TutorPage() {
   const suggestions = subjectSuggestions;
 
   return (
-    <div className="flex h-[calc(100vh-7rem)] -m-6">
+    <div className="flex h-[calc(100dvh-7rem)] -m-4 sm:-m-6">
       {/* Chat list sidebar */}
       <div className={`${showSidebar ? "flex" : "hidden"} lg:flex w-full lg:w-80 flex-col border-r bg-white dark:bg-slate-900`}>
         <div className="p-4 border-b">
@@ -130,7 +168,17 @@ export default function TutorPage() {
         </div>
         <div className="flex-1 overflow-y-auto">
           {loading ? (
-            <div className="p-4 text-center text-slate-400 text-sm">Cargando chats...</div>
+            <div className="p-2 space-y-1">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex items-center gap-3 px-4 py-3">
+                  <Skeleton className="h-4 w-4 rounded shrink-0" />
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <Skeleton className="h-4 w-3/4 rounded" />
+                    <Skeleton className="h-3 w-1/3 rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : chats.length === 0 ? (
             <div className="p-8 text-center">
               <Brain className="h-10 w-10 text-slate-200 dark:text-slate-600 mx-auto mb-3" />
@@ -239,46 +287,74 @@ export default function TutorPage() {
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.length === 0 && (
-                <div className="text-center py-12">
-                  <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-indigo-100 to-violet-100 flex items-center justify-center mx-auto mb-4">
-                    <MessageSquare className="h-8 w-8 text-indigo-500" />
+                <div className="flex flex-col items-center justify-center py-16 px-4">
+                  <div className="h-16 w-16 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-indigo-500/20">
+                    <Bot className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-1">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-1">
                     ¡Hola! Soy tu tutor IA
                   </h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs mx-auto mb-5">
+                  <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-6 text-center">
                     Pregúntame sobre cualquier tema de tus materias. Estoy aquí para ayudarte a aprender paso a paso.
                   </p>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {suggestions.slice(0, 2).map((s, i) => (
-                      <button key={i} onClick={() => sendMessage(s)}
-                        className="text-xs px-3 py-1.5 rounded-full bg-white dark:bg-slate-900 border hover:border-indigo-300 text-slate-600 dark:text-slate-300">
+                  <div className="flex flex-wrap justify-center gap-2 max-w-md">
+                    {suggestions.slice(0, 3).map((s, i) => (
+                      <button
+                        key={i}
+                        onClick={() => sendMessage(s)}
+                        className="text-xs px-4 py-2 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 text-slate-600 dark:text-slate-300 transition-all duration-200 hover:shadow-sm"
+                      >
+                        <Sparkles className="h-3 w-3 inline-block mr-1.5 text-indigo-500" />
                         {s}
                       </button>
                     ))}
                   </div>
                 </div>
               )}
-              {messages.map((msg) => (
-                <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                    msg.role === "user"
-                      ? "bg-indigo-600 text-white rounded-br-md"
-                      : "bg-white dark:bg-slate-900 border shadow-sm rounded-bl-md"
-                  }`}>
-                    {msg.role === "assistant" && (
-                      <div className="flex items-center gap-1.5 mb-1.5">
-                        <Brain className="h-3.5 w-3.5 text-indigo-600" />
-                        <span className="text-xs font-medium text-indigo-600">Tutor IA</span>
-                      </div>
-                    )}
-                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
-                    <p className={`text-[10px] mt-1.5 ${msg.role === "user" ? "text-indigo-200" : "text-slate-400"}`}>
-                      {new Date(msg.created_at).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}
-                    </p>
+              {messages.map((msg) => {
+                const isError = isErrorMessage(msg);
+                return (
+                  <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                    <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                      msg.role === "user"
+                        ? "bg-indigo-600 text-white rounded-br-md"
+                        : isError
+                          ? "bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/50 border-l-4 border-l-red-500 rounded-bl-md shadow-sm"
+                          : "bg-white dark:bg-slate-900 border shadow-sm rounded-bl-md"
+                    }`}>
+                      {msg.role === "assistant" && !isError && (
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <Brain className="h-3.5 w-3.5 text-indigo-600" />
+                          <span className="text-xs font-medium text-indigo-600">Tutor IA</span>
+                        </div>
+                      )}
+                      {isError ? (
+                        <div>
+                          <div className="flex items-start gap-2">
+                            <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                            <p className="text-sm text-red-700 dark:text-red-400 leading-relaxed">{msg.content}</p>
+                          </div>
+                          <button
+                            onClick={retryLastMessage}
+                            disabled={sending}
+                            className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors disabled:opacity-50"
+                          >
+                            <RotateCcw className="h-3 w-3" />
+                            Reintentar
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                          <p className={`text-[10px] mt-1.5 ${msg.role === "user" ? "text-indigo-200" : "text-slate-400"}`}>
+                            {new Date(msg.created_at).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" })}
+                          </p>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               {sending && (
                 <div className="flex justify-start">
                   <div className="bg-white dark:bg-slate-900 border shadow-sm rounded-2xl rounded-bl-md px-4 py-3">
@@ -293,19 +369,34 @@ export default function TutorPage() {
             </div>
 
             {/* Input */}
-            <div className="border-t bg-white dark:bg-slate-900 p-4">
-              <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex gap-2">
-                <Input
+            <div className="border-t bg-white dark:bg-slate-900 p-3 sm:p-4">
+              <form
+                onSubmit={(e) => { e.preventDefault(); sendMessage(); }}
+                className="flex items-end gap-2"
+              >
+                <Textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      sendMessage();
+                    }
+                  }}
                   placeholder="Escribe tu pregunta..."
                   disabled={sending}
                   title={sending ? "Procesando..." : undefined}
-                  className="flex-1"
+                  rows={1}
+                  className="flex-1 min-h-[2.5rem] max-h-32 resize-none focus:ring-2 focus:ring-primary/50"
                   autoFocus
                 />
-                <Button type="submit" disabled={!input.trim() || sending} title={sending ? "Procesando..." : !input.trim() ? "Escribe una pregunta primero" : undefined} className="bg-indigo-600 hover:bg-indigo-700 shrink-0">
-                  <Send className="h-4 w-4" />
+                <Button
+                  type="submit"
+                  disabled={!input.trim() || sending}
+                  title={sending ? "Procesando..." : !input.trim() ? "Escribe una pregunta primero" : undefined}
+                  className="bg-indigo-600 hover:bg-indigo-700 shrink-0 transition-all duration-200 disabled:opacity-40"
+                >
+                  {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                 </Button>
               </form>
             </div>

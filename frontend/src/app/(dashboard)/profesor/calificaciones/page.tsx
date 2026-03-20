@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useProfesorSubjects, useGradingPeriods, useGradebookSummary, useCreateGradebookEntry, useSyncGradebook, useCreateGradingPeriod } from "@/lib/api-hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,7 +53,11 @@ export default function CalificacionesPage() {
       await syncGradebook.mutateAsync();
       toast.success("Calificaciones sincronizadas con exámenes");
     } catch (err: any) {
-      toast.error(err.message || "Error al sincronizar");
+      const detail = err.message || "No se pudieron sincronizar las calificaciones con los exámenes.";
+      toast.error(detail, {
+        description: "Verifica tu conexión e intenta de nuevo. Si el problema persiste, contacta soporte.",
+        duration: 6000,
+      });
     }
   };
 
@@ -70,7 +75,9 @@ export default function CalificacionesPage() {
       setAddEntryOpen(false);
       setEntryName(""); setEntryMaxScore(20); setEntryWeight(1);
     } catch (err: any) {
-      toast.error(err.message || "Error al crear entrada");
+      toast.error(err.message || "No se pudo crear la entrada de calificación.", {
+        description: "Revisa los datos ingresados e intenta de nuevo.",
+      });
     }
   };
 
@@ -87,7 +94,9 @@ export default function CalificacionesPage() {
       setAddPeriodOpen(false);
       setPeriodName(""); setPeriodStart(""); setPeriodEnd("");
     } catch (err: any) {
-      toast.error(err.message || "Error al crear periodo");
+      toast.error(err.message || "No se pudo crear el periodo de calificación.", {
+        description: "Verifica que las fechas sean válidas e intenta de nuevo.",
+      });
     }
   };
 
@@ -181,27 +190,50 @@ export default function CalificacionesPage() {
 
           {/* Gradebook table */}
           {loadingSummary ? (
-            <Skeleton className="h-64" />
+            <Card>
+              <CardContent className="p-0 overflow-hidden">
+                {/* Skeleton header row */}
+                <div className="flex items-center gap-3 border-b bg-muted/40 px-4 py-3">
+                  <Skeleton className="h-4 w-[160px]" />
+                  <Skeleton className="h-4 w-[64px]" />
+                  <Skeleton className="h-4 w-[64px]" />
+                  <Skeleton className="h-4 w-[64px]" />
+                  <Skeleton className="h-4 w-[64px]" />
+                  <Skeleton className="h-4 w-[80px]" />
+                </div>
+                {/* Skeleton body rows */}
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 border-b px-4 py-3">
+                    <Skeleton className="h-4 w-[140px]" />
+                    <Skeleton className="h-5 w-[40px] rounded" />
+                    <Skeleton className="h-5 w-[40px] rounded" />
+                    <Skeleton className="h-5 w-[40px] rounded" />
+                    <Skeleton className="h-5 w-[40px] rounded" />
+                    <Skeleton className="h-5 w-[52px] rounded-lg" />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           ) : students.length > 0 ? (
             <Card>
               <CardContent className="p-0 overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead className="sticky left-0 bg-white dark:bg-slate-950 z-10 min-w-[180px]">Alumno</TableHead>
+                    <TableRow className="bg-muted/40 hover:bg-muted/40">
+                      <TableHead className="sticky left-0 bg-muted/40 z-10 min-w-[180px] font-semibold text-muted-foreground">Alumno</TableHead>
                       {entryColumns.map((entry: any) => (
-                        <TableHead key={entry.id} className="text-center min-w-[80px]">
+                        <TableHead key={entry.id} className="text-center min-w-[80px] font-semibold text-muted-foreground">
                           <div className="text-xs">{entry.name}</div>
-                          <div className="text-xs text-slate-400 dark:text-slate-500 font-normal">/{entry.max_score}</div>
+                          <div className="text-[11px] text-muted-foreground/60 font-normal">/{entry.max_score}</div>
                         </TableHead>
                       ))}
-                      <TableHead className="text-center min-w-[100px] font-bold">Promedio</TableHead>
+                      <TableHead className="text-center min-w-[100px] font-bold text-muted-foreground">Promedio</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {students.map((student: any) => (
-                      <TableRow key={student.student_id}>
-                        <TableCell className="sticky left-0 bg-white dark:bg-slate-950 z-10 font-medium">
+                      <TableRow key={student.student_id} className="hover:bg-muted/50 transition-colors">
+                        <TableCell className="sticky left-0 bg-background group-hover:bg-muted/50 z-10 font-medium">
                           {student.student_name}
                         </TableCell>
                         {(student.entries || []).map((entry: any) => (
@@ -232,10 +264,29 @@ export default function CalificacionesPage() {
             </Card>
           ) : (
             <Card>
-              <CardContent className="flex flex-col items-center py-12">
-                <AlertCircle className="h-10 w-10 text-slate-300 dark:text-slate-600 mb-3" />
-                <p className="text-slate-500 dark:text-slate-400">No hay datos de calificaciónes para esta sección</p>
-                <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Sincroniza exámenes o agrega entradas manualmente</p>
+              <CardContent className="flex flex-col items-center py-16">
+                <div className="flex items-center justify-center h-16 w-16 rounded-full bg-amber-100 dark:bg-amber-950/40 mb-5">
+                  <AlertCircle className="h-8 w-8 text-amber-600 dark:text-amber-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-1.5">Sin calificaciones</h3>
+                <p className="text-sm text-muted-foreground text-center max-w-sm mb-1">
+                  Esta seccion aun no tiene calificaciones registradas. Crea un examen y sincroniza los resultados, o agrega entradas manualmente.
+                </p>
+                <p className="text-xs text-muted-foreground/70 text-center max-w-sm mb-5">
+                  Las calificaciones de examenes se importan automaticamente al sincronizar.
+                </p>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={handleSync} disabled={syncGradebook.isPending}>
+                    {syncGradebook.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+                    Sincronizar examenes
+                  </Button>
+                  <Link href="/profesor/examenes">
+                    <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      Ir a examenes
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           )}

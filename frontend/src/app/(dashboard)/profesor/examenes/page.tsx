@@ -9,18 +9,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
-import { Plus, FileText, Sparkles, ChevronRight, Zap, CheckCircle, Clock, AlertCircle, Search } from "lucide-react";
+import { Plus, FileText, Sparkles, ChevronRight, Zap, CheckCircle, AlertCircle, Search } from "lucide-react";
 
 const ITEMS_PER_PAGE = 10;
 
-const statusConfig: Record<string, { label: string; icon: any; class: string }> = {
-  draft: { label: "Sin referencia", icon: Clock, class: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300" },
-  processing: { label: "Procesando", icon: Zap, class: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" },
-  ready: { label: "Listo para corregir", icon: CheckCircle, class: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" },
-  correcting: { label: "Corrigiendo...", icon: Zap, class: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300 animate-pulse" },
-  corrected: { label: "Corregido", icon: CheckCircle, class: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300" },
-  published: { label: "Publicado", icon: CheckCircle, class: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300" },
-  error: { label: "Error", icon: AlertCircle, class: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300" },
+const statusConfig: Record<string, { label: string; icon: any; class: string; border: string }> = {
+  draft: { label: "Sin referencia", icon: FileText, class: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300", border: "border-l-slate-400" },
+  processing: { label: "Procesando", icon: Zap, class: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300", border: "border-l-blue-400" },
+  ready: { label: "Listo para corregir", icon: FileText, class: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300", border: "border-l-amber-400" },
+  correcting: { label: "Corrigiendo...", icon: Zap, class: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300 animate-pulse", border: "border-l-amber-400" },
+  corrected: { label: "Corregido", icon: CheckCircle, class: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300", border: "border-l-emerald-500" },
+  published: { label: "Publicado", icon: CheckCircle, class: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300", border: "border-l-emerald-500" },
+  error: { label: "Error", icon: AlertCircle, class: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300", border: "border-l-red-400" },
 };
 
 export default function ExamenesPage() {
@@ -63,7 +63,18 @@ export default function ExamenesPage() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-3">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-20" />)}</div>
+        <div className="max-w-4xl mx-auto space-y-2">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="flex items-center gap-4 rounded-xl border border-border bg-card px-5 py-4">
+              <Skeleton className="h-10 w-10 rounded-xl shrink-0" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+              <Skeleton className="h-5 w-24 rounded-full" />
+            </div>
+          ))}
+        </div>
       ) : exams?.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center py-16">
@@ -85,7 +96,7 @@ export default function ExamenesPage() {
           </CardContent>
         </Card>
       ) : (
-        <>
+        <div className="max-w-4xl mx-auto space-y-6">
           <div className="flex gap-2 flex-wrap">
             {[
               { value: "all", label: "Todos" },
@@ -122,11 +133,11 @@ export default function ExamenesPage() {
               const StatusIcon = cfg.icon;
               return (
                 <Link key={exam.id} href={`/profesor/examenes/${exam.id}`}>
-                  <Card className="hover:shadow-md hover:border-indigo-200 transition-all cursor-pointer group">
+                  <Card className={`border-l-4 ${cfg.border} hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 cursor-pointer group`}>
                     <CardContent className="flex items-center justify-between py-4 px-5">
                       <div className="flex items-center gap-4 flex-1 min-w-0">
                         <div className="h-11 w-11 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center shrink-0">
-                          <FileText className="h-5 w-5 text-indigo-600" />
+                          <FileText className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         <div className="min-w-0">
                           <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">{exam.title}</p>
@@ -134,7 +145,7 @@ export default function ExamenesPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
-                        <Badge className={`${cfg.class} gap-1`}>
+                        <Badge className={`${cfg.class} gap-1.5`}>
                           <StatusIcon className="h-3 w-3" />{cfg.label}
                         </Badge>
                         <ChevronRight className="h-4 w-4 text-slate-300 dark:text-slate-600 group-hover:text-indigo-500 transition-colors" />
@@ -144,20 +155,37 @@ export default function ExamenesPage() {
                 </Link>
               );
             })}
-            {filtered.length === 0 && search && (
-              <p className="text-center text-slate-500 dark:text-slate-400 py-8">No se encontraron exámenes que coincidan con &quot;{search}&quot;</p>
+            {filtered.length === 0 && (
+              <div className="flex flex-col items-center py-16">
+                <div className="h-16 w-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                  <FileText className="h-8 w-8 text-slate-400 dark:text-slate-500" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-1">No hay exámenes aún</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm text-center">
+                  {search
+                    ? `No se encontraron exámenes que coincidan con "${search}".`
+                    : "Crea tu primer examen para empezar a corregir con IA."}
+                </p>
+                {!search && (
+                  <Link href="/profesor/examenes/nuevo">
+                    <Button className="bg-indigo-600 hover:bg-indigo-700">
+                      <Plus className="h-4 w-4 mr-2" />Crear examen
+                    </Button>
+                  </Link>
+                )}
+              </div>
             )}
           </div>
           {filtered.length > ITEMS_PER_PAGE && (
             <div className="flex items-center justify-between pt-2">
               <p className="text-sm text-slate-500 dark:text-slate-400">Mostrando {startItem}-{endItem} de {filtered.length}</p>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" disabled={page <= 1} title={page <= 1 ? "Ya estás en la primera página" : undefined} onClick={() => setPage(page - 1)}>Anterior</Button>
-                <Button variant="outline" size="sm" disabled={page >= totalPages} title={page >= totalPages ? "Ya estás en la última página" : undefined} onClick={() => setPage(page + 1)}>Siguiente</Button>
+                <Button variant="outline" size="sm" disabled={page <= 1} title={page <= 1 ? "Ya estás en la primera página" : "Ir a la página anterior"} onClick={() => setPage(page - 1)}>Anterior</Button>
+                <Button variant="outline" size="sm" disabled={page >= totalPages} title={page >= totalPages ? "Ya estás en la última página" : "Ir a la página siguiente"} onClick={() => setPage(page + 1)}>Siguiente</Button>
               </div>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );
