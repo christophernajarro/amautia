@@ -646,51 +646,35 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════ FOOTER ═══════ */}
-      <footer className="border-t border-white/[0.06] pt-10 pb-20 lg:pb-10">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex flex-wrap justify-between gap-8 mb-8">
-            {/* Brand — compact */}
-            <div className="max-w-[220px]">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
-                  <GraduationCap className="h-3.5 w-3.5 text-white" />
-                </div>
-                <span className="text-sm font-bold text-white">Amautia</span>
+      <footer className="border-t border-white/[0.08]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+          {/* Single row: logo · links · contact */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            {/* Left: brand */}
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+                <GraduationCap className="h-4 w-4 text-white" />
               </div>
-              <p className="text-xs text-white/60 leading-relaxed">Plataforma educativa con IA para profesores en Latinoamérica.</p>
+              <span className="text-sm font-bold text-white">Amautia</span>
             </div>
 
-            {/* Links — inline */}
-            <div className="flex gap-12">
-              {[
-                { title: "Producto", links: [["Funciones", "#funciones"], ["Precios", "#precios"]] },
-                { title: "Legal", links: [["Términos", "#"], ["Privacidad", "#"], ["Cookies", "#"]] },
-              ].map((col) => (
-                <div key={col.title}>
-                  <h4 className="text-xs font-semibold text-white/70 mb-3">{col.title}</h4>
-                  <ul className="space-y-2">
-                    {col.links.map(([label, href]) => (
-                      <li key={label}><a href={href} className="text-xs text-white/60 hover:text-white/70 transition-colors">{label}</a></li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-              <div>
-                <h4 className="text-xs font-semibold text-white/70 mb-3">Contacto</h4>
-                <ul className="space-y-2">
-                  <li><a href="mailto:ventas@necs.pe" className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white/70 transition-colors"><Mail className="h-3 w-3 shrink-0" />ventas@necs.pe</a></li>
-                  <li><a href="https://wa.me/51918359598" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white/70 transition-colors"><MessageCircle className="h-3 w-3 shrink-0" />+51 918 359 598</a></li>
-                </ul>
-              </div>
-            </div>
+            {/* Center: links in one line */}
+            <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-white/60">
+              <a href="#funciones" className="hover:text-white transition-colors">Funciones</a>
+              <a href="#precios" className="hover:text-white transition-colors">Precios</a>
+              <a href="#" className="hover:text-white transition-colors">Términos</a>
+              <a href="#" className="hover:text-white transition-colors">Privacidad</a>
+              <a href="mailto:ventas@necs.pe" className="hover:text-white transition-colors flex items-center gap-1"><Mail className="h-3 w-3" />ventas@necs.pe</a>
+              <a href="https://wa.me/51918359598" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1"><MessageCircle className="h-3 w-3" />WhatsApp</a>
+            </nav>
           </div>
 
           {/* Bottom line */}
-          <div className="border-t border-white/[0.06] pt-5 flex flex-wrap justify-between items-center gap-3">
-            <p className="text-[11px] text-white/40">© 2026 Amautia. Todos los derechos reservados.</p>
-            <p className="text-[11px] text-white/40">
+          <div className="border-t border-white/[0.06] mt-6 pt-5 flex flex-wrap justify-between items-center gap-3">
+            <p className="text-[12px] text-white/40">© 2026 Amautia. Todos los derechos reservados.</p>
+            <p className="text-[12px] text-white/40">
               Desarrollado por{" "}
-              <a href="https://pos.necs.pe/" target="_blank" rel="noopener noreferrer" className="text-amber-400/70 hover:text-amber-300 font-medium transition-colors">
+              <a href="https://pos.necs.pe/" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300 font-semibold transition-colors">
                 NECS Soluciones
               </a>
             </p>
