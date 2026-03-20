@@ -131,7 +131,7 @@ export function DemoModal({ open, onClose }: Props) {
             <span className="text-sm text-white/30">{currentStep + 1} de {demoSteps.length}</span>
             <div className="flex gap-3">
               {currentStep > 0 && (
-                <Button variant="outline" onClick={() => setCurrentStep(currentStep - 1)} className="border-white/10 text-white/60 hover:text-white">
+                <Button variant="outline" onClick={() => setCurrentStep(currentStep - 1)} className="border-white/20 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white">
                   Anterior
                 </Button>
               )}
