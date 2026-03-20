@@ -351,6 +351,8 @@ async def _run_correction_background(exam_id: uuid.UUID, exam_title: str,
                             await db.flush()
                             continue
                         se.general_feedback = data.get("feedback", "")
+                        se.strengths = data.get("strengths")
+                        se.areas_to_improve = data.get("areas_to_improve")
                         se.status = "corrected"
                         se.corrected_at = datetime.now(timezone.utc)
 
@@ -365,10 +367,12 @@ async def _run_correction_background(exam_id: uuid.UUID, exam_title: str,
                             sa = StudentAnswer(
                                 student_exam_id=se.id,
                                 question_id=matching_q.id if matching_q else None,
+                                answer_text=ans.get("student_answer"),
                                 score=Decimal(str(ans.get("score", 0))),
                                 max_score=Decimal(str(ans.get("max", 4))),
                                 is_correct=ans.get("correct", False),
                                 feedback=ans.get("feedback", ""),
+                                suggestion=ans.get("suggestion"),
                             )
                             db.add(sa)
                         corrected += 1

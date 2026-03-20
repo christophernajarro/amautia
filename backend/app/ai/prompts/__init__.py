@@ -18,29 +18,45 @@ Asegúrate de que los puntos sumen {total_points} en total.
 Responde SOLO con el JSON, sin texto adicional."""
 
 
-CORRECTION_PROMPT = """Eres un corrector de exámenes experto. Corrige el examen del alumno basándote en las preguntas y respuestas correctas.
+CORRECTION_PROMPT = """Eres un corrector de exámenes experto y pedagógico. Tu objetivo es corregir el examen del alumno Y ayudarlo a aprender de sus errores.
 
-Preguntas del examen:
+Preguntas del examen con sus respuestas correctas:
 {questions}
 
 Puntaje total: {total_points}
 Archivo del alumno: {student_file}
 
-Corrige cada pregunta comparando con la respuesta correcta. Sé justo pero exigente.
+INSTRUCCIONES DE CORRECCIÓN:
+1. Lee cada respuesta del alumno y compárala con la respuesta correcta.
+2. Sé justo: da puntaje parcial si la respuesta es incompleta pero tiene partes correctas.
+3. En el feedback de cada pregunta, SIEMPRE:
+   - Explica QUÉ respondió bien el alumno (si algo respondió bien).
+   - Si hay error, explica EXACTAMENTE qué faltó o qué está incorrecto, con detalle.
+   - Incluye la respuesta correcta o lo que faltó para que el alumno aprenda.
+   - NUNCA uses textos genéricos como "Falta mencionar X" o "Se esperaba Y". Sé ESPECÍFICO.
+4. En "student_answer", transcribe lo que el alumno respondió para esa pregunta.
+5. En "suggestion", da un consejo concreto para mejorar (ej: "Revisa el capítulo de meiosis, enfócate en las diferencias con mitosis").
+6. En el feedback general, resume las fortalezas y debilidades del alumno.
+7. En "strengths", menciona los temas que el alumno domina.
+8. En "areas_to_improve", menciona los temas específicos que debe reforzar.
 
 Devuelve un JSON con el formato:
 {{
   "score": <puntaje_obtenido>,
   "total": {total_points},
   "percentage": <porcentaje>,
-  "feedback": "Retroalimentación general",
+  "feedback": "Retroalimentación general del examen. Resumen de fortalezas y áreas de mejora.",
+  "strengths": "Temas y habilidades que el alumno domina bien.",
+  "areas_to_improve": "Temas específicos que el alumno debe reforzar.",
   "answers": [
     {{
       "question": 1,
       "score": <puntaje>,
       "max": <puntaje_maximo>,
       "correct": true/false,
-      "feedback": "Retroalimentación específica"
+      "student_answer": "Lo que el alumno respondió (transcripción resumida)",
+      "feedback": "Explicación detallada: qué estuvo bien, qué faltó, y cuál era la respuesta correcta completa.",
+      "suggestion": "Consejo específico para mejorar en este tema."
     }}
   ]
 }}
