@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookOpen, Users, FileText, CheckCircle, Plus, Sparkles, ArrowRight } from "lucide-react";
+import { BookOpen, Users, FileText, CheckCircle, Plus, Sparkles, ArrowRight, HelpCircle, Zap, Upload } from "lucide-react";
 import { ProgressRing } from "@/components/charts/progress-ring";
 import { ScoreDistribution } from "@/components/charts/score-distribution";
 import Link from "next/link";
@@ -62,7 +62,52 @@ export default function ProfesorDashboard() {
         </div>
       </div>
 
-      <UsageQuota />
+      {/* Plan + Quick Actions row */}
+      <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
+        <UsageQuota />
+        <div className="flex flex-wrap gap-3 items-start">
+          <Link href="/profesor/examenes/nuevo">
+            <div className="flex items-center gap-3 px-5 py-4 rounded-xl bg-primary/10 hover:bg-primary/15 border border-primary/20 transition-colors cursor-pointer group">
+              <Upload className="h-5 w-5 text-primary" />
+              <div>
+                <p className="font-bold text-sm text-foreground">Corregir examen</p>
+                <p className="text-xs text-muted-foreground">Sube y corrige con IA</p>
+              </div>
+            </div>
+          </Link>
+          <Link href="/profesor/generar">
+            <div className="flex items-center gap-3 px-5 py-4 rounded-xl bg-violet-500/10 hover:bg-violet-500/15 border border-violet-500/20 transition-colors cursor-pointer group">
+              <Sparkles className="h-5 w-5 text-violet-500" />
+              <div>
+                <p className="font-bold text-sm text-foreground">Generar examen</p>
+                <p className="text-xs text-muted-foreground">Crea con IA en 1 min</p>
+              </div>
+            </div>
+          </Link>
+          <Link href="/profesor/quiz-en-vivo">
+            <div className="flex items-center gap-3 px-5 py-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/15 border border-emerald-500/20 transition-colors cursor-pointer group">
+              <Zap className="h-5 w-5 text-emerald-500" />
+              <div>
+                <p className="font-bold text-sm text-foreground">Quiz en vivo</p>
+                <p className="text-xs text-muted-foreground">Evalúa en tiempo real</p>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </div>
+
+      {/* Hint banner for new users */}
+      {isNewUser && (
+        <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
+          <HelpCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-bold text-amber-900 dark:text-amber-200">¿Primera vez aquí?</p>
+            <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+              Empieza creando una materia en <Link href="/profesor/materias" className="underline font-semibold">Mis Cursos</Link>, luego ve a <Link href="/profesor/examenes/nuevo" className="underline font-semibold">Exámenes</Link> para subir y corregir tu primer examen con IA.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((kpi) => (
