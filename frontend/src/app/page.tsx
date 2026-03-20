@@ -306,7 +306,7 @@ export default function LandingPage() {
           </Link>
           <div className="hidden md:flex items-center gap-8">
             {[["Funciones", "#funciones"], ["Proceso", "#proceso"], ["Precios", "#precios"], ["FAQ", "#faq"]].map(([label, href]) => (
-              <a key={href} href={href} className="text-[15px] text-white/50 hover:text-white transition-colors duration-300">{label}</a>
+              <a key={href} href={href} className="text-[15px] text-white/70 hover:text-white transition-colors duration-300">{label}</a>
             ))}
           </div>
           <div className="flex items-center gap-3">
@@ -345,7 +345,7 @@ export default function LandingPage() {
                 con inteligencia artificial
               </motion.h1>
 
-              <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }} className="text-xl text-white/50 mt-7 max-w-xl leading-relaxed">
+              <motion.p initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2 }} className="text-xl text-white/70 mt-7 max-w-xl leading-relaxed">
                 Deja que la IA corrija mientras tú dedicas el tiempo a lo que importa: enseñar. Retroalimentación detallada en cada pregunta.
               </motion.p>
 
@@ -360,7 +360,7 @@ export default function LandingPage() {
                 </button>
               </motion.div>
 
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.5 }} className="flex flex-wrap gap-6 mt-8 text-sm text-white/35">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, delay: 0.5 }} className="flex flex-wrap gap-6 mt-8 text-sm text-white/60">
                 {["14 días gratis", "Sin tarjeta de crédito", "+500 profesores"].map((t) => (
                   <span key={t} className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500/70" />{t}</span>
                 ))}
@@ -374,17 +374,17 @@ export default function LandingPage() {
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <p className="text-xs uppercase tracking-[0.15em] text-amber-400/70 font-bold">Examen de Historia</p>
-                    <p className="text-sm text-white/40 mt-1">Sección A — Prof. García</p>
+                    <p className="text-sm text-white/60 mt-1">Sección A — Prof. García</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-4xl font-extrabold text-emerald-400">18<span className="text-xl text-white/30">/20</span></p>
-                    <p className="text-xs text-white/30 mt-1">Nota final</p>
+                    <p className="text-4xl font-extrabold text-emerald-400">18<span className="text-xl text-white/50">/20</span></p>
+                    <p className="text-xs text-white/50 mt-1">Nota final</p>
                   </div>
                 </div>
                 <div className="border-t border-white/[0.06] pt-5 space-y-4">
                   {[["Pregunta 1", 5, 5], ["Pregunta 2", 4, 5], ["Pregunta 3", 5, 5], ["Pregunta 4", 4, 5]].map(([label, score, max], i) => (
                     <div key={i} className="flex items-center gap-4">
-                      <span className="text-sm text-white/30 w-24">{label}</span>
+                      <span className="text-sm text-white/50 w-24">{label}</span>
                       <div className="flex-1 h-2.5 bg-white/[0.06] rounded-full overflow-hidden">
                         <motion.div initial={{ width: 0 }} animate={{ width: `${((score as number) / (max as number)) * 100}%` }} transition={{ duration: 1, delay: 0.5 + i * 0.15, ease: "easeOut" }} className={`h-full rounded-full ${score === max ? "bg-emerald-500" : "bg-amber-500"}`} />
                       </div>
@@ -397,7 +397,7 @@ export default function LandingPage() {
                     <Sparkles className="h-4 w-4 text-violet-400" />
                     <span className="text-xs font-bold uppercase tracking-[0.12em] text-violet-300/80">Retroalimentación IA</span>
                   </div>
-                  <p className="text-sm text-white/50 leading-relaxed">Excelente dominio del tema. Revisar cronología del Virreinato en la pregunta 2 para mejorar la precisión histórica.</p>
+                  <p className="text-sm text-white/70 leading-relaxed">Excelente dominio del tema. Revisar cronología del Virreinato en la pregunta 2 para mejorar la precisión histórica.</p>
                 </div>
               </div>
             </motion.div>
@@ -420,10 +420,10 @@ export default function LandingPage() {
       {/* ═══════ SOCIAL PROOF ═══════ */}
       <section className="py-16 border-b border-white/[0.04]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <p className="text-center text-sm text-white/40 uppercase tracking-[0.2em] font-medium mb-10">Usado por profesores en toda Latinoamérica</p>
+          <p className="text-center text-sm text-white/50 uppercase tracking-[0.2em] font-medium mb-10">Usado por profesores en toda Latinoamérica</p>
           <div className="flex flex-wrap justify-center gap-x-12 gap-y-4">
             {["Colegio San Marcos", "Universidad Nacional", "I.E. Túpac Amaru", "Colegio San José", "Instituto Pedagógico"].map((name) => (
-              <span key={name} className="text-white/25 text-lg font-semibold tracking-wide hover:text-white/40 transition-colors">{name}</span>
+              <span key={name} className="text-white/35 text-lg font-semibold tracking-wide hover:text-white/50 transition-colors">{name}</span>
             ))}
           </div>
         </div>
@@ -448,7 +448,7 @@ export default function LandingPage() {
                   <f.icon className="h-6 w-6 text-white" />
                 </div>
                 <h3 className={`font-bold mb-3 ${f.large ? "text-2xl" : "text-lg"}`}>{f.title}</h3>
-                <p className={`text-white/45 leading-relaxed ${f.large ? "text-base max-w-md" : "text-sm"}`}>{f.desc}</p>
+                <p className={`text-white/70 leading-relaxed ${f.large ? "text-base max-w-md" : "text-sm"}`}>{f.desc}</p>
                 {f.large && (
                   <div className="mt-6 flex gap-4 text-sm">
                     <span className="flex items-center gap-1.5 text-emerald-400/70"><Clock className="h-4 w-4" /> Resultados en 30 seg</span>
@@ -466,7 +466,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="inline-block text-xs uppercase tracking-[0.25em] font-bold text-violet-400 bg-violet-400/[0.08] px-4 py-2 rounded-full mb-6">Proceso</span>
-            <h2 className="text-4xl lg:text-5xl font-bold">Tres pasos. <span className="text-white/40">Cero estrés.</span></h2>
+            <h2 className="text-4xl lg:text-5xl font-bold">Tres pasos. <span className="text-white/60">Cero estrés.</span></h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 relative">
@@ -481,7 +481,7 @@ export default function LandingPage() {
                   <span className="absolute -top-3 -right-3 text-xs font-extrabold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent text-2xl">{step.num}</span>
                 </div>
                 <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-                <p className="text-white/40 max-w-xs mx-auto leading-relaxed">{step.desc}</p>
+                <p className="text-white/60 max-w-xs mx-auto leading-relaxed">{step.desc}</p>
               </div>
             ))}
           </div>
@@ -498,7 +498,7 @@ export default function LandingPage() {
                 <p className="text-6xl font-extrabold tracking-tight">
                   <CountUp end={s.value} suffix={s.suffix} />
                 </p>
-                <p className="text-white/40 mt-3 text-lg">{s.label}</p>
+                <p className="text-white/60 mt-3 text-lg">{s.label}</p>
               </div>
             ))}
           </div>
@@ -529,7 +529,7 @@ export default function LandingPage() {
                       <img src={t.photo} alt={t.author} className="h-11 w-11 rounded-full object-cover border-2 border-white/10" />
                       <div>
                         <p className="text-sm font-semibold text-white/80">{t.author}</p>
-                        <p className="text-xs text-white/30">{t.institution}</p>
+                        <p className="text-xs text-white/50">{t.institution}</p>
                       </div>
                     </div>
                   </div>
@@ -547,7 +547,7 @@ export default function LandingPage() {
           <div className="text-center mb-10">
             <span className="inline-block text-xs uppercase tracking-[0.25em] font-bold text-amber-400 bg-amber-400/[0.08] px-4 py-2 rounded-full mb-6">Precios</span>
             <h2 className="text-4xl lg:text-5xl font-bold">Planes simples y transparentes</h2>
-            <p className="text-lg text-white/40 mt-4">Paga con Yape, Plin o transferencia bancaria</p>
+            <p className="text-lg text-white/60 mt-4">Paga con Yape, Plin o transferencia bancaria</p>
           </div>
 
           {/* Urgency banner */}
@@ -560,14 +560,14 @@ export default function LandingPage() {
 
           {/* Monthly / Annual toggle */}
           <div className="flex items-center justify-center gap-4 mb-12">
-            <span className={`text-sm font-medium ${!annual ? "text-white" : "text-white/40"}`}>Mensual</span>
+            <span className={`text-sm font-medium ${!annual ? "text-white" : "text-white/60"}`}>Mensual</span>
             <button
               onClick={() => setAnnual(!annual)}
               className={`relative h-8 w-14 rounded-full transition-colors ${annual ? "bg-amber-500" : "bg-white/10"}`}
             >
               <div className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform ${annual ? "translate-x-7" : "translate-x-1"}`} />
             </button>
-            <span className={`text-sm font-medium ${annual ? "text-white" : "text-white/40"}`}>
+            <span className={`text-sm font-medium ${annual ? "text-white" : "text-white/60"}`}>
               Anual <span className="text-amber-400 font-bold">-20%</span>
             </span>
           </div>
@@ -579,7 +579,7 @@ export default function LandingPage() {
                 <h3 className="text-xl font-bold">{plan.name}</h3>
                 <div className="mt-4 mb-6">
                   <span className="text-5xl font-extrabold">S/{annual ? Math.round(parseInt(plan.price) * 0.8) : plan.price}</span>
-                  <span className="text-white/40 ml-2">/{annual ? "mes (facturado anual)" : "mes"}</span>
+                  <span className="text-white/60 ml-2">/{annual ? "mes (facturado anual)" : "mes"}</span>
                 </div>
                 <ul className="space-y-3.5 mb-8">
                   {plan.features.map((f) => (
@@ -611,10 +611,10 @@ export default function LandingPage() {
               <div key={i} className="border-b border-white/[0.06]">
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between py-6 text-left group">
                   <span className="text-lg font-semibold pr-4 group-hover:text-amber-300 transition-colors">{faq.q}</span>
-                  <ChevronDown className={`h-5 w-5 text-white/30 shrink-0 transition-transform duration-300 ${openFaq === i ? "rotate-180 text-amber-400" : ""}`} />
+                  <ChevronDown className={`h-5 w-5 text-white/50 shrink-0 transition-transform duration-300 ${openFaq === i ? "rotate-180 text-amber-400" : ""}`} />
                 </button>
                 <div className={`overflow-hidden transition-all duration-400 ${openFaq === i ? "max-h-48 pb-6" : "max-h-0"}`}>
-                  <p className="text-white/50 leading-relaxed">{faq.a}</p>
+                  <p className="text-white/70 leading-relaxed">{faq.a}</p>
                 </div>
               </div>
             ))}
@@ -634,13 +634,13 @@ export default function LandingPage() {
               ¿Listo para transformar<br />
               <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-orange-500 bg-clip-text text-transparent">tu forma de evaluar?</span>
             </h2>
-            <p className="text-xl text-white/40 mt-6 max-w-2xl mx-auto">Únete a cientos de profesores que ya ahorran tiempo con Amautia.</p>
+            <p className="text-xl text-white/60 mt-6 max-w-2xl mx-auto">Únete a cientos de profesores que ya ahorran tiempo con Amautia.</p>
             <Link href="/registro">
               <button className="mt-10 h-16 px-12 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-xl font-bold text-white flex items-center gap-3 mx-auto hover:from-amber-400 hover:to-amber-500 transition-all shadow-2xl shadow-amber-500/20 hover:shadow-amber-500/35 hover:-translate-y-1">
                 Crear cuenta gratis <ArrowRight className="h-6 w-6" />
               </button>
             </Link>
-            <p className="text-sm text-white/25 mt-6">Configuración en 2 minutos · Sin tarjeta de crédito</p>
+            <p className="text-sm text-white/50 mt-6">Configuración en 2 minutos · Sin tarjeta de crédito</p>
           </div>
         </div>
       </section>
@@ -657,7 +657,7 @@ export default function LandingPage() {
                 </div>
                 <span className="text-sm font-bold text-white">Amautia</span>
               </div>
-              <p className="text-xs text-white/40 leading-relaxed">Plataforma educativa con IA para profesores en Latinoamérica.</p>
+              <p className="text-xs text-white/60 leading-relaxed">Plataforma educativa con IA para profesores en Latinoamérica.</p>
             </div>
 
             {/* Links — inline */}
@@ -670,7 +670,7 @@ export default function LandingPage() {
                   <h4 className="text-xs font-semibold text-white/70 mb-3">{col.title}</h4>
                   <ul className="space-y-2">
                     {col.links.map(([label, href]) => (
-                      <li key={label}><a href={href} className="text-xs text-white/40 hover:text-white/70 transition-colors">{label}</a></li>
+                      <li key={label}><a href={href} className="text-xs text-white/60 hover:text-white/70 transition-colors">{label}</a></li>
                     ))}
                   </ul>
                 </div>
@@ -678,8 +678,8 @@ export default function LandingPage() {
               <div>
                 <h4 className="text-xs font-semibold text-white/70 mb-3">Contacto</h4>
                 <ul className="space-y-2">
-                  <li><a href="mailto:ventas@necs.pe" className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"><Mail className="h-3 w-3 shrink-0" />ventas@necs.pe</a></li>
-                  <li><a href="https://wa.me/51918359598" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"><MessageCircle className="h-3 w-3 shrink-0" />+51 918 359 598</a></li>
+                  <li><a href="mailto:ventas@necs.pe" className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white/70 transition-colors"><Mail className="h-3 w-3 shrink-0" />ventas@necs.pe</a></li>
+                  <li><a href="https://wa.me/51918359598" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white/70 transition-colors"><MessageCircle className="h-3 w-3 shrink-0" />+51 918 359 598</a></li>
                 </ul>
               </div>
             </div>
@@ -687,8 +687,8 @@ export default function LandingPage() {
 
           {/* Bottom line */}
           <div className="border-t border-white/[0.06] pt-5 flex flex-wrap justify-between items-center gap-3">
-            <p className="text-[11px] text-white/25">© 2026 Amautia. Todos los derechos reservados.</p>
-            <p className="text-[11px] text-white/25">
+            <p className="text-[11px] text-white/40">© 2026 Amautia. Todos los derechos reservados.</p>
+            <p className="text-[11px] text-white/40">
               Desarrollado por{" "}
               <a href="https://pos.necs.pe/" target="_blank" rel="noopener noreferrer" className="text-amber-400/70 hover:text-amber-300 font-medium transition-colors">
                 NECS Soluciones
