@@ -126,24 +126,25 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-size: 1.0625rem; /* 17px base */
-    line-height: 1.65;
-    font-weight: 400;
+    font-size: 1.25rem; /* 20px base — large for education users */
+    line-height: 1.6;
+    font-weight: 500; /* Nunito looks best at medium weight */
     -webkit-font-smoothing: antialiased;
   }
   html {
     @apply font-sans scroll-smooth;
-    font-size: 17px; /* Root size — all rem values scale from this */
+    font-size: 20px; /* Root 20px — all rem values scale from this */
   }
-  /* ─── Scaled font sizes for education users (30-60 years) ─── */
-  .text-xs  { font-size: 0.824rem !important; line-height: 1.5 !important; }  /* ~14px */
-  .text-sm  { font-size: 0.941rem !important; line-height: 1.55 !important; } /* ~16px */
-  .text-base { font-size: 1rem !important; line-height: 1.65 !important; }    /* 17px */
-  .text-lg  { font-size: 1.176rem !important; }                               /* 20px */
-  .text-xl  { font-size: 1.412rem !important; }                               /* 24px */
-  .text-2xl { font-size: 1.765rem !important; }                               /* 30px */
-  .text-3xl { font-size: 2.118rem !important; }                               /* 36px */
-  .text-4xl { font-size: 2.588rem !important; }                               /* 44px */
+  /* ─── Large font scale for dashboard (teachers 30-60 years) ─── */
+  /* Landing page uses default Tailwind sizes; dashboard gets the boost */
+  main .text-xs  { font-size: 0.8rem !important; line-height: 1.5 !important; }    /* 16px */
+  main .text-sm  { font-size: 0.9rem !important; line-height: 1.55 !important; }   /* 18px */
+  main .text-base { font-size: 1rem !important; line-height: 1.6 !important; }     /* 20px */
+  main .text-lg  { font-size: 1.15rem !important; }                                /* 23px */
+  main .text-xl  { font-size: 1.35rem !important; }                                /* 27px */
+  main .text-2xl { font-size: 1.7rem !important; }                                 /* 34px */
+  main .text-3xl { font-size: 2.1rem !important; }                                 /* 42px */
+  main .text-4xl { font-size: 2.6rem !important; }                                 /* 52px */
   /* ─── Comfortable touch targets (WCAG) ─── */
   main button, main [role="button"], main a.inline-flex {
     min-height: 44px;

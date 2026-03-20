@@ -45,17 +45,17 @@ export default function ProfesorDashboard() {
       />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Mi Panel</h1>
-          <p className="text-base text-muted-foreground mt-1">Bienvenido de vuelta, profesor</p>
+          <h1 className="text-4xl font-extrabold text-foreground">Mi Panel</h1>
+          <p className="text-lg text-muted-foreground mt-2">Bienvenido de vuelta, profesor</p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
           <Link href="/profesor/examenes/nuevo" className="flex-1 sm:flex-initial">
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto h-12 text-base px-6">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto h-14 text-lg px-8">
               <Plus className="h-5 w-5 mr-2" />Nuevo examen
             </Button>
           </Link>
           <Link href="/profesor/generar" className="flex-1 sm:flex-initial">
-            <Button variant="outline" className="w-full sm:w-auto h-12 text-base px-6">
+            <Button variant="outline" className="w-full sm:w-auto h-14 text-lg px-8">
               <Sparkles className="h-5 w-5 mr-2" />Generar con IA
             </Button>
           </Link>
@@ -70,14 +70,14 @@ export default function ProfesorDashboard() {
             <Card className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className={`h-12 w-12 rounded-xl ${kpi.bg} flex items-center justify-center`}>
-                    <kpi.icon className={`h-6 w-6 ${kpi.color}`} />
+                  <div className={`h-14 w-14 rounded-xl ${kpi.bg} flex items-center justify-center`}>
+                    <kpi.icon className={`h-7 w-7 ${kpi.color}`} />
                   </div>
                   <div>
-                    {isLoading ? <Skeleton className="h-8 w-12" /> : (
-                      <p className="text-2xl font-bold">{kpi.value}</p>
+                    {isLoading ? <Skeleton className="h-10 w-16" /> : (
+                      <p className="text-3xl font-extrabold">{kpi.value}</p>
                     )}
-                    <p className="text-sm text-slate-500 dark:text-slate-400">{kpi.label}</p>
+                    <p className="text-base text-slate-500 dark:text-slate-400">{kpi.label}</p>
                   </div>
                 </div>
               </CardContent>
