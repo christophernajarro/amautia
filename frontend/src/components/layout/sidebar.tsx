@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -7,7 +8,8 @@ import { User } from "@/types/user";
 import {
   LayoutDashboard, BookOpen, Users, FileText, Sparkles, GraduationCap,
   CreditCard, Settings, Brain, BarChart3, Bell, Wallet,
-  ClipboardList, X, LogOut, Award, Link2
+  ClipboardList, X, LogOut, Award, Link2, Zap, MessageCircle,
+  ClipboardCheck, ShieldAlert, Trophy, Layers, UploadCloud, ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -37,13 +39,36 @@ const profesorLinks = [
   { href: "/profesor/examenes", label: "Exámenes", icon: FileText },
   { href: "/profesor/generar", label: "Generar con IA", icon: Sparkles },
   { href: "/profesor/estadisticas", label: "Estadísticas", icon: BarChart3 },
-] as const;
+];
+
+const profesorExtraLinks = [
+  { href: "/profesor/banco-preguntas", label: "Banco de Preguntas", icon: FileText },
+  { href: "/profesor/quiz-en-vivo", label: "Quiz en Vivo", icon: Zap },
+  { href: "/profesor/calificaciones", label: "Calificaciones", icon: ClipboardList },
+  { href: "/profesor/mensajes", label: "Mensajes", icon: MessageCircle },
+  { href: "/profesor/analiticas", label: "Analíticas Avanzadas", icon: BarChart3 },
+  { href: "/profesor/evaluacion-pares", label: "Evaluación por Pares", icon: ClipboardCheck },
+  { href: "/profesor/plagio", label: "Detección de Plagio", icon: ShieldAlert },
+  { href: "/profesor/certificados", label: "Certificados", icon: Award },
+  { href: "/profesor/alumnos", label: "Gestionar Alumnos", icon: Users },
+  { href: "/profesor/alumnos/importar", label: "Importar CSV", icon: UploadCloud },
+];
 
 const alumnoLinks = [
   { href: "/alumno", label: "Inicio", icon: LayoutDashboard },
   { href: "/alumno/examenes", label: "Mis Exámenes", icon: FileText },
   { href: "/alumno/tutor", label: "Tutor IA", icon: Brain },
   { href: "/alumno/progreso", label: "Mi Progreso", icon: BarChart3 },
+];
+
+const alumnoExtraLinks = [
+  { href: "/alumno/flashcards", label: "Flashcards", icon: Layers },
+  { href: "/alumno/quiz-en-vivo", label: "Quiz en Vivo", icon: Zap },
+  { href: "/alumno/gamificacion", label: "Logros", icon: Trophy },
+  { href: "/alumno/mensajes", label: "Mensajes", icon: MessageCircle },
+  { href: "/alumno/certificados", label: "Certificados", icon: Award },
+  { href: "/alumno/materias", label: "Mis Materias", icon: BookOpen },
+  { href: "/alumno/unirse", label: "Unirme a Clase", icon: GraduationCap },
 ];
 
 const padreLinks = [
@@ -60,10 +85,21 @@ function getLinks(role: string) {
   }
 }
 
+function getExtraLinks(role: string) {
+  switch (role) {
+    case "profesor": return profesorExtraLinks;
+    case "alumno": return alumnoExtraLinks;
+    default: return [];
+  }
+}
+
 export function Sidebar({ user, open, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { logout } = useAuth();
   const links = getLinks(user.role);
+  const extraLinks = getExtraLinks(user.role);
+  const isOnExtraPage = extraLinks.some((l: any) => pathname === l.href || pathname.startsWith(l.href + "/"));
+  const [showMore, setShowMore] = useState(isOnExtraPage);
 
   const content = (
     <div className="flex h-full flex-col bg-[#09090b] text-white">
@@ -105,6 +141,42 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
               </Link>
             );
           })}
+
+          {/* Expandable "More tools" */}
+          {extraLinks.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-white/[0.04]">
+              <button
+                onClick={() => setShowMore(!showMore)}
+                className="flex items-center justify-between w-full px-3.5 py-2.5 text-[13px] font-medium text-white/30 hover:text-white/50 transition-colors"
+              >
+                <span>Más herramientas</span>
+                <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", showMore && "rotate-180")} />
+              </button>
+              {showMore && (
+                <div className="space-y-0.5 mt-1">
+                  {extraLinks.map((link: any) => {
+                    const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={onClose}
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg px-3.5 py-2 text-[13px] font-medium transition-all duration-150",
+                          isActive
+                            ? "bg-amber-500/10 text-amber-300 border border-amber-500/15"
+                            : "text-white/25 hover:bg-white/[0.03] hover:text-white/50 border border-transparent"
+                        )}
+                      >
+                        <link.icon className={cn("h-4 w-4", isActive ? "text-amber-400" : "")} />
+                        {link.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </nav>
       </ScrollArea>
 

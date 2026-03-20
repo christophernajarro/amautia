@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { useProfesorSubjects, useCreateSubject, useDeleteSubject } from "@/lib/api-hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -203,7 +204,9 @@ export default function MateriasPage() {
                         <div key={sec.id} className="flex items-center justify-between bg-white dark:bg-slate-900 rounded-lg p-4 border dark:border-slate-700">
                           <div>
                             <p className="font-medium text-sm text-slate-900 dark:text-slate-100">{sec.name}</p>
-                            <p className="text-xs text-slate-500">{sec.students_count} alumnos</p>
+                            <Link href={`/profesor/alumnos?section=${sec.id}`} className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
+                              {sec.students_count} {sec.students_count === 1 ? "alumno" : "alumnos"} →
+                            </Link>
                           </div>
                           <div className="flex items-center gap-2" title="Los alumnos ingresan este código para unirse a esta sección">
                             <code className="bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 px-3 py-1.5 rounded-lg font-mono text-sm font-semibold tracking-wider">
