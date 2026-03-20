@@ -105,7 +105,7 @@ export default function AlumnoExamenesPage() {
       </div>
 
       {isLoading ? (
-        <div className="mx-auto max-w-3xl space-y-5">
+        <div className="mx-auto max-w-3xl flex flex-col gap-8">
           {[...Array(5)].map((_, i) => (
             <ExamCardSkeleton key={i} />
           ))}
@@ -128,7 +128,7 @@ export default function AlumnoExamenesPage() {
           </Card>
         </div>
       ) : (
-        <div className="mx-auto max-w-3xl space-y-5">
+        <div className="mx-auto max-w-3xl flex flex-col gap-8">
           {exams?.map((e: any) => {
             const color = getScoreColor(e.percentage);
             const isCorrected = e.status === "corrected" || e.status === "published";
