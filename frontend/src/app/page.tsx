@@ -6,7 +6,7 @@ import {
   ArrowRight, Check, Zap, Upload, CheckCircle, Database,
   Star, ChevronDown, Play, Shield, Clock, MessageCircle,
 } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { DemoModal } from "@/components/demo-modal";
 
@@ -285,9 +285,6 @@ export default function LandingPage() {
   const [annual, setAnnual] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 50);
@@ -299,7 +296,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#06060a] text-white overflow-x-hidden">
       <StructuredData />
       {/* ═══════ NAV ═══════ */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-[#06060a]/90 backdrop-blur-2xl border-b border-white/[0.06] shadow-2xl shadow-black/20" : ""}`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-[#06060a]/95 backdrop-blur-md border-b border-white/[0.06]" : ""}`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 lg:px-8 h-20">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:shadow-amber-500/40 transition-shadow">
@@ -326,17 +323,14 @@ export default function LandingPage() {
       </nav>
 
       {/* ═══════ HERO ═══════ */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-        {/* Gradient orbs */}
+      <section ref={heroRef} className="relative pt-20 pb-12 overflow-hidden">
+        {/* Gradient orbs — static, no animation, reduced blur for performance */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 -right-32 w-[700px] h-[700px] rounded-full bg-violet-600/[0.07] blur-[150px] animate-float-slow" />
-          <div className="absolute -bottom-32 -left-32 w-[600px] h-[600px] rounded-full bg-amber-500/[0.08] blur-[130px] animate-float-slower" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-indigo-500/[0.04] blur-[100px]" />
+          <div className="absolute top-1/4 -right-32 w-[600px] h-[600px] rounded-full bg-violet-600/[0.06] blur-[120px]" />
+          <div className="absolute bottom-0 -left-32 w-[500px] h-[500px] rounded-full bg-amber-500/[0.07] blur-[100px]" />
         </div>
-        {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
 
-        <motion.div style={{ opacity: heroOpacity, scale: heroScale }} className="max-w-7xl mx-auto px-6 lg:px-8 w-full">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full">
           <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-20 items-center">
             {/* Left */}
             <div>
@@ -376,7 +370,7 @@ export default function LandingPage() {
             {/* Right — Exam mockup */}
             <motion.div initial={{ opacity: 0, x: 40, rotateY: -5 }} animate={{ opacity: 1, x: 0, rotateY: 0 }} transition={{ duration: 0.9, delay: 0.3 }} className="relative hidden lg:block">
               <div className="absolute -inset-20 rounded-full bg-gradient-to-br from-amber-500/10 to-violet-500/5 blur-3xl" />
-              <div className="relative rounded-3xl border border-white/[0.08] bg-gradient-to-b from-white/[0.06] to-white/[0.01] backdrop-blur-sm p-8 shadow-2xl shadow-black/40 animate-float-slow">
+              <div className="relative rounded-3xl border border-white/[0.08] bg-gradient-to-b from-white/[0.06] to-white/[0.01] p-8 shadow-2xl shadow-black/40">
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <p className="text-xs uppercase tracking-[0.15em] text-amber-400/70 font-bold">Examen de Historia</p>
@@ -408,11 +402,11 @@ export default function LandingPage() {
               </div>
             </motion.div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Stats bar */}
-        <div className="absolute bottom-0 left-0 right-0 border-t border-white/[0.04]">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 grid grid-cols-3 gap-8">
+        {/* Stats bar — normal flow, not absolute */}
+        <div className="border-t border-white/[0.04] mt-16">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8 py-10 grid grid-cols-3 gap-8">
             {[["10x", "más rápido"], ["94%", "precisión IA"], ["+500", "profesores"]].map(([num, label]) => (
               <div key={num} className="text-center">
                 <p className="text-2xl lg:text-3xl font-extrabold text-white/90">{num}</p>
