@@ -104,13 +104,13 @@ export default function ProfesorMensajesPage() {
 
       {/* Tab selector */}
       <div className="flex gap-2 flex-wrap">
-        <Button size="sm" variant={tab === "mensajes" ? "default" : "outline"} onClick={() => setTab("mensajes")} className={tab === "mensajes" ? "bg-indigo-600 hover:bg-indigo-700" : ""}>
+        <Button size="sm" variant={tab === "mensajes" ? "default" : "outline"} onClick={() => setTab("mensajes")} className={tab === "mensajes" ? "bg-indigo-600 hover:bg-indigo-700 text-white" : ""}>
           <MessageCircle className="h-4 w-4 mr-2" />Mensajes
         </Button>
-        <Button size="sm" variant={tab === "anuncios" ? "default" : "outline"} onClick={() => setTab("anuncios")} className={tab === "anuncios" ? "bg-indigo-600 hover:bg-indigo-700" : ""}>
+        <Button size="sm" variant={tab === "anuncios" ? "default" : "outline"} onClick={() => setTab("anuncios")} className={tab === "anuncios" ? "bg-indigo-600 hover:bg-indigo-700 text-white" : ""}>
           <Megaphone className="h-4 w-4 mr-2" />Anuncios
         </Button>
-        <Button size="sm" variant={tab === "foros" ? "default" : "outline"} onClick={() => setTab("foros")} className={tab === "foros" ? "bg-indigo-600 hover:bg-indigo-700" : ""}>
+        <Button size="sm" variant={tab === "foros" ? "default" : "outline"} onClick={() => setTab("foros")} className={tab === "foros" ? "bg-indigo-600 hover:bg-indigo-700 text-white" : ""}>
           <MessagesSquare className="h-4 w-4 mr-2" />Foros
         </Button>
       </div>
@@ -174,7 +174,7 @@ export default function ProfesorMensajesPage() {
                   </ScrollArea>
                   <div className="p-4 border-t flex gap-2">
                     <Input value={messageText} onChange={(e) => setMessageText(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }} placeholder="Escribe un mensaje..." className="flex-1" />
-                    <Button size="icon" className="bg-indigo-600 hover:bg-indigo-700 shrink-0" onClick={handleSend} disabled={sendMessage.isPending || !messageText.trim()} title={sendMessage.isPending ? "Procesando..." : !messageText.trim() ? "Escribe un mensaje primero" : undefined}><Send className="h-4 w-4" /></Button>
+                    <Button size="icon" className="bg-indigo-600 hover:bg-indigo-700 shrink-0 text-white" onClick={handleSend} disabled={sendMessage.isPending || !messageText.trim()} title={sendMessage.isPending ? "Procesando..." : !messageText.trim() ? "Escribe un mensaje primero" : undefined}><Send className="h-4 w-4" /></Button>
                   </div>
                 </CardContent>
               </>
@@ -188,7 +188,7 @@ export default function ProfesorMensajesPage() {
       {tab === "anuncios" && (
         <div className="space-y-4">
           <div className="flex justify-end">
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setAnnOpen(true)}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setAnnOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />Nuevo anuncio
             </Button>
           </div>
@@ -245,7 +245,7 @@ export default function ProfesorMensajesPage() {
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setAnnOpen(false)}>Cancelar</Button>
-                <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreateAnnouncement} disabled={createAnnouncement.isPending} title={createAnnouncement.isPending ? "Publicando..." : undefined}>
+                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleCreateAnnouncement} disabled={createAnnouncement.isPending} title={createAnnouncement.isPending ? "Publicando..." : undefined}>
                   {createAnnouncement.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Publicando...</> : "Publicar"}
                 </Button>
               </DialogFooter>
@@ -300,7 +300,7 @@ export default function ProfesorMensajesPage() {
                   </ScrollArea>
                   <div className="p-4 border-t flex gap-2">
                     <Input value={postText} onChange={(e) => setPostText(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleCreatePost(); } }} placeholder="Escribe una publicación..." className="flex-1" />
-                    <Button size="icon" className="bg-indigo-600 hover:bg-indigo-700 shrink-0" onClick={handleCreatePost} disabled={createPost.isPending || !postText.trim()} title={createPost.isPending ? "Procesando..." : !postText.trim() ? "Escribe una publicación primero" : undefined}><Send className="h-4 w-4" /></Button>
+                    <Button size="icon" className="bg-indigo-600 hover:bg-indigo-700 shrink-0 text-white" onClick={handleCreatePost} disabled={createPost.isPending || !postText.trim()} title={createPost.isPending ? "Procesando..." : !postText.trim() ? "Escribe una publicación primero" : undefined}><Send className="h-4 w-4" /></Button>
                   </div>
                 </CardContent>
               </>

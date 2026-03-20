@@ -90,7 +90,7 @@ export default function AlumnosPage() {
           <p className="text-slate-500 dark:text-slate-400">Gestiona los alumnos de tus secciones</p>
         </div>
         {selectedSection && (
-          <Button onClick={() => setShowAdd(true)} className="bg-indigo-600 hover:bg-indigo-700">
+          <Button onClick={() => setShowAdd(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white">
             <Plus className="h-4 w-4 mr-2" />Agregar alumno
           </Button>
         )}
@@ -141,7 +141,7 @@ export default function AlumnosPage() {
                   Para gestionar alumnos necesitas al menos una materia con una sección creada.
                 </p>
                 <Link href="/profesor/materias">
-                  <Button className="bg-indigo-600 hover:bg-indigo-700">
+                  <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
                     Ir a Materias <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </Link>
@@ -216,7 +216,7 @@ export default function AlumnosPage() {
                           <p className="text-sm text-muted-foreground mb-6 max-w-sm text-center">
                             Importa una lista de alumnos o agregalos manualmente para comenzar a gestionar tu seccion.
                           </p>
-                          <Button onClick={() => setShowAdd(true)} className="bg-indigo-600 hover:bg-indigo-700">
+                          <Button onClick={() => setShowAdd(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white">
                             <Plus className="h-4 w-4 mr-2" />Importar alumnos
                           </Button>
                         </div>
@@ -249,7 +249,7 @@ export default function AlumnosPage() {
             <Input placeholder="Nombre" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} />
             <Input placeholder="Apellido" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} />
             <Input placeholder="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-            <Button onClick={addStudent} disabled={submitting} title={submitting ? "Procesando..." : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={addStudent} disabled={submitting} title={submitting ? "Procesando..." : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
               {submitting ? "Agregando..." : "Agregar"}
             </Button>
           </div>

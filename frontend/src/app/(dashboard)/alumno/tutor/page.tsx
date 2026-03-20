@@ -162,7 +162,7 @@ export default function TutorPage() {
       {/* Chat list sidebar */}
       <div className={`${showSidebar ? "flex" : "hidden"} lg:flex w-full lg:w-80 flex-col border-r bg-white dark:bg-slate-900`}>
         <div className="p-4 border-b">
-          <Button onClick={createChat} className="w-full bg-indigo-600 hover:bg-indigo-700">
+          <Button onClick={createChat} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
             <Plus className="h-4 w-4 mr-2" />Nueva conversación
           </Button>
         </div>
@@ -394,7 +394,7 @@ export default function TutorPage() {
                   type="submit"
                   disabled={!input.trim() || sending}
                   title={sending ? "Procesando..." : !input.trim() ? "Escribe una pregunta primero" : undefined}
-                  className="bg-indigo-600 hover:bg-indigo-700 shrink-0 transition-all duration-200 disabled:opacity-40"
+                  className="bg-indigo-600 hover:bg-indigo-700 shrink-0 transition-all duration-200 disabled:opacity-40 text-white"
                 >
                   {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                 </Button>

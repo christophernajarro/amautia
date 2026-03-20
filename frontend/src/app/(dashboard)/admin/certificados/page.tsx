@@ -75,7 +75,7 @@ export default function AdminCertificadosPage() {
           <Button variant="outline" onClick={() => setIssueOpen(true)} className="flex-1 sm:flex-initial">
             <Send className="h-4 w-4 mr-2" />Emitir certificados
           </Button>
-          <Button className="bg-indigo-600 hover:bg-indigo-700 flex-1 sm:flex-initial" onClick={() => setCreateOpen(true)}>
+          <Button className="bg-indigo-600 hover:bg-indigo-700 flex-1 sm:flex-initial text-white" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />Nueva plantilla
           </Button>
         </div>
@@ -179,7 +179,7 @@ export default function AdminCertificadosPage() {
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm text-center">
               Crea plantillas HTML personalizadas para emitir certificados
             </p>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setCreateOpen(true)}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />Crear primera plantilla
             </Button>
           </CardContent>
@@ -218,7 +218,7 @@ export default function AdminCertificadosPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreateTemplate} disabled={createTemplate.isPending} title={createTemplate.isPending ? "Procesando..." : undefined}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleCreateTemplate} disabled={createTemplate.isPending} title={createTemplate.isPending ? "Procesando..." : undefined}>
               {createTemplate.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Crear plantilla"}
             </Button>
           </DialogFooter>
@@ -251,7 +251,7 @@ export default function AdminCertificadosPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIssueOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleIssue} disabled={issueCert.isPending} title={issueCert.isPending ? "Procesando..." : undefined}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleIssue} disabled={issueCert.isPending} title={issueCert.isPending ? "Procesando..." : undefined}>
               {issueCert.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Emitiendo...</> : <><Send className="h-4 w-4 mr-2" />Emitir</>}
             </Button>
           </DialogFooter>

@@ -73,7 +73,7 @@ export default function ProfesorCertificadosPage() {
           <Button variant="outline" onClick={() => setIssueOpen(true)} className="flex-1 sm:flex-initial">
             <Send className="h-4 w-4 mr-2" />Emitir certificado
           </Button>
-          <Button className="bg-indigo-600 hover:bg-indigo-700 flex-1 sm:flex-initial" onClick={() => setCreateOpen(true)}>
+          <Button className="bg-indigo-600 hover:bg-indigo-700 flex-1 sm:flex-initial text-white" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />Nueva plantilla
           </Button>
         </div>
@@ -108,7 +108,7 @@ export default function ProfesorCertificadosPage() {
                   <Button variant="outline" size="sm" className="flex-1" onClick={() => { setPreviewHtml(tmpl.html_template || ""); }}>
                     <Eye className="h-3 w-3 mr-1" />Vista previa
                   </Button>
-                  <Button size="sm" className="flex-1 bg-indigo-600 hover:bg-indigo-700" onClick={() => { setIssueTemplateId(tmpl.id); setIssueOpen(true); }}>
+                  <Button size="sm" className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => { setIssueTemplateId(tmpl.id); setIssueOpen(true); }}>
                     <Send className="h-3 w-3 mr-1" />Emitir
                   </Button>
                 </div>
@@ -126,7 +126,7 @@ export default function ProfesorCertificadosPage() {
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm text-center">
               Disena plantillas de certificados y emitelas para tus alumnos destacados
             </p>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setCreateOpen(true)}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />Crear plantilla
             </Button>
           </CardContent>
@@ -169,7 +169,7 @@ export default function ProfesorCertificadosPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreateTemplate} disabled={createTemplate.isPending} title={createTemplate.isPending ? "Procesando..." : undefined}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleCreateTemplate} disabled={createTemplate.isPending} title={createTemplate.isPending ? "Procesando..." : undefined}>
               {createTemplate.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Crear plantilla"}
             </Button>
           </DialogFooter>
@@ -203,7 +203,7 @@ export default function ProfesorCertificadosPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIssueOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleIssue} disabled={issueCert.isPending} title={issueCert.isPending ? "Procesando..." : undefined}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleIssue} disabled={issueCert.isPending} title={issueCert.isPending ? "Procesando..." : undefined}>
               {issueCert.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Emitiendo...</> : <><Send className="h-4 w-4 mr-2" />Emitir</>}
             </Button>
           </DialogFooter>

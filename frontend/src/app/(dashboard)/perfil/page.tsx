@@ -110,7 +110,7 @@ export default function PerfilPage() {
             </div>
           </div>
           {saveError && <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1.5"><AlertCircle className="h-4 w-4 shrink-0" />{saveError}</p>}
-          <Button onClick={handleSave} disabled={saving} title={saving ? "Guardando..." : undefined} className="bg-indigo-600 hover:bg-indigo-700 transition-all duration-200">
+          <Button onClick={handleSave} disabled={saving} title={saving ? "Guardando..." : undefined} className="bg-indigo-600 hover:bg-indigo-700 transition-all duration-200 text-white">
             {saved ? (
               <><CheckCircle className="h-4 w-4 mr-2" />Guardado</>
             ) : saving ? "Guardando..." : (

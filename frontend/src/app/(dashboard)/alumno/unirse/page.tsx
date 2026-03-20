@@ -75,7 +75,7 @@ export default function UnirsePage() {
               onClick={handleJoin}
               disabled={joinSection.isPending || code.length < 4}
               title={joinSection.isPending ? "Procesando..." : code.length < 4 ? "Ingresa un código de al menos 4 caracteres" : undefined}
-              className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-base font-semibold"
+              className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-base font-semibold text-white"
             >
               {joinSection.isPending ? "Uniéndome..." : "Unirme a la clase"}
             </Button>

@@ -164,7 +164,7 @@ export default function ProgresoPage() {
                   : "No te preocupes, el tutor IA puede ayudarte paso a paso con los temas difíciles."}
               </p>
               <Link href="/alumno/tutor">
-                <Button size="sm" className="mt-3 bg-indigo-600 hover:bg-indigo-700">
+                <Button size="sm" className="mt-3 bg-indigo-600 hover:bg-indigo-700 text-white">
                   <Brain className="h-3.5 w-3.5 mr-1.5" />
                   {progress.accuracy >= 70 ? "Explorar temas avanzados" : "Practicar con el tutor"}
                 </Button>
@@ -179,7 +179,7 @@ export default function ProgresoPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Planes de estudio</CardTitle>
-              <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700" onClick={openGenerateDialog}>
+              <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={openGenerateDialog}>
                 <Plus className="h-4 w-4 mr-1" />Generar plan
               </Button>
             </div>
@@ -217,7 +217,7 @@ export default function ProgresoPage() {
                 <p className="text-slate-500 dark:text-slate-400 text-sm mb-4 text-center max-w-xs">
                   Genera un plan personalizado basado en tu rendimiento y el tutor IA te guiará paso a paso.
                 </p>
-                <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={openGenerateDialog}>
+                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={openGenerateDialog}>
                   <Sparkles className="h-4 w-4 mr-2" />Generar plan con IA
                 </Button>
               </div>
@@ -271,7 +271,7 @@ export default function ProgresoPage() {
             <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={generating} title={generating ? "Generación en proceso..." : undefined}>
               Cancelar
             </Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleGenerate} disabled={generating} title={generating ? "Procesando..." : undefined}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleGenerate} disabled={generating} title={generating ? "Procesando..." : undefined}>
               {generating ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />Generando...

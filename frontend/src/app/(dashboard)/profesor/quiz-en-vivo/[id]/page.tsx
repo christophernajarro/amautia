@@ -99,7 +99,7 @@ export default function QuizControlPage() {
             <Button variant="outline" onClick={() => handleAction("pause")} disabled={action.isPending} title={action.isPending ? "Procesando..." : undefined}>
               <Pause className="h-4 w-4 mr-2" />Pausar
             </Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => handleAction("next")} disabled={action.isPending} title={action.isPending ? "Procesando..." : undefined}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => handleAction("next")} disabled={action.isPending} title={action.isPending ? "Procesando..." : undefined}>
               <SkipForward className="h-4 w-4 mr-2" />Siguiente pregunta
             </Button>
           </>

@@ -127,7 +127,7 @@ export default function CalificacionesPage() {
             <Button variant="outline" size="sm" onClick={() => setAddPeriodOpen(true)}>
               <Settings className="h-4 w-4 mr-2" />Nuevo periodo
             </Button>
-            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setAddEntryOpen(true)}>
+            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setAddEntryOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />Agregar nota
             </Button>
           </div>
@@ -170,7 +170,7 @@ export default function CalificacionesPage() {
                 size="sm"
                 variant={activePeriod === "all" ? "default" : "outline"}
                 onClick={() => setActivePeriod("all")}
-                className={activePeriod === "all" ? "bg-indigo-600 hover:bg-indigo-700" : ""}
+                className={activePeriod === "all" ? "bg-indigo-600 hover:bg-indigo-700 text-white" : ""}
               >
                 Todas
               </Button>
@@ -180,7 +180,7 @@ export default function CalificacionesPage() {
                   size="sm"
                   variant={activePeriod === p.id ? "default" : "outline"}
                   onClick={() => setActivePeriod(p.id)}
-                  className={activePeriod === p.id ? "bg-indigo-600 hover:bg-indigo-700" : ""}
+                  className={activePeriod === p.id ? "bg-indigo-600 hover:bg-indigo-700 text-white" : ""}
                 >
                   {p.name}
                 </Button>
@@ -281,7 +281,7 @@ export default function CalificacionesPage() {
                     Sincronizar examenes
                   </Button>
                   <Link href="/profesor/examenes">
-                    <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+                    <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white">
                       <BookOpen className="h-4 w-4 mr-2" />
                       Ir a examenes
                     </Button>
@@ -328,7 +328,7 @@ export default function CalificacionesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddEntryOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleAddEntry} disabled={createEntry.isPending} title={createEntry.isPending ? "Procesando..." : undefined}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleAddEntry} disabled={createEntry.isPending} title={createEntry.isPending ? "Procesando..." : undefined}>
               {createEntry.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Agregar"}
             </Button>
           </DialogFooter>
@@ -357,7 +357,7 @@ export default function CalificacionesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddPeriodOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleAddPeriod} disabled={createPeriod.isPending} title={createPeriod.isPending ? "Procesando..." : undefined}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleAddPeriod} disabled={createPeriod.isPending} title={createPeriod.isPending ? "Procesando..." : undefined}>
               {createPeriod.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Crear periodo"}
             </Button>
           </DialogFooter>

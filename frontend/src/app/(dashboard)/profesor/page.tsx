@@ -197,7 +197,7 @@ export default function ProfesorDashboard() {
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">No hay exámenes aún</p>
               <div className="flex gap-2">
                 <Link href="/profesor/examenes/nuevo">
-                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white">
                     <Plus className="h-4 w-4 mr-1" />Crear examen
                   </Button>
                 </Link>

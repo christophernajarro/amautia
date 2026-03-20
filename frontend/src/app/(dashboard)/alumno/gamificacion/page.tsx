@@ -51,7 +51,7 @@ export default function GamificacionPage() {
                   <span>100 XP</span>
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-2">
-                  <div className="bg-indigo-600 h-2 rounded-full transition-all" style={{ width: `${xpInLevel}%` }} />
+                  <div className="bg-indigo-600 h-2 rounded-full transition-all text-white" style={{ width: `${xpInLevel}%` }} />
                 </div>
               </div>
             </CardContent>

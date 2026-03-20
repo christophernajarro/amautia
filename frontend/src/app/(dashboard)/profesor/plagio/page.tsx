@@ -71,7 +71,7 @@ export default function PlagioPage() {
             </div>
             <div className="flex items-end">
               <Button
-                className="bg-indigo-600 hover:bg-indigo-700 w-full sm:w-auto"
+                className="bg-indigo-600 hover:bg-indigo-700 w-full sm:w-auto text-white"
                 onClick={handleRunCheck}
                 disabled={!selectedExamId || runCheck.isPending}
                 title={!selectedExamId ? "Selecciona un examen primero" : runCheck.isPending ? "Procesando..." : undefined}

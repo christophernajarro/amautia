@@ -104,7 +104,7 @@ export default function FlashcardStudyPage() {
           <span>{progress}%</span>
         </div>
         <div className="w-full bg-slate-100 rounded-full h-2">
-          <div className="bg-indigo-600 h-2 rounded-full transition-all" style={{ width: `${progress}%` }} />
+          <div className="bg-indigo-600 h-2 rounded-full transition-all text-white" style={{ width: `${progress}%` }} />
         </div>
       </div>
 
@@ -130,7 +130,7 @@ export default function FlashcardStudyPage() {
                 <RotateCcw className="h-4 w-4 mr-2" />Repetir
               </Button>
               <Link href="/alumno/flashcards">
-                <Button className="bg-indigo-600 hover:bg-indigo-700">Volver a mis sets</Button>
+                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">Volver a mis sets</Button>
               </Link>
             </div>
           </CardContent>

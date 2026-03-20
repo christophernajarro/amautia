@@ -103,7 +103,7 @@ export default function SuscripcionPage() {
               <Card key={plan.id} className={`relative ${isPopular ? "border-indigo-300 shadow-lg scale-105" : ""}`}>
                 {isPopular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-indigo-600">Más popular</Badge>
+                    <Badge className="bg-indigo-600 text-white">Más popular</Badge>
                   </div>
                 )}
                 <CardHeader className="text-center pb-2">
@@ -130,7 +130,7 @@ export default function SuscripcionPage() {
                     ))}
                   </ul>
                   <Button
-                    className={`w-full ${isPopular ? "bg-indigo-600 hover:bg-indigo-700" : ""}`}
+                    className={`w-full ${isPopular ? "bg-indigo-600 hover:bg-indigo-700 text-white" : ""}`}
                     variant={isPopular ? "default" : "outline"}
                     onClick={() => handlePayment(plan)}
                     disabled={isCurrent}
@@ -198,7 +198,7 @@ export default function SuscripcionPage() {
             <CheckCircle className="h-12 w-12 text-emerald-500 mx-auto mb-3" />
             <h3 className="text-lg font-bold">Comprobante enviado</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">Tu suscripción será activada en breve una vez que revisemos tu pago.</p>
-            <Button onClick={() => setUploadSuccess(false)} className="mt-4 bg-indigo-600 hover:bg-indigo-700">Entendido</Button>
+            <Button onClick={() => setUploadSuccess(false)} className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white">Entendido</Button>
           </div>
         </div>
       )}

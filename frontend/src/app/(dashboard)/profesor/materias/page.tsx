@@ -110,7 +110,7 @@ export default function MateriasPage() {
             {subjects?.length ? `${subjects.length} materias · Haz clic para ver secciones y codigos de clase` : "Gestiona tus materias y secciones"}
           </p>
         </div>
-        <Button onClick={() => setShowCreate(true)} className="bg-indigo-600 hover:bg-indigo-700"><Plus className="h-4 w-4 mr-2" />Nueva materia</Button>
+        <Button onClick={() => setShowCreate(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white"><Plus className="h-4 w-4 mr-2" />Nueva materia</Button>
 
         {/* Create subject dialog */}
         <Dialog open={showCreate} onOpenChange={setShowCreate}>
@@ -135,7 +135,7 @@ export default function MateriasPage() {
                   ))}
                 </div>
               </div>
-              <Button onClick={handleCreate} disabled={createSubject.isPending || !form.name.trim()} title={createSubject.isPending ? "Procesando..." : !form.name.trim() ? "Ingresa un nombre para la materia" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700 mt-2">
+              <Button onClick={handleCreate} disabled={createSubject.isPending || !form.name.trim()} title={createSubject.isPending ? "Procesando..." : !form.name.trim() ? "Ingresa un nombre para la materia" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700 mt-2 text-white">
                 {createSubject.isPending ? "Creando..." : "Crear materia"}
               </Button>
             </div>
@@ -167,7 +167,7 @@ export default function MateriasPage() {
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm text-center">
               Organiza tus clases por materia y seccion. Cada seccion genera un codigo unico para que tus alumnos se unan.
             </p>
-            <Button onClick={() => setShowCreate(true)} className="bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={() => setShowCreate(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white">
               <Plus className="h-4 w-4 mr-2" />Crear materia
             </Button>
           </CardContent>
@@ -299,7 +299,7 @@ export default function MateriasPage() {
                         onKeyDown={(e) => e.key === "Enter" && createSection(s.id)}
                         className="bg-white dark:bg-slate-900/70"
                       />
-                      <Button onClick={() => createSection(s.id)} disabled={creatingSec || !newSection.trim()} title={creatingSec ? "Procesando..." : !newSection.trim() ? "Ingresa un nombre para la seccion" : undefined} size="sm" className="bg-indigo-600 hover:bg-indigo-700 shrink-0">
+                      <Button onClick={() => createSection(s.id)} disabled={creatingSec || !newSection.trim()} title={creatingSec ? "Procesando..." : !newSection.trim() ? "Ingresa un nombre para la seccion" : undefined} size="sm" className="bg-indigo-600 hover:bg-indigo-700 shrink-0 text-white">
                         <Plus className="h-4 w-4 mr-1" />{creatingSec ? "..." : "Agregar"}
                       </Button>
                     </div>

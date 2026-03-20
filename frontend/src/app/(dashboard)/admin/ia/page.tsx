@@ -121,7 +121,7 @@ export default function IAConfigPage() {
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Configuracion de IA</h1>
             <p className="text-slate-500 dark:text-slate-400">Proveedores y modelos de inteligencia artificial</p>
           </div>
-          <Button onClick={() => { resetProviderForm(); setShowCreateProvider(true); }} className="bg-indigo-600 hover:bg-indigo-700">
+          <Button onClick={() => { resetProviderForm(); setShowCreateProvider(true); }} className="bg-indigo-600 hover:bg-indigo-700 text-white">
             <Plus className="h-4 w-4 mr-2" />Agregar proveedor
           </Button>
         </div>
@@ -134,7 +134,7 @@ export default function IAConfigPage() {
               <Cpu className="h-12 w-12 text-slate-300 mb-4" />
               <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">Sin proveedores configurados</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Agrega un proveedor de IA para empezar (Gemini, OpenAI, Claude)</p>
-              <Button onClick={() => { resetProviderForm(); setShowCreateProvider(true); }} className="bg-indigo-600 hover:bg-indigo-700">
+              <Button onClick={() => { resetProviderForm(); setShowCreateProvider(true); }} className="bg-indigo-600 hover:bg-indigo-700 text-white">
                 <Plus className="h-4 w-4 mr-2" />Agregar proveedor
               </Button>
             </CardContent>
@@ -198,7 +198,7 @@ export default function IAConfigPage() {
             resetModelForm();
             if (providers?.length) setModelForm((f) => ({ ...f, provider_id: providers[0].id }));
             setShowCreateModel(true);
-          }} className="bg-indigo-600 hover:bg-indigo-700" disabled={!providers?.length} title={!providers?.length ? "Agrega un proveedor primero" : undefined}>
+          }} className="bg-indigo-600 hover:bg-indigo-700 text-white" disabled={!providers?.length} title={!providers?.length ? "Agrega un proveedor primero" : undefined}>
             <Plus className="h-4 w-4 mr-2" />Agregar modelo
           </Button>
         </div>
@@ -288,7 +288,7 @@ export default function IAConfigPage() {
             <div><Label>Nombre</Label><Input placeholder="ej: Google Gemini" value={providerForm.name} onChange={(e) => setProviderForm({ ...providerForm, name: e.target.value })} /></div>
             <div><Label>Slug</Label><Input placeholder="ej: gemini, openai, anthropic" value={providerForm.slug} onChange={(e) => setProviderForm({ ...providerForm, slug: e.target.value })} /></div>
             <div><Label>API Key</Label><Input type="password" placeholder="sk-..." value={providerForm.api_key} onChange={(e) => setProviderForm({ ...providerForm, api_key: e.target.value })} /></div>
-            <Button onClick={handleCreateProvider} disabled={createProvider.isPending || !providerForm.name.trim() || !providerForm.slug.trim() || !providerForm.api_key.trim()} title={createProvider.isPending ? "Procesando..." : !providerForm.name.trim() ? "Ingresa un nombre" : !providerForm.slug.trim() ? "Ingresa un slug" : !providerForm.api_key.trim() ? "Ingresa una API key" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={handleCreateProvider} disabled={createProvider.isPending || !providerForm.name.trim() || !providerForm.slug.trim() || !providerForm.api_key.trim()} title={createProvider.isPending ? "Procesando..." : !providerForm.name.trim() ? "Ingresa un nombre" : !providerForm.slug.trim() ? "Ingresa un slug" : !providerForm.api_key.trim() ? "Ingresa una API key" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
               {createProvider.isPending ? "Creando..." : "Crear proveedor"}
             </Button>
           </div>
@@ -307,7 +307,7 @@ export default function IAConfigPage() {
               <Switch checked={providerForm.is_active} onCheckedChange={(checked) => setProviderForm({ ...providerForm, is_active: checked })} />
               <Label>Activo</Label>
             </div>
-            <Button onClick={handleEditProvider} disabled={updateProvider.isPending || !providerForm.name.trim()} title={updateProvider.isPending ? "Guardando..." : !providerForm.name.trim() ? "Ingresa un nombre" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={handleEditProvider} disabled={updateProvider.isPending || !providerForm.name.trim()} title={updateProvider.isPending ? "Guardando..." : !providerForm.name.trim() ? "Ingresa un nombre" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
               {updateProvider.isPending ? "Guardando..." : "Guardar cambios"}
             </Button>
           </div>
@@ -349,7 +349,7 @@ export default function IAConfigPage() {
               <div className="flex items-center gap-2"><Switch checked={modelForm.supports_vision} onCheckedChange={(c) => setModelForm({ ...modelForm, supports_vision: c })} /><Label>Vision</Label></div>
               <div className="flex items-center gap-2"><Switch checked={modelForm.is_active} onCheckedChange={(c) => setModelForm({ ...modelForm, is_active: c })} /><Label>Activo</Label></div>
             </div>
-            <Button onClick={handleCreateModel} disabled={createModel.isPending || !modelForm.name.trim() || !modelForm.model_id.trim() || !modelForm.provider_id} title={createModel.isPending ? "Procesando..." : !modelForm.name.trim() ? "Ingresa un nombre" : !modelForm.model_id.trim() ? "Ingresa un Model ID" : !modelForm.provider_id ? "Selecciona un proveedor" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={handleCreateModel} disabled={createModel.isPending || !modelForm.name.trim() || !modelForm.model_id.trim() || !modelForm.provider_id} title={createModel.isPending ? "Procesando..." : !modelForm.name.trim() ? "Ingresa un nombre" : !modelForm.model_id.trim() ? "Ingresa un Model ID" : !modelForm.provider_id ? "Selecciona un proveedor" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
               {createModel.isPending ? "Creando..." : "Crear modelo"}
             </Button>
           </div>
@@ -369,7 +369,7 @@ export default function IAConfigPage() {
               <div className="flex items-center gap-2"><Switch checked={modelForm.supports_vision} onCheckedChange={(c) => setModelForm({ ...modelForm, supports_vision: c })} /><Label>Vision</Label></div>
               <div className="flex items-center gap-2"><Switch checked={modelForm.is_active} onCheckedChange={(c) => setModelForm({ ...modelForm, is_active: c })} /><Label>Activo</Label></div>
             </div>
-            <Button onClick={handleEditModel} disabled={updateModel.isPending || !modelForm.name.trim() || !modelForm.model_id.trim()} title={updateModel.isPending ? "Guardando..." : !modelForm.name.trim() ? "Ingresa un nombre" : !modelForm.model_id.trim() ? "Ingresa un Model ID" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={handleEditModel} disabled={updateModel.isPending || !modelForm.name.trim() || !modelForm.model_id.trim()} title={updateModel.isPending ? "Guardando..." : !modelForm.name.trim() ? "Ingresa un nombre" : !modelForm.model_id.trim() ? "Ingresa un Model ID" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
               {updateModel.isPending ? "Guardando..." : "Guardar cambios"}
             </Button>
           </div>

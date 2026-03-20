@@ -202,7 +202,7 @@ export default function NuevoExamenPage() {
 
           <Button onClick={handleSubmit} disabled={loading || !form.title || !form.section_id || !file}
             title={loading ? "Procesando..." : !form.title ? "Ingresa un título para el examen" : !form.section_id ? "Selecciona una sección" : !file ? "Selecciona un archivo" : undefined}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 h-12 text-base">
+            className="w-full bg-indigo-600 hover:bg-indigo-700 h-12 text-base text-white">
             {loading ? "Creando examen..." : "Crear examen"}
           </Button>
         </CardContent>

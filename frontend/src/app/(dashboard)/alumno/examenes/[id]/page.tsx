@@ -259,7 +259,7 @@ export default function ExamenDetailPage() {
       )}
 
       <Link href="/alumno/tutor">
-        <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
+        <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
           <MessageSquare className="h-4 w-4 mr-2" />
           Preguntar al Tutor IA sobre este examen
         </Button>

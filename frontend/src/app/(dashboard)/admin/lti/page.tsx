@@ -60,7 +60,7 @@ export default function LTIPage() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Integraciones LTI</h1>
           <p className="text-slate-500 dark:text-slate-400">Conecta con plataformas LMS externas (Moodle, Canvas, etc.)</p>
         </div>
-        <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setCreateOpen(true)}>
+        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />Nuevo registro
         </Button>
       </div>
@@ -146,7 +146,7 @@ export default function LTIPage() {
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm text-center">
               Conecta Amautia con Moodle, Canvas u otro LMS compatible con LTI 1.3
             </p>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setCreateOpen(true)}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />Crear registro
             </Button>
           </CardContent>
@@ -189,7 +189,7 @@ export default function LTIPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreate} disabled={createReg.isPending} title={createReg.isPending ? "Procesando..." : undefined}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleCreate} disabled={createReg.isPending} title={createReg.isPending ? "Procesando..." : undefined}>
               {createReg.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Crear registro"}
             </Button>
           </DialogFooter>

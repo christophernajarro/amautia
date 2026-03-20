@@ -76,7 +76,7 @@ export default function AlumnoQuizEnVivoPage() {
               />
             </div>
             <Button
-              className="w-full bg-indigo-600 hover:bg-indigo-700 h-12"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 h-12 text-white"
               onClick={handleJoin}
               disabled={joinQuiz.isPending}
               title={joinQuiz.isPending ? "Procesando..." : undefined}
@@ -241,7 +241,7 @@ export default function AlumnoQuizEnVivoPage() {
 
       {!answered && (
         <Button
-          className="w-full bg-indigo-600 hover:bg-indigo-700 h-12"
+          className="w-full bg-indigo-600 hover:bg-indigo-700 h-12 text-white"
           onClick={handleSubmitAnswer}
           disabled={!selectedAnswer || submitAnswer.isPending}
           title={!selectedAnswer ? "Selecciona una respuesta primero" : submitAnswer.isPending ? "Procesando..." : undefined}

@@ -656,7 +656,7 @@ export default function ExamenPage() {
               onClick={handleCorrect}
               disabled={correcting}
               title={correcting ? "Corrección en proceso..." : undefined}
-              className="bg-indigo-600 hover:bg-indigo-700"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
             >
               <Zap className="h-4 w-4 mr-2" />
               {correcting ? "Iniciando..." : `Corregir todos (${status?.pending})`}
@@ -1121,7 +1121,7 @@ export default function ExamenPage() {
                 Cancelar
               </Button>
               <Button
-                className="bg-indigo-600 hover:bg-indigo-700"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
                 onClick={async () => {
                   setShowPublishDialog(false);
                   await handlePublish();

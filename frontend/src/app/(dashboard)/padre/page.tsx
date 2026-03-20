@@ -41,7 +41,7 @@ export default function PadreDashboardPage() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Portal de Padres</h1>
           <p className="text-slate-500 dark:text-slate-400">Seguimiento del progreso de tus hijos</p>
         </div>
-        <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setLinkOpen(true)}>
+        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setLinkOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />Vincular alumno
         </Button>
       </div>
@@ -142,7 +142,7 @@ export default function PadreDashboardPage() {
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm text-center">
               Ingresa el correo del alumno para seguir su progreso academico
             </p>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setLinkOpen(true)}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setLinkOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />Vincular alumno
             </Button>
           </CardContent>
@@ -173,7 +173,7 @@ export default function PadreDashboardPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setLinkOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleLink} disabled={linkChild.isPending} title={linkChild.isPending ? "Procesando..." : undefined}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleLink} disabled={linkChild.isPending} title={linkChild.isPending ? "Procesando..." : undefined}>
               {linkChild.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Vinculando...</> : "Vincular"}
             </Button>
           </DialogFooter>

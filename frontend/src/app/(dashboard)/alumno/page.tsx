@@ -31,7 +31,7 @@ export default function AlumnoDashboard() {
             <Button variant="outline">Unirme a clase</Button>
           </Link>
           <Link href="/alumno/tutor">
-            <Button className="bg-indigo-600 hover:bg-indigo-700">
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
               <Brain className="h-4 w-4 mr-2" />Tutor IA
             </Button>
           </Link>

@@ -55,7 +55,7 @@ export default function QuizEnVivoPage() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Quiz en Vivo</h1>
           <p className="text-slate-500 dark:text-slate-400">Crea quizzes interactivos en tiempo real</p>
         </div>
-        <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setCreateOpen(true)}>
+        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />Nuevo quiz
         </Button>
       </div>
@@ -103,7 +103,7 @@ export default function QuizEnVivoPage() {
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm text-center">
               Los alumnos se unen con un PIN y responden preguntas en tiempo real
             </p>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setCreateOpen(true)}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />Crear quiz
             </Button>
           </CardContent>
@@ -136,7 +136,7 @@ export default function QuizEnVivoPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreate} disabled={createQuiz.isPending} title={createQuiz.isPending ? "Procesando..." : undefined}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleCreate} disabled={createQuiz.isPending} title={createQuiz.isPending ? "Procesando..." : undefined}>
               {createQuiz.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Crear quiz"}
             </Button>
           </DialogFooter>

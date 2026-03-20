@@ -72,7 +72,7 @@ export default function FlashcardsPage() {
           <Button variant="outline" onClick={() => setGenOpen(true)} className="flex-1 sm:flex-initial">
             <Sparkles className="h-4 w-4 mr-2" />Generar con IA
           </Button>
-          <Button className="bg-indigo-600 hover:bg-indigo-700 flex-1 sm:flex-initial" onClick={() => setCreateOpen(true)}>
+          <Button className="bg-indigo-600 hover:bg-indigo-700 flex-1 sm:flex-initial text-white" onClick={() => setCreateOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />Nuevo set
           </Button>
         </div>
@@ -129,7 +129,7 @@ export default function FlashcardsPage() {
                     </div>
                   </div>
                   <Link href={`/alumno/flashcards/${set.id}`}>
-                    <Button size="sm" className="w-full bg-indigo-600 hover:bg-indigo-700">
+                    <Button size="sm" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
                       <BookOpen className="h-4 w-4 mr-2" />Estudiar
                     </Button>
                   </Link>
@@ -149,7 +149,7 @@ export default function FlashcardsPage() {
               Las flashcards te ayudan a memorizar usando repaso espaciado
             </p>
             <div className="flex gap-3">
-              <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setCreateOpen(true)}>
+              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setCreateOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />Crear manual
               </Button>
               <Button variant="outline" onClick={() => setGenOpen(true)}>
@@ -199,7 +199,7 @@ export default function FlashcardsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreate} disabled={createSet.isPending} title={createSet.isPending ? "Procesando..." : undefined}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleCreate} disabled={createSet.isPending} title={createSet.isPending ? "Procesando..." : undefined}>
               {createSet.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Crear set"}
             </Button>
           </DialogFooter>
@@ -228,7 +228,7 @@ export default function FlashcardsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setGenOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleGenerate} disabled={generateCards.isPending} title={generateCards.isPending ? "Procesando..." : undefined}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleGenerate} disabled={generateCards.isPending} title={generateCards.isPending ? "Procesando..." : undefined}>
               {generateCards.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Generando...</> : <><Sparkles className="h-4 w-4 mr-2" />Generar</>}
             </Button>
           </DialogFooter>

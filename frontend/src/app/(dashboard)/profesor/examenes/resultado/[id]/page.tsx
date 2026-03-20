@@ -201,7 +201,7 @@ export default function ResultadoAlumnoPage() {
             <Textarea placeholder="Comentarios adicionales..." value={notes}
               onChange={(e) => setNotes(e.target.value)} className="mt-1" />
           </div>
-          <Button onClick={handleSave} disabled={saving} title={saving ? "Guardando..." : undefined} className="bg-indigo-600 hover:bg-indigo-700">
+          <Button onClick={handleSave} disabled={saving} title={saving ? "Guardando..." : undefined} className="bg-indigo-600 hover:bg-indigo-700 text-white">
             {saved ? <><CheckCircle className="h-4 w-4 mr-2" />Guardado</> : saving ? "Guardando..." : <><Save className="h-4 w-4 mr-2" />Guardar revisión</>}
           </Button>
         </CardContent>

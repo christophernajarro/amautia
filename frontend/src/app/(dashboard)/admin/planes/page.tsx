@@ -101,7 +101,7 @@ export default function PlanesPage() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Planes</h1>
           <p className="text-slate-500 dark:text-slate-400">Gestión de planes de suscripción</p>
         </div>
-        <Button onClick={openCreate} className="bg-indigo-600 hover:bg-indigo-700">
+        <Button onClick={openCreate} className="bg-indigo-600 hover:bg-indigo-700 text-white">
           <Plus className="h-4 w-4 mr-2" />Nuevo plan
         </Button>
       </div>
@@ -111,7 +111,7 @@ export default function PlanesPage() {
           <Card key={plan.id} className={`relative ${plan.slug === "pro" ? "ring-2 ring-indigo-600" : ""}`}>
             {plan.slug === "pro" && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge className="bg-indigo-600"><Star className="h-3 w-3 mr-1" />Popular</Badge>
+                <Badge className="bg-indigo-600 text-white"><Star className="h-3 w-3 mr-1" />Popular</Badge>
               </div>
             )}
             <CardHeader>
@@ -169,7 +169,7 @@ export default function PlanesPage() {
                 <Button
                   variant={plan.is_active ? "outline" : "default"}
                   size="sm"
-                  className={`flex-1 ${!plan.is_active ? "bg-indigo-600 hover:bg-indigo-700" : ""}`}
+                  className={`flex-1 ${!plan.is_active ? "bg-indigo-600 hover:bg-indigo-700 text-white" : ""}`}
                   onClick={() => toggleStatus.mutate({ plan_id: plan.id, is_active: !plan.is_active })}
                   disabled={toggleStatus.isPending}
                   title={toggleStatus.isPending ? "Procesando..." : undefined}
@@ -276,7 +276,7 @@ export default function PlanesPage() {
               </div>
             )}
 
-            <Button onClick={handleSubmit} disabled={isPending || !form.name.trim() || !form.slug.trim() || !form.price_monthly} title={isPending ? "Procesando..." : !form.name.trim() ? "Ingresa un nombre para el plan" : !form.slug.trim() ? "Ingresa un slug para el plan" : !form.price_monthly ? "Ingresa un precio mensual" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={handleSubmit} disabled={isPending || !form.name.trim() || !form.slug.trim() || !form.price_monthly} title={isPending ? "Procesando..." : !form.name.trim() ? "Ingresa un nombre para el plan" : !form.slug.trim() ? "Ingresa un slug para el plan" : !form.price_monthly ? "Ingresa un precio mensual" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
               {isPending ? "Guardando..." : editingPlan ? "Guardar cambios" : "Crear plan"}
             </Button>
           </div>

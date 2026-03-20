@@ -121,7 +121,7 @@ export default function BancoPreguntasPage() {
             <Button variant="outline" onClick={() => setGenOpen(true)} className="flex-1 sm:flex-initial">
               <Sparkles className="h-4 w-4 mr-2" />Generar examen
             </Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700 flex-1 sm:flex-initial" onClick={() => setAddOpen(true)}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 flex-1 sm:flex-initial text-white" onClick={() => setAddOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />Agregar pregunta
             </Button>
           </div>
@@ -180,7 +180,7 @@ export default function BancoPreguntasPage() {
             <CardContent className="flex flex-col items-center py-12">
               <Database className="h-10 w-10 text-slate-300 dark:text-slate-600 mb-3" />
               <p className="text-slate-500 dark:text-slate-400">Este banco no tiene preguntas aun</p>
-              <Button className="mt-4 bg-indigo-600 hover:bg-indigo-700" onClick={() => setAddOpen(true)}>
+              <Button className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setAddOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />Agregar primera pregunta
               </Button>
             </CardContent>
@@ -241,7 +241,7 @@ export default function BancoPreguntasPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setAddOpen(false)}>Cancelar</Button>
-              <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleAddItem} disabled={addItem.isPending} title={addItem.isPending ? "Procesando..." : undefined}>
+              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleAddItem} disabled={addItem.isPending} title={addItem.isPending ? "Procesando..." : undefined}>
                 {addItem.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Agregando...</> : "Agregar"}
               </Button>
             </DialogFooter>
@@ -264,7 +264,7 @@ export default function BancoPreguntasPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setGenOpen(false)}>Cancelar</Button>
-              <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleGenerateExam} disabled={generateExam.isPending} title={generateExam.isPending ? "Procesando..." : undefined}>
+              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleGenerateExam} disabled={generateExam.isPending} title={generateExam.isPending ? "Procesando..." : undefined}>
                 {generateExam.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Generando...</> : <><Sparkles className="h-4 w-4 mr-2" />Generar</>}
               </Button>
             </DialogFooter>
@@ -282,7 +282,7 @@ export default function BancoPreguntasPage() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Banco de Preguntas</h1>
           <p className="text-slate-500 dark:text-slate-400">Organiza y reutiliza tus preguntas</p>
         </div>
-        <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setCreateOpen(true)}>
+        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />Nuevo banco
         </Button>
       </div>
@@ -324,7 +324,7 @@ export default function BancoPreguntasPage() {
             </div>
             <h3 className="text-lg font-semibold mb-2">Crea tu primer banco</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm text-center">Organiza preguntas por tema y reutilizalas en multiples examenes</p>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setCreateOpen(true)}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />Crear banco
             </Button>
           </CardContent>
@@ -351,7 +351,7 @@ export default function BancoPreguntasPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreateBank} disabled={createBank.isPending} title={createBank.isPending ? "Procesando..." : undefined}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleCreateBank} disabled={createBank.isPending} title={createBank.isPending ? "Procesando..." : undefined}>
               {createBank.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Crear banco"}
             </Button>
           </DialogFooter>

@@ -72,7 +72,7 @@ export default function UsuariosPage() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Usuarios</h1>
           <p className="text-slate-500 dark:text-slate-400">Gestión de usuarios de la plataforma</p>
         </div>
-        <Button onClick={() => setShowCreate(true)} className="bg-indigo-600 hover:bg-indigo-700"><Plus className="h-4 w-4 mr-2" />Nuevo usuario</Button>
+        <Button onClick={() => setShowCreate(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white"><Plus className="h-4 w-4 mr-2" />Nuevo usuario</Button>
         <Dialog open={showCreate} onOpenChange={setShowCreate}>
           <DialogContent>
             <DialogHeader><DialogTitle>Crear usuario</DialogTitle></DialogHeader>
@@ -92,7 +92,7 @@ export default function UsuariosPage() {
                 </SelectContent>
               </Select>
               <Input placeholder="Teléfono (opcional)" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-              <Button onClick={handleCreate} disabled={createUser.isPending} title={createUser.isPending ? "Procesando..." : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
+              <Button onClick={handleCreate} disabled={createUser.isPending} title={createUser.isPending ? "Procesando..." : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
                 {createUser.isPending ? "Creando..." : "Crear usuario"}
               </Button>
             </div>
@@ -209,7 +209,7 @@ export default function UsuariosPage() {
               </SelectContent>
             </Select>
             <Input placeholder="Teléfono (opcional)" value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} />
-            <Button onClick={handleEdit} disabled={updateUser.isPending} title={updateUser.isPending ? "Guardando..." : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={handleEdit} disabled={updateUser.isPending} title={updateUser.isPending ? "Guardando..." : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
               {updateUser.isPending ? "Guardando..." : "Guardar cambios"}
             </Button>
           </div>

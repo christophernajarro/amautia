@@ -18,7 +18,7 @@ export default function AlumnoMateriasPage() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Mis Materias</h1>
           <p className="text-slate-500 dark:text-slate-400">Secciones en las que estás inscrito</p>
         </div>
-        <Link href="/alumno/unirse"><Button className="bg-indigo-600 hover:bg-indigo-700"><Plus className="h-4 w-4 mr-2" />Unirme</Button></Link>
+        <Link href="/alumno/unirse"><Button className="bg-indigo-600 hover:bg-indigo-700 text-white"><Plus className="h-4 w-4 mr-2" />Unirme</Button></Link>
       </div>
 
       {isLoading ? (
@@ -29,7 +29,7 @@ export default function AlumnoMateriasPage() {
             <BookOpen className="h-12 w-12 text-slate-300 dark:text-slate-600 mb-4" />
             <h3 className="text-lg font-medium mb-1">Sin materias</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Únete a una clase con el código de tu profesor</p>
-            <Link href="/alumno/unirse"><Button className="bg-indigo-600 hover:bg-indigo-700">Unirme a clase</Button></Link>
+            <Link href="/alumno/unirse"><Button className="bg-indigo-600 hover:bg-indigo-700 text-white">Unirme a clase</Button></Link>
           </CardContent>
         </Card>
       ) : (

@@ -146,7 +146,7 @@ export default function EvaluacionParesPage() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Evaluación de Pares</h1>
           <p className="text-slate-500 dark:text-slate-400">Los alumnos evalúan el trabajo de sus compañeros</p>
         </div>
-        <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setCreateOpen(true)}>
+        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />Nueva evaluación
         </Button>
       </div>
@@ -177,7 +177,7 @@ export default function EvaluacionParesPage() {
                         <span>{assignment.is_anonymous ? "Anónima" : "Con nombre"}</span>
                       </div>
                       <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 mt-2">
-                        <div className="bg-indigo-600 h-1.5 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                        <div className="bg-indigo-600 h-1.5 rounded-full transition-all text-white" style={{ width: `${progress}%` }} />
                       </div>
                     </div>
                   </div>
@@ -202,7 +202,7 @@ export default function EvaluacionParesPage() {
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm text-center">
               Crea una evaluación para que tus alumnos se evalúen entre sí
             </p>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setCreateOpen(true)}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />Crear evaluación
             </Button>
           </CardContent>
@@ -239,7 +239,7 @@ export default function EvaluacionParesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreate} disabled={createReview.isPending} title={createReview.isPending ? "Procesando..." : undefined}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleCreate} disabled={createReview.isPending} title={createReview.isPending ? "Procesando..." : undefined}>
               {createReview.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Crear evaluación"}
             </Button>
           </DialogFooter>

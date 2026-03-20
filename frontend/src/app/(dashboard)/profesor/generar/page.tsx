@@ -142,7 +142,7 @@ export default function GenerarPage() {
             )}
             <Button onClick={handleGenerate} disabled={loading || !form.source_text}
               title={loading ? "Procesando..." : !form.source_text ? "Ingresa el texto fuente para generar el examen" : undefined}
-              className="w-full bg-indigo-600 hover:bg-indigo-700">
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
               {loading ? (
                 <><Sparkles className="h-4 w-4 mr-2 animate-pulse" />Generando con IA...</>
               ) : (
@@ -262,7 +262,7 @@ export default function GenerarPage() {
 
           <div className="flex gap-3">
             <Button variant="outline" onClick={() => { setResult(null); setDetail(null); }}>Generar otro</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => setShowSaveDialog(true)}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setShowSaveDialog(true)}>
               <Save className="h-4 w-4 mr-2" />Guardar como examen
             </Button>
           </div>
@@ -316,7 +316,7 @@ export default function GenerarPage() {
                   )}
                   <Button onClick={handleSaveAsExam} disabled={!saveSectionId || savingExam}
                     title={savingExam ? "Guardando..." : !saveSectionId ? "Selecciona una sección primero" : undefined}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700">
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
                     {savingExam ? "Guardando..." : "Guardar y continuar"}
                   </Button>
                 </div>

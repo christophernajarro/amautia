@@ -60,7 +60,7 @@ export default function AlumnoMensajesPage() {
           variant={tab === "mensajes" ? "default" : "outline"}
           size="sm"
           onClick={() => setTab("mensajes")}
-          className={tab === "mensajes" ? "bg-indigo-600 hover:bg-indigo-700" : ""}
+          className={tab === "mensajes" ? "bg-indigo-600 hover:bg-indigo-700 text-white" : ""}
         >
           <MessageCircle className="h-4 w-4 mr-2" />Mensajes
         </Button>
@@ -68,7 +68,7 @@ export default function AlumnoMensajesPage() {
           variant={tab === "anuncios" ? "default" : "outline"}
           size="sm"
           onClick={() => setTab("anuncios")}
-          className={tab === "anuncios" ? "bg-indigo-600 hover:bg-indigo-700" : ""}
+          className={tab === "anuncios" ? "bg-indigo-600 hover:bg-indigo-700 text-white" : ""}
         >
           <Megaphone className="h-4 w-4 mr-2" />Anuncios
         </Button>
@@ -167,7 +167,7 @@ export default function AlumnoMensajesPage() {
                     />
                     <Button
                       size="icon"
-                      className="bg-indigo-600 hover:bg-indigo-700 shrink-0"
+                      className="bg-indigo-600 hover:bg-indigo-700 shrink-0 text-white"
                       onClick={handleSend}
                       disabled={sendMessage.isPending || !messageText.trim()}
                       title={sendMessage.isPending ? "Procesando..." : !messageText.trim() ? "Escribe un mensaje primero" : undefined}

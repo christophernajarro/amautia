@@ -57,7 +57,7 @@ export default function ExamenesPage() {
             <Button variant="outline" className="w-full sm:w-auto whitespace-nowrap"><Sparkles className="h-4 w-4 mr-2" />Generar con IA</Button>
           </Link>
           <Link href="/profesor/examenes/nuevo" className="flex-1 sm:flex-initial">
-            <Button className="bg-indigo-600 hover:bg-indigo-700 w-full sm:w-auto whitespace-nowrap"><Plus className="h-4 w-4 mr-2" />Nuevo examen</Button>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 w-full sm:w-auto whitespace-nowrap text-white"><Plus className="h-4 w-4 mr-2" />Nuevo examen</Button>
           </Link>
         </div>
       </div>
@@ -87,7 +87,7 @@ export default function ExamenesPage() {
             </p>
             <div className="flex gap-3">
               <Link href="/profesor/examenes/nuevo">
-                <Button className="bg-indigo-600 hover:bg-indigo-700"><Plus className="h-4 w-4 mr-2" />Crear manual</Button>
+                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white"><Plus className="h-4 w-4 mr-2" />Crear manual</Button>
               </Link>
               <Link href="/profesor/generar">
                 <Button variant="outline"><Sparkles className="h-4 w-4 mr-2" />Generar con IA</Button>
@@ -168,7 +168,7 @@ export default function ExamenesPage() {
                 </p>
                 {!search && (
                   <Link href="/profesor/examenes/nuevo">
-                    <Button className="bg-indigo-600 hover:bg-indigo-700">
+                    <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
                       <Plus className="h-4 w-4 mr-2" />Crear examen
                     </Button>
                   </Link>
