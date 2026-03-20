@@ -36,28 +36,28 @@ export default function FlashcardsPage() {
   };
 
   const handleCreate = async () => {
-    if (!title.trim()) { toast.error("El titulo es obligatorio"); return; }
+    if (!title.trim()) { toast.error("El titulo del set es obligatorio"); return; }
     const validCards = cards.filter((c) => c.front.trim() && c.back.trim());
-    if (validCards.length === 0) { toast.error("Agrega al menos una tarjeta completa"); return; }
+    if (validCards.length === 0) { toast.error("Agrega al menos una tarjeta con frente y reverso completos"); return; }
     try {
       await createSet.mutateAsync({ title, description, cards: validCards });
       toast.success("Set de tarjetas creado");
       setCreateOpen(false);
       setTitle(""); setDescription(""); setCards([{ front: "", back: "" }]);
     } catch (err: any) {
-      toast.error(err.message || "Error al crear el set");
+      toast.error(err.message || "No se pudo crear el set. Revisa tu conexión e intenta de nuevo.");
     }
   };
 
   const handleGenerate = async () => {
-    if (!genSubject.trim() || !genTopic.trim()) { toast.error("Completa todos los campos"); return; }
+    if (!genSubject.trim() || !genTopic.trim()) { toast.error("Ingresa la materia y el tema para generar tarjetas"); return; }
     try {
       await generateCards.mutateAsync({ subject: genSubject, topic: genTopic, count: genCount });
       toast.success("Tarjetas generadas con IA");
       setGenOpen(false);
       setGenSubject(""); setGenTopic(""); setGenCount(10);
     } catch (err: any) {
-      toast.error(err.message || "Error al generar tarjetas");
+      toast.error(err.message || "No se pudieron generar las tarjetas. Verifica los datos e intenta de nuevo.");
     }
   };
 
@@ -80,14 +80,33 @@ export default function FlashcardsPage() {
 
       {isLoading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-40" />)}
+          {[...Array(6)].map((_, i) => (
+            <Card key={i} className="overflow-hidden">
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between mb-3">
+                  <Skeleton className="h-10 w-10 rounded-xl" />
+                  <Skeleton className="h-4 w-16 rounded" />
+                </div>
+                <Skeleton className="h-5 w-3/4 rounded mb-1" />
+                <Skeleton className="h-4 w-full rounded mb-3" />
+                <div className="mb-3 space-y-1.5">
+                  <div className="flex justify-between">
+                    <Skeleton className="h-3 w-12 rounded" />
+                    <Skeleton className="h-3 w-8 rounded" />
+                  </div>
+                  <Skeleton className="h-2 w-full rounded-full" />
+                </div>
+                <Skeleton className="h-9 w-full rounded-md" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
       ) : sets && sets.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {sets.map((set: any) => {
             const mastery = set.mastery_percentage ?? 0;
             return (
-              <Card key={set.id} className="hover:shadow-md transition-shadow">
+              <Card key={set.id} className="hover:-translate-y-0.5 hover:shadow-md transition-all duration-200">
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between mb-3">
                     <div className="h-10 w-10 rounded-xl bg-violet-50 dark:bg-violet-950/30 flex items-center justify-center">
@@ -102,9 +121,9 @@ export default function FlashcardsPage() {
                       <span>Dominio</span>
                       <span>{Math.round(mastery)}%</span>
                     </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2">
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 shadow-inner">
                       <div
-                        className={`h-2 rounded-full transition-all ${mastery >= 80 ? "bg-emerald-500" : mastery >= 50 ? "bg-amber-500" : "bg-indigo-500"}`}
+                        className={`h-2 rounded-full transition-all duration-500 ${mastery >= 80 ? "bg-gradient-to-r from-emerald-500 to-emerald-400" : mastery >= 50 ? "bg-gradient-to-r from-amber-500 to-amber-400" : "bg-gradient-to-r from-indigo-500 to-indigo-400"}`}
                         style={{ width: `${mastery}%` }}
                       />
                     </div>
@@ -122,8 +141,8 @@ export default function FlashcardsPage() {
       ) : (
         <Card>
           <CardContent className="flex flex-col items-center py-16">
-            <div className="h-20 w-20 rounded-2xl bg-violet-50 dark:bg-violet-950/30 flex items-center justify-center mb-6">
-              <GraduationCap className="h-10 w-10 text-violet-400" />
+            <div className="h-24 w-24 rounded-full bg-violet-100 dark:bg-violet-950/40 flex items-center justify-center mb-6 ring-4 ring-violet-50 dark:ring-violet-950/20">
+              <GraduationCap className="h-12 w-12 text-violet-500 dark:text-violet-400" />
             </div>
             <h3 className="text-lg font-semibold mb-2">Crea tus primeras tarjetas</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm text-center">

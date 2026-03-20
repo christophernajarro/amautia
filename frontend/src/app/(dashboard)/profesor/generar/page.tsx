@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Sparkles, FileText, CheckCircle, Save, AlertCircle, Pencil } from "lucide-react";
+import { Sparkles, FileText, CheckCircle, Save, AlertCircle, Pencil, Loader2, XCircle } from "lucide-react";
 
 export default function GenerarPage() {
   const router = useRouter();
@@ -52,7 +52,7 @@ export default function GenerarPage() {
         setDetail(d);
       }
     } catch (e: any) {
-      setErrorMsg(e.message || "Error al generar examen");
+      setErrorMsg(e.message || `No se pudo generar el examen "${form.title || "sin titulo"}". Verifica que el contenido fuente sea suficiente e intenta de nuevo.`);
     }
     setLoading(false);
   };
@@ -78,7 +78,7 @@ export default function GenerarPage() {
         router.push(`/profesor/examenes/${data.exam_id}`);
       }
     } catch (e: any) {
-      setErrorMsg(e.message || "Error");
+      setErrorMsg(e.message || "No se pudo guardar el examen en la seccion seleccionada. Verifica que la seccion exista y vuelve a intentarlo.");
     }
     setSavingExam(false);
   };
@@ -133,7 +133,13 @@ export default function GenerarPage() {
                 </Select>
               </div>
             </div>
-            {errorMsg && <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 p-3 rounded-lg">{errorMsg}</p>}
+            {errorMsg && (
+              <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3 flex items-start gap-3">
+                <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                <p className="text-sm text-red-600 dark:text-red-400 flex-1">{errorMsg}</p>
+                <button onClick={() => setErrorMsg("")} className="text-red-400 hover:text-red-600 dark:text-red-500 dark:hover:text-red-400 shrink-0">&#x2715;</button>
+              </div>
+            )}
             <Button onClick={handleGenerate} disabled={loading || !form.source_text}
               title={loading ? "Procesando..." : !form.source_text ? "Ingresa el texto fuente para generar el examen" : undefined}
               className="w-full bg-indigo-600 hover:bg-indigo-700">
@@ -147,17 +153,50 @@ export default function GenerarPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          <Card>
+          <Card className={`border-l-4 ${
+            result.status === "completed" ? "border-l-emerald-500" :
+            result.status === "generating" ? "border-l-amber-500" :
+            result.status === "error" ? "border-l-red-500" :
+            "border-l-indigo-500"
+          }`}>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
                   {detail?.title || result.title || "Examen generado"}
                 </CardTitle>
-                <Badge>{result.status}</Badge>
+                {result.status === "completed" ? (
+                  <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
+                    <CheckCircle className="h-3 w-3 mr-1" />Completado
+                  </Badge>
+                ) : result.status === "generating" ? (
+                  <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border-amber-200 dark:border-amber-800">
+                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />Generando...
+                  </Badge>
+                ) : result.status === "error" ? (
+                  <Badge className="bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400 border-red-200 dark:border-red-800">
+                    <XCircle className="h-3 w-3 mr-1" />Error
+                  </Badge>
+                ) : (
+                  <Badge>{result.status}</Badge>
+                )}
               </div>
             </CardHeader>
           </Card>
+
+          {(!detail?.questions || detail.questions.length === 0) && (
+            <Card>
+              <CardContent className="flex flex-col items-center py-12">
+                <div className="h-16 w-16 rounded-full bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center mb-4">
+                  <Sparkles className="h-8 w-8 text-indigo-400" />
+                </div>
+                <h3 className="text-lg font-semibold mb-1">Genera tu primer examen con IA</h3>
+                <p className="text-sm text-muted-foreground max-w-sm text-center">
+                  Las preguntas generadas apareceran aqui. Puedes editarlas antes de guardar el examen.
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           {detail?.questions?.map((q: any, i: number) => (
             <Card key={q.id || i}>

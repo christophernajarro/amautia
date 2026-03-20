@@ -97,7 +97,7 @@ export default function ProgresoPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="border-l-4 border-l-indigo-500 transition-all duration-200 hover:shadow-md">
           <CardContent className="pt-6 flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center">
               <Target className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
@@ -108,7 +108,7 @@ export default function ProgresoPage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-l-4 border-l-emerald-500 transition-all duration-200 hover:shadow-md">
           <CardContent className="pt-6 flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
               <Trophy className="h-6 w-6 text-emerald-600" />
@@ -119,7 +119,7 @@ export default function ProgresoPage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-l-4 border-l-amber-500 transition-all duration-200 hover:shadow-md">
           <CardContent className="pt-6 flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
               <Sparkles className="h-6 w-6 text-amber-600 dark:text-amber-400" />
@@ -130,7 +130,7 @@ export default function ProgresoPage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-l-4 border-l-violet-500 transition-all duration-200 hover:shadow-md">
           <CardContent className="pt-6 flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-violet-50 dark:bg-violet-950/30 flex items-center justify-center">
               <Brain className="h-6 w-6 text-violet-600" />
@@ -189,7 +189,7 @@ export default function ProgresoPage() {
               <div className="space-y-3">
                 {studyPlans.map((plan: any) => (
                   <Link key={plan.id} href={`/alumno/tutor?plan=${plan.id}`} className="block">
-                    <div className="p-4 rounded-lg border hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-indigo-200 transition-colors cursor-pointer">
+                    <div className="p-4 rounded-lg border border-l-4 border-l-indigo-400 bg-slate-50/50 dark:bg-slate-800/30 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20 hover:border-indigo-300 transition-all duration-200 cursor-pointer hover:-translate-y-0.5 hover:shadow-sm">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-medium">{plan.title}</h4>
                         <Badge variant={plan.status === "active" ? "default" : "secondary"}>
@@ -199,8 +199,8 @@ export default function ProgresoPage() {
                       {plan.description && (
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-2 line-clamp-2">{plan.description}</p>
                       )}
-                      <div className="w-full bg-slate-100 rounded-full h-2">
-                        <div className="bg-indigo-600 h-2 rounded-full transition-all"
+                      <div className="w-full bg-slate-200/70 dark:bg-slate-700 rounded-full h-2 shadow-inner">
+                        <div className="bg-gradient-to-r from-indigo-600 to-indigo-400 h-2 rounded-full transition-all duration-500"
                           style={{ width: `${plan.progress}%` }} />
                       </div>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{Math.round(plan.progress)}% completado</p>
@@ -209,9 +209,14 @@ export default function ProgresoPage() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center py-8">
-                <BookOpen className="h-10 w-10 text-slate-200 dark:text-slate-600 mb-3" />
-                <p className="text-slate-500 dark:text-slate-400 text-sm mb-3">Sin planes de estudio aún</p>
+              <div className="flex flex-col items-center py-12">
+                <div className="h-20 w-20 rounded-full bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center mb-4 ring-4 ring-indigo-50/50 dark:ring-indigo-950/20">
+                  <BookOpen className="h-10 w-10 text-indigo-400 dark:text-indigo-500" />
+                </div>
+                <h4 className="font-semibold text-slate-700 dark:text-slate-300 mb-1">Sin planes de estudio</h4>
+                <p className="text-slate-500 dark:text-slate-400 text-sm mb-4 text-center max-w-xs">
+                  Genera un plan personalizado basado en tu rendimiento y el tutor IA te guiará paso a paso.
+                </p>
                 <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={openGenerateDialog}>
                   <Sparkles className="h-4 w-4 mr-2" />Generar plan con IA
                 </Button>

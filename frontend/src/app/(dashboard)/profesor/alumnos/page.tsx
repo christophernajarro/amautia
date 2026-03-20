@@ -83,7 +83,7 @@ export default function AlumnosPage() {
   const classCode = sections.find(s => s.id === selectedSection)?.class_code;
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Alumnos</h1>
@@ -155,7 +155,23 @@ export default function AlumnosPage() {
           </CardContent>
         </Card>
       ) : loading ? (
-        <div className="space-y-3">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12" />)}</div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="space-y-0">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center gap-4 py-3 px-4 border-b last:border-b-0">
+                  <Skeleton className="h-9 w-9 rounded-full shrink-0" />
+                  <div className="flex-1 space-y-1.5">
+                    <Skeleton className="h-4 w-[140px]" />
+                    <Skeleton className="h-3 w-[200px]" />
+                  </div>
+                  <Skeleton className="h-3 w-[100px]" />
+                  <Skeleton className="h-5 w-[72px] rounded-full" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       ) : (
         <>
           {students.length > 0 && (
@@ -182,7 +198,7 @@ export default function AlumnosPage() {
                 </TableHeader>
                 <TableBody>
                   {paginated.map((s: any) => (
-                    <TableRow key={s.id}>
+                    <TableRow key={s.id} className="hover:bg-muted/50 transition-colors">
                       <TableCell className="font-medium">{s.first_name} {s.last_name}</TableCell>
                       <TableCell className="text-slate-500 dark:text-slate-400">{s.email}</TableCell>
                       <TableCell>{s.phone || "—"}</TableCell>
@@ -190,7 +206,22 @@ export default function AlumnosPage() {
                     </TableRow>
                   ))}
                   {filtered.length === 0 && !search && (
-                    <TableRow><TableCell colSpan={4} className="text-center text-slate-500 py-8">Sin alumnos en esta sección</TableCell></TableRow>
+                    <TableRow>
+                      <TableCell colSpan={4}>
+                        <div className="flex flex-col items-center py-12">
+                          <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                            <Users className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                          <h3 className="text-lg font-semibold mb-1">No hay alumnos en esta seccion</h3>
+                          <p className="text-sm text-muted-foreground mb-6 max-w-sm text-center">
+                            Importa una lista de alumnos o agregalos manualmente para comenzar a gestionar tu seccion.
+                          </p>
+                          <Button onClick={() => setShowAdd(true)} className="bg-indigo-600 hover:bg-indigo-700">
+                            <Plus className="h-4 w-4 mr-2" />Importar alumnos
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
                   )}
                   {filtered.length === 0 && search && (
                     <TableRow><TableCell colSpan={4} className="text-center text-slate-500 py-8">No se encontraron alumnos que coincidan con &quot;{search}&quot;</TableCell></TableRow>
