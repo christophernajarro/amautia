@@ -71,7 +71,31 @@ function FilePreview({ url, type, className = "" }: { url: string; type?: string
   );
 }
 
-// ─── Bulk Upload Zone with Student Assignment ───
+// ─── Name matching utility (mirrors backend _normalize_name) ───
+
+function normalizeName(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[\s\-]+/g, "_");
+}
+
+function autoMatchFile(fileName: string, students: any[]): string | null {
+  const stem = normalizeName(fileName.replace(/\.[^.]+$/, ""));
+  for (const s of students) {
+    if (s.has_exam) continue; // skip students who already have an exam
+    const fullKey = normalizeName(`${s.first_name} ${s.last_name}`);
+    const reverseKey = normalizeName(`${s.last_name}_${s.first_name}`);
+    const lastKey = normalizeName(s.last_name);
+    if (fullKey && (stem.includes(fullKey) || fullKey.includes(stem))) return s.student_id;
+    if (reverseKey && (stem.includes(reverseKey) || reverseKey.includes(stem))) return s.student_id;
+    if (lastKey && lastKey.length > 2 && (stem.includes(lastKey) || lastKey.includes(stem))) return s.student_id;
+  }
+  return null;
+}
+
+// ─── Bulk Upload Zone with Smart Student Assignment ───
 
 function BulkUploadZone({
   examId,
@@ -84,15 +108,35 @@ function BulkUploadZone({
 }) {
   const [files, setFiles] = useState<File[]>([]);
   const [fileStudentMap, setFileStudentMap] = useState<Record<number, string>>({});
+  const [autoMatched, setAutoMatched] = useState<Record<number, boolean>>({});
   const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const studentsWithoutExam = enrolledStudents?.filter((s) => !s.has_exam) || [];
+  const hasStudents = studentsWithoutExam.length > 0;
 
   const handleFiles = (newFiles: FileList | null) => {
     if (!newFiles) return;
     const arr = Array.from(newFiles);
     setFiles(arr);
-    setFileStudentMap({});
+
+    // Auto-match each file to a student
+    const newMap: Record<number, string> = {};
+    const newAutoMatched: Record<number, boolean> = {};
+    const usedStudents = new Set<string>();
+
+    arr.forEach((f, i) => {
+      if (!hasStudents) return;
+      const match = autoMatchFile(f.name, studentsWithoutExam.filter((s) => !usedStudents.has(s.student_id)));
+      if (match) {
+        newMap[i] = match;
+        newAutoMatched[i] = true;
+        usedStudents.add(match);
+      }
+    });
+
+    setFileStudentMap(newMap);
+    setAutoMatched(newAutoMatched);
   };
 
   const removeFile = (idx: number) => {
@@ -102,22 +146,23 @@ function BulkUploadZone({
       delete next[idx];
       return next;
     });
+    setAutoMatched((prev) => {
+      const next = { ...prev };
+      delete next[idx];
+      return next;
+    });
   };
 
   const assignStudent = (fileIdx: number, studentId: string) => {
-    setFileStudentMap((prev) => ({
-      ...prev,
-      [fileIdx]: studentId || "",
-    }));
+    setFileStudentMap((prev) => ({ ...prev, [fileIdx]: studentId || "" }));
+    setAutoMatched((prev) => ({ ...prev, [fileIdx]: false }));
   };
 
   const handleUpload = async () => {
     if (files.length === 0) return;
     setUploading(true);
-    setProgress(0);
     const token = getTokens().access;
 
-    // Build student_ids array matching file order
     const studentIds = files.map((_, i) => fileStudentMap[i] || "");
     const hasAssignments = studentIds.some((s) => s);
 
@@ -133,12 +178,12 @@ function BulkUploadZone({
         body: formData,
         token: token!,
       });
-
-      const matched = result.student_exams?.filter((se: any) => se.student_id || se.matched_name).length || 0;
-      if (matched > 0) {
-        toast.success(`${result.uploaded} subidos, ${matched} asignados a alumnos`);
+      const assigned = result.student_exams?.filter((se: any) => se.student_id).length || 0;
+      const total = result.uploaded || 0;
+      if (assigned > 0) {
+        toast.success(`${total} subido${total > 1 ? "s" : ""}, ${assigned} asignado${assigned > 1 ? "s" : ""} a alumnos`);
       } else {
-        toast.success(`${result.uploaded} exámenes subidos`);
+        toast.success(`${total} examen${total > 1 ? "es" : ""} subido${total > 1 ? "s" : ""}`);
       }
     } catch (err: any) {
       toast.error(`Error: ${err.message}`);
@@ -147,35 +192,39 @@ function BulkUploadZone({
     setUploading(false);
     setFiles([]);
     setFileStudentMap({});
-    setProgress(0);
+    setAutoMatched({});
     onUploaded();
   };
 
-  // Students not yet assigned to any file in this batch
-  const availableStudents = enrolledStudents?.filter(
-    (s) => !Object.values(fileStudentMap).includes(s.student_id)
-  );
+  // Which students are already picked in this batch
+  const usedInBatch = new Set(Object.values(fileStudentMap).filter(Boolean));
+
+  // Count matches
+  const matchedCount = Object.values(fileStudentMap).filter(Boolean).length;
+  const unmatchedCount = files.length - matchedCount;
+
+  const getStudentName = (studentId: string) => {
+    const s = enrolledStudents?.find((st) => st.student_id === studentId);
+    return s ? `${s.first_name} ${s.last_name}` : "";
+  };
 
   return (
     <div className="space-y-4">
+      {/* Drop zone */}
       <div
         onClick={() => inputRef.current?.click()}
-        onDrop={(e) => {
-          e.preventDefault();
-          handleFiles(e.dataTransfer.files);
-        }}
-        onDragOver={(e) => e.preventDefault()}
-        className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
+        onDrop={(e) => { e.preventDefault(); handleFiles(e.dataTransfer.files); }}
+        onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add("border-primary", "bg-primary/5"); }}
+        onDragLeave={(e) => { e.currentTarget.classList.remove("border-primary", "bg-primary/5"); }}
+        className="border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
       >
-        <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-        <p className="font-semibold text-lg">Arrastra los exámenes aquí</p>
-        <p className="text-sm text-muted-foreground mt-1">o haz clic para seleccionar archivos</p>
-        <p className="text-xs text-muted-foreground mt-2">
-          PDF, imágenes, Word o texto - Múltiples archivos
-        </p>
-        {enrolledStudents && enrolledStudents.length > 0 && (
-          <p className="text-xs text-indigo-500 mt-1">
-            Los archivos se asignarán automáticamente por nombre (ej: juan_perez.pdf)
+        <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+        <p className="font-semibold">Arrastra los exámenes de alumnos aquí</p>
+        <p className="text-sm text-muted-foreground mt-1">o haz clic para seleccionar</p>
+        <p className="text-xs text-muted-foreground mt-2">PDF, imágenes, Word o texto</p>
+        {hasStudents && (
+          <p className="text-xs mt-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 inline-block">
+            Tip: nombra los archivos como el alumno (ej: maria_alumna.pdf) para asignación automática
           </p>
         )}
         <input
@@ -188,60 +237,118 @@ function BulkUploadZone({
         />
       </div>
 
+      {/* File list with assignments */}
       {files.length > 0 && (
         <div className="space-y-3">
-          <p className="text-sm font-semibold">
-            {files.length} archivo{files.length > 1 ? "s" : ""} seleccionado
-            {files.length > 1 ? "s" : ""}:
-          </p>
-          <div className="max-h-60 overflow-y-auto space-y-2">
-            {files.map((f, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm p-3 rounded-lg bg-muted">
-                <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="truncate flex-1 min-w-0">{f.name}</span>
-                <span className="text-muted-foreground shrink-0 text-xs">
-                  {(f.size / 1024).toFixed(0)} KB
-                </span>
-                {enrolledStudents && enrolledStudents.length > 0 && (
-                  <select
-                    className="text-xs border rounded px-2 py-1 bg-background max-w-[160px]"
-                    value={fileStudentMap[i] || ""}
-                    onChange={(e) => assignStudent(i, e.target.value)}
-                  >
-                    <option value="">Auto-detectar</option>
-                    {enrolledStudents.map((s) => (
-                      <option key={s.student_id} value={s.student_id}>
-                        {s.first_name} {s.last_name}
-                      </option>
-                    ))}
-                  </select>
+          {/* Summary bar */}
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-semibold">
+              {files.length} archivo{files.length > 1 ? "s" : ""}
+            </span>
+            {hasStudents && (
+              <div className="flex items-center gap-3">
+                {matchedCount > 0 && (
+                  <span className="flex items-center gap-1 text-emerald-600 text-xs">
+                    <CheckCircle className="h-3.5 w-3.5" />
+                    {matchedCount} asignado{matchedCount > 1 ? "s" : ""}
+                  </span>
                 )}
-                <button
-                  onClick={() => removeFile(i)}
-                  className="text-muted-foreground hover:text-foreground p-1"
-                >
-                  <X className="h-3 w-3" />
-                </button>
+                {unmatchedCount > 0 && (
+                  <span className="flex items-center gap-1 text-amber-600 text-xs" title="Estos archivos se subirán sin asignar a un alumno. Puedes asignarlos manualmente con el dropdown.">
+                    <AlertCircle className="h-3.5 w-3.5" />
+                    {unmatchedCount} sin asignar
+                  </span>
+                )}
               </div>
-            ))}
+            )}
           </div>
 
-          {uploading && (
-            <div className="space-y-1">
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary rounded-full transition-all"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">{progress}% completado</p>
-            </div>
-          )}
+          {/* File rows */}
+          <div className="max-h-64 overflow-y-auto space-y-1.5">
+            {files.map((f, i) => {
+              const studentId = fileStudentMap[i];
+              const isAuto = autoMatched[i];
+              const isAssigned = !!studentId;
 
-          <Button onClick={handleUpload} disabled={uploading} title={uploading ? "Subiendo archivos..." : undefined} className="w-full h-12 text-base">
-            {uploading
-              ? "Subiendo..."
-              : `Subir ${files.length} examen${files.length > 1 ? "es" : ""}`}
+              return (
+                <div
+                  key={i}
+                  className={`flex items-center gap-2 text-sm p-2.5 rounded-lg border transition-colors ${
+                    isAssigned
+                      ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800"
+                      : "bg-muted border-transparent"
+                  }`}
+                >
+                  <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate text-sm">{f.name}</p>
+                    {isAssigned && (
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 mt-0.5">
+                        <UserPlus className="h-3 w-3" />
+                        {getStudentName(studentId)}
+                        {isAuto && (
+                          <span className="text-[10px] bg-emerald-100 dark:bg-emerald-900/50 px-1.5 py-0.5 rounded-full" title="Asignado automáticamente por coincidencia de nombre">
+                            auto
+                          </span>
+                        )}
+                      </p>
+                    )}
+                  </div>
+                  <span className="text-muted-foreground shrink-0 text-xs">
+                    {(f.size / 1024).toFixed(0)} KB
+                  </span>
+                  {hasStudents && (
+                    <select
+                      className={`text-xs border rounded px-1.5 py-1 max-w-[150px] ${
+                        isAssigned
+                          ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-700"
+                          : "bg-background border-amber-300 dark:border-amber-700"
+                      }`}
+                      value={studentId || ""}
+                      onChange={(e) => assignStudent(i, e.target.value)}
+                      title={isAssigned ? `Asignado a ${getStudentName(studentId)}` : "Selecciona un alumno o deja vacío para auto-detectar en el servidor"}
+                    >
+                      <option value="">{isAssigned ? "Quitar asignación" : "Sin asignar"}</option>
+                      {(enrolledStudents || [])
+                        .filter((s) => !s.has_exam && (!usedInBatch.has(s.student_id) || s.student_id === studentId))
+                        .map((s) => (
+                          <option key={s.student_id} value={s.student_id}>
+                            {s.first_name} {s.last_name}
+                          </option>
+                        ))}
+                    </select>
+                  )}
+                  <button
+                    onClick={() => removeFile(i)}
+                    className="text-muted-foreground hover:text-red-500 p-1 transition-colors"
+                    title="Quitar archivo"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Upload button */}
+          <Button
+            onClick={handleUpload}
+            disabled={uploading}
+            title={uploading ? "Subiendo archivos..." : undefined}
+            className="w-full h-11"
+          >
+            {uploading ? (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Subiendo...
+              </>
+            ) : (
+              <>
+                <Upload className="h-4 w-4 mr-2" />
+                Subir {files.length} examen{files.length > 1 ? "es" : ""}
+                {matchedCount > 0 && ` (${matchedCount} asignado${matchedCount > 1 ? "s" : ""})`}
+              </>
+            )}
           </Button>
         </div>
       )}
