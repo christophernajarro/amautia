@@ -646,33 +646,70 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════ FOOTER ═══════ */}
-      <footer className="border-t border-white/[0.08]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
-          {/* Single row: logo · links · contact */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            {/* Left: brand */}
-            <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
-                <GraduationCap className="h-4 w-4 text-white" />
+      <footer className="border-t border-white/[0.08] pt-14 pb-20 lg:pb-10">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-10 lg:gap-16">
+            {/* Brand */}
+            <div className="col-span-2 md:col-span-1">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+                  <GraduationCap className="h-4.5 w-4.5 text-white" />
+                </div>
+                <span className="text-lg font-bold text-white">Amautia</span>
               </div>
-              <span className="text-sm font-bold text-white">Amautia</span>
+              <p className="text-sm text-white/60 leading-relaxed max-w-[260px]">
+                Plataforma educativa con IA para profesores en Latinoamérica.
+              </p>
             </div>
 
-            {/* Center: links in one line */}
-            <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-white/60">
-              <a href="#funciones" className="hover:text-white transition-colors">Funciones</a>
-              <a href="#precios" className="hover:text-white transition-colors">Precios</a>
-              <a href="#" className="hover:text-white transition-colors">Términos</a>
-              <a href="#" className="hover:text-white transition-colors">Privacidad</a>
-              <a href="mailto:ventas@necs.pe" className="hover:text-white transition-colors flex items-center gap-1"><Mail className="h-3 w-3" />ventas@necs.pe</a>
-              <a href="https://wa.me/51918359598" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1"><MessageCircle className="h-3 w-3" />WhatsApp</a>
-            </nav>
+            {/* Producto */}
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-4">Producto</h4>
+              <ul className="space-y-3">
+                <li><a href="#funciones" className="text-sm text-white/60 hover:text-white transition-colors">Funciones</a></li>
+                <li><a href="#precios" className="text-sm text-white/60 hover:text-white transition-colors">Precios</a></li>
+                <li><a href="#proceso" className="text-sm text-white/60 hover:text-white transition-colors">Cómo funciona</a></li>
+                <li><a href="#faq" className="text-sm text-white/60 hover:text-white transition-colors">FAQ</a></li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-4">Legal</h4>
+              <ul className="space-y-3">
+                <li><a href="#" className="text-sm text-white/60 hover:text-white transition-colors">Términos de servicio</a></li>
+                <li><a href="#" className="text-sm text-white/60 hover:text-white transition-colors">Política de privacidad</a></li>
+                <li><a href="#" className="text-sm text-white/60 hover:text-white transition-colors">Cookies</a></li>
+              </ul>
+            </div>
+
+            {/* Contacto */}
+            <div>
+              <h4 className="text-sm font-semibold text-white mb-4">Contacto</h4>
+              <ul className="space-y-3">
+                <li>
+                  <a href="mailto:ventas@necs.pe" className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors">
+                    <Mail className="h-4 w-4 text-amber-400 shrink-0" />ventas@necs.pe
+                  </a>
+                </li>
+                <li>
+                  <a href="https://wa.me/51918359598" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors">
+                    <MessageCircle className="h-4 w-4 text-emerald-400 shrink-0" />+51 918 359 598
+                  </a>
+                </li>
+                <li>
+                  <a href="mailto:ventas@necs.pe" className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors">
+                    <Shield className="h-4 w-4 text-violet-400 shrink-0" />Soporte
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          {/* Bottom line */}
-          <div className="border-t border-white/[0.06] mt-6 pt-5 flex flex-wrap justify-between items-center gap-3">
-            <p className="text-[12px] text-white/40">© 2026 Amautia. Todos los derechos reservados.</p>
-            <p className="text-[12px] text-white/40">
+          {/* Bottom bar */}
+          <div className="border-t border-white/[0.08] mt-10 pt-6 flex flex-wrap justify-between items-center gap-4">
+            <p className="text-sm text-white/50">© 2026 Amautia. Todos los derechos reservados.</p>
+            <p className="text-sm text-white/50">
               Desarrollado por{" "}
               <a href="https://pos.necs.pe/" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300 font-semibold transition-colors">
                 NECS Soluciones
