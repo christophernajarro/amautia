@@ -63,7 +63,7 @@ export default function QuizEnVivoPage() {
       {isLoading ? (
         <div className="space-y-3">{[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20" />)}</div>
       ) : quizzes && quizzes.length > 0 ? (
-        <div className="space-y-3">
+        <div className="space-y-5">
           {quizzes.map((quiz: any) => {
             const cfg = statusConfig[quiz.status] || statusConfig.created;
             return (

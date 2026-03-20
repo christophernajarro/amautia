@@ -187,7 +187,7 @@ export default function AlumnoMensajesPage() {
         </div>
       ) : (
         /* Announcements */
-        <div className="space-y-3">
+        <div className="space-y-5">
           {loadingAnn ? (
             <div className="space-y-3">{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-24" />)}</div>
           ) : announcements && announcements.length > 0 ? (

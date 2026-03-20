@@ -154,7 +154,7 @@ export default function EvaluacionParesPage() {
       {isLoading ? (
         <div className="space-y-3">{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-20" />)}</div>
       ) : assignments && assignments.length > 0 ? (
-        <div className="space-y-3">
+        <div className="space-y-5">
           {assignments.map((assignment: any) => {
             const completed = assignment.completed_reviews || 0;
             const total = assignment.total_reviews || 1;
