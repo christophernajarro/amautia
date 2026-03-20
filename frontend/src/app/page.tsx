@@ -405,7 +405,7 @@ export default function LandingPage() {
         </div>
 
         {/* Stats bar — normal flow, not absolute */}
-        <div className="border-t border-white/[0.04] mt-16">
+        <div className="border-t border-white/[0.04] mt-10">
           <div className="max-w-7xl mx-auto px-6 lg:px-8 py-10 grid grid-cols-3 gap-8">
             {[["10x", "más rápido"], ["94%", "precisión IA"], ["+500", "profesores"]].map(([num, label]) => (
               <div key={num} className="text-center">
@@ -430,10 +430,10 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════ FEATURES ═══════ */}
-      <section id="funciones" className="py-28 relative">
+      <section id="funciones" className="py-16 relative">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-amber-500/[0.03] blur-[150px]" />
         <div className="max-w-7xl mx-auto px-6 lg:px-8 relative">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="text-center mb-16">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="text-center mb-10">
             <span className="inline-block text-xs uppercase tracking-[0.25em] font-bold text-amber-400 bg-amber-400/[0.08] px-4 py-2 rounded-full mb-6">Funcionalidades</span>
             <h2 className="text-4xl lg:text-5xl font-bold leading-tight">
               Todo lo que necesitas para<br />
@@ -462,9 +462,9 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════ HOW IT WORKS ═══════ */}
-      <section id="proceso" className="py-28 bg-[#0a0a10] relative">
+      <section id="proceso" className="py-16 bg-[#0a0a10] relative">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="text-center mb-20">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="text-center mb-12">
             <span className="inline-block text-xs uppercase tracking-[0.25em] font-bold text-violet-400 bg-violet-400/[0.08] px-4 py-2 rounded-full mb-6">Proceso</span>
             <h2 className="text-4xl lg:text-5xl font-bold">Tres pasos. <span className="text-white/40">Cero estrés.</span></h2>
           </motion.div>
@@ -489,7 +489,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════ STATS ═══════ */}
-      <section className="py-24 relative">
+      <section className="py-14 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a10] via-[#06060a] to-[#06060a]" />
         <div className="max-w-5xl mx-auto px-6 lg:px-8 relative">
           <div className="grid md:grid-cols-3 gap-6">
@@ -506,8 +506,8 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════ TESTIMONIALS ═══════ */}
-      <section className="py-28 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-16">
+      <section className="py-16 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-10">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="text-center">
             <span className="inline-block text-xs uppercase tracking-[0.25em] font-bold text-emerald-400 bg-emerald-400/[0.08] px-4 py-2 rounded-full mb-6">Testimonios</span>
             <h2 className="text-4xl lg:text-5xl font-bold">Lo que dicen los profesores</h2>
@@ -541,10 +541,10 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════ PRICING ═══════ */}
-      <section id="precios" className="py-28 relative">
+      <section id="precios" className="py-16 relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-amber-500/[0.03] blur-[150px]" />
         <div className="max-w-6xl mx-auto px-6 lg:px-8 relative">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="text-center mb-16">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="text-center mb-10">
             <span className="inline-block text-xs uppercase tracking-[0.25em] font-bold text-amber-400 bg-amber-400/[0.08] px-4 py-2 rounded-full mb-6">Precios</span>
             <h2 className="text-4xl lg:text-5xl font-bold">Planes simples y transparentes</h2>
             <p className="text-lg text-white/40 mt-4">Paga con Yape, Plin o transferencia bancaria</p>
@@ -600,9 +600,9 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════ FAQ ═══════ */}
-      <section id="faq" className="py-28 bg-[#0a0a10]">
+      <section id="faq" className="py-16 bg-[#0a0a10]">
         <div className="max-w-3xl mx-auto px-6 lg:px-8">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="text-center mb-16">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="text-center mb-10">
             <h2 className="text-4xl lg:text-5xl font-bold">Preguntas frecuentes</h2>
           </motion.div>
 
@@ -623,7 +623,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════ FINAL CTA ═══════ */}
-      <section className="py-32 relative overflow-hidden">
+      <section className="py-16 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-amber-500/[0.05] blur-[200px]" />
           <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-violet-500/[0.04] blur-[120px]" />
@@ -646,65 +646,51 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════ FOOTER ═══════ */}
-      <footer className="bg-[#0c1020] pt-20 pb-24 lg:pb-12">
+      <footer className="border-t border-white/[0.06] pt-10 pb-20 lg:pb-10">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-12 mb-16">
-            {/* Brand */}
-            <div>
-              <div className="flex items-center gap-2.5 mb-5">
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                  <GraduationCap className="h-5 w-5 text-white" />
+          <div className="flex flex-wrap justify-between gap-8 mb-8">
+            {/* Brand — compact */}
+            <div className="max-w-[220px]">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+                  <GraduationCap className="h-3.5 w-3.5 text-white" />
                 </div>
-                <span className="text-xl font-bold text-white">Amautia</span>
+                <span className="text-sm font-bold text-white">Amautia</span>
               </div>
-              <p className="text-[15px] text-slate-400 leading-relaxed">
-                Plataforma educativa con IA para profesores en Latinoamérica.
-              </p>
+              <p className="text-xs text-white/40 leading-relaxed">Plataforma educativa con IA para profesores en Latinoamérica.</p>
             </div>
 
-            {/* Links */}
-            {[
-              { title: "Producto", links: [["Funciones", "#funciones"], ["Precios", "#precios"], ["Integraciones", "#"]] },
-              { title: "Legal", links: [["Términos", "#"], ["Privacidad", "#"], ["Cookies", "#"]] },
-            ].map((col) => (
-              <div key={col.title}>
-                <h4 className="text-[15px] font-semibold text-white mb-5">{col.title}</h4>
-                <ul className="space-y-3.5">
-                  {col.links.map(([label, href]) => (
-                    <li key={label}>
-                      <a href={href} className="text-[15px] text-slate-400 hover:text-white transition-colors duration-200">{label}</a>
-                    </li>
-                  ))}
+            {/* Links — inline */}
+            <div className="flex gap-12">
+              {[
+                { title: "Producto", links: [["Funciones", "#funciones"], ["Precios", "#precios"]] },
+                { title: "Legal", links: [["Términos", "#"], ["Privacidad", "#"], ["Cookies", "#"]] },
+              ].map((col) => (
+                <div key={col.title}>
+                  <h4 className="text-xs font-semibold text-white/70 mb-3">{col.title}</h4>
+                  <ul className="space-y-2">
+                    {col.links.map(([label, href]) => (
+                      <li key={label}><a href={href} className="text-xs text-white/40 hover:text-white/70 transition-colors">{label}</a></li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+              <div>
+                <h4 className="text-xs font-semibold text-white/70 mb-3">Contacto</h4>
+                <ul className="space-y-2">
+                  <li><a href="mailto:ventas@necs.pe" className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"><Mail className="h-3 w-3 shrink-0" />ventas@necs.pe</a></li>
+                  <li><a href="https://wa.me/51918359598" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"><MessageCircle className="h-3 w-3 shrink-0" />+51 918 359 598</a></li>
                 </ul>
               </div>
-            ))}
-
-            {/* Contact */}
-            <div>
-              <h4 className="text-[15px] font-semibold text-white mb-5">Contacto</h4>
-              <ul className="space-y-3.5">
-                <li>
-                  <a href="mailto:ventas@necs.pe" className="flex items-center gap-2.5 text-[15px] text-slate-400 hover:text-emerald-400 transition-colors duration-200">
-                    <Mail className="h-4 w-4 text-emerald-500 shrink-0" />
-                    ventas@necs.pe
-                  </a>
-                </li>
-                <li>
-                  <a href="https://wa.me/51918359598" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-[15px] text-slate-400 hover:text-emerald-400 transition-colors duration-200">
-                    <MessageCircle className="h-4 w-4 text-emerald-500 shrink-0" />
-                    +51 918 359 598
-                  </a>
-                </li>
-              </ul>
             </div>
           </div>
 
-          {/* Bottom bar */}
-          <div className="border-t border-slate-700/50 pt-8 flex flex-wrap justify-between items-center gap-4">
-            <p className="text-sm text-slate-500">© 2026 Amautia. Todos los derechos reservados.</p>
-            <p className="text-sm text-slate-500">
+          {/* Bottom line */}
+          <div className="border-t border-white/[0.06] pt-5 flex flex-wrap justify-between items-center gap-3">
+            <p className="text-[11px] text-white/25">© 2026 Amautia. Todos los derechos reservados.</p>
+            <p className="text-[11px] text-white/25">
               Desarrollado por{" "}
-              <a href="https://pos.necs.pe/" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300 font-semibold transition-colors duration-200">
+              <a href="https://pos.necs.pe/" target="_blank" rel="noopener noreferrer" className="text-amber-400/70 hover:text-amber-300 font-medium transition-colors">
                 NECS Soluciones
               </a>
             </p>
