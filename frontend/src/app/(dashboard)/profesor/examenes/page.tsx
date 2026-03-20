@@ -14,9 +14,9 @@ import { Plus, FileText, Sparkles, ChevronRight, Zap, CheckCircle, Clock, AlertC
 const ITEMS_PER_PAGE = 10;
 
 const statusConfig: Record<string, { label: string; icon: any; class: string }> = {
-  draft: { label: "Borrador", icon: Clock, class: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300" },
+  draft: { label: "Sin referencia", icon: Clock, class: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300" },
   processing: { label: "Procesando", icon: Zap, class: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" },
-  ready: { label: "Listo", icon: CheckCircle, class: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" },
+  ready: { label: "Listo para corregir", icon: CheckCircle, class: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" },
   correcting: { label: "Corrigiendo...", icon: Zap, class: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300 animate-pulse" },
   corrected: { label: "Corregido", icon: CheckCircle, class: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300" },
   published: { label: "Publicado", icon: CheckCircle, class: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300" },
@@ -27,13 +27,17 @@ export default function ExamenesPage() {
   const { data: exams, isLoading } = useProfesorExams();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const pending = (exams as any[])?.filter((e) => e.status === "ready" || e.status === "draft").length || 0;
   const corrected = (exams as any[])?.filter((e) => e.status === "corrected" || e.status === "published").length || 0;
 
-  const filtered = (exams as any[])?.filter((e) =>
+  const filteredByStatus = statusFilter === "all"
+    ? (exams as any[]) || []
+    : (exams as any[])?.filter((e: any) => e.status === statusFilter) || [];
+  const filtered = filteredByStatus.filter((e) =>
     e.title.toLowerCase().includes(search.toLowerCase())
-  ) || [];
+  );
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
   const startItem = filtered.length === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1;
@@ -82,6 +86,27 @@ export default function ExamenesPage() {
         </Card>
       ) : (
         <>
+          <div className="flex gap-2 flex-wrap">
+            {[
+              { value: "all", label: "Todos" },
+              { value: "draft", label: "Sin referencia" },
+              { value: "ready", label: "Listos para corregir" },
+              { value: "corrected", label: "Corregidos" },
+              { value: "published", label: "Publicados" },
+            ].map((f) => (
+              <button
+                key={f.value}
+                onClick={() => { setStatusFilter(f.value); setPage(1); }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  statusFilter === f.value
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
             <Input

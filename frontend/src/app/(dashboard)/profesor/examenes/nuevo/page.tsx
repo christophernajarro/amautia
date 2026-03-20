@@ -1,78 +1,91 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useProfesorSubjects } from "@/lib/api-hooks";
 import { apiFetch } from "@/lib/api";
 import { getTokens } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Upload, FileText, Sparkles } from "lucide-react";
+import { ArrowLeft, Upload, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { toast } from "sonner";
 
 export default function NuevoExamenPage() {
   const router = useRouter();
   const { data: subjects, isLoading } = useProfesorSubjects();
-  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     title: "", description: "", section_id: "", total_points: 20, grading_scale: "0-20",
   });
-  const [examId, setExamId] = useState<string | null>(null);
   const [sections, setSections] = useState<any[]>([]);
   const [selectedSubjectId, setSelectedSubjectId] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-select materia if only one exists
+  useEffect(() => {
+    if (subjects?.length === 1 && !selectedSubjectId) {
+      const subjectId = (subjects[0] as any).id;
+      setSelectedSubjectId(subjectId);
+      loadSections(subjectId);
+    }
+  }, [subjects]);
 
   const loadSections = async (subjectId: string) => {
     try {
       const token = getTokens().access;
       const data = await apiFetch<any[]>(`/profesor/subjects/${subjectId}/sections`, { token: token! });
       setSections(data);
+      // Auto-select section if only one exists
+      if (data.length === 1) {
+        setForm((prev) => ({ ...prev, section_id: data[0].id }));
+      }
     } catch (e: any) {
       setErrorMsg(e.message || "Error al cargar secciones");
       setSections([]);
     }
   };
 
-  const handleCreate = async () => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!form.title || !form.section_id || !file) return;
     setLoading(true);
     setErrorMsg("");
     try {
       const token = getTokens().access;
+      // Step 1: Create the exam
       const result = await apiFetch<any>("/profesor/exams", {
         method: "POST", token: token!, body: JSON.stringify(form),
       });
-      setExamId(result.id);
-      setStep(2);
-    } catch (e: any) {
-      setErrorMsg(e.message || "Error al crear examen");
-    }
-    setLoading(false);
-  };
+      const examId = result.id;
 
-  const handleUploadRef = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.[0] || !examId) return;
-    setLoading(true);
-    setErrorMsg("");
-    try {
-      const token = getTokens().access;
+      // Step 2: Upload reference file
       const formData = new FormData();
-      formData.append("file", e.target.files[0]);
+      formData.append("file", file);
       await apiFetch(`/profesor/exams/${examId}/reference`, {
         method: "POST", token: token!, body: formData,
       });
-      // Process with AI
+
+      // Step 3: Process with AI
       await apiFetch(`/profesor/exams/${examId}/process-reference`, { method: "POST", token: token! });
-      setStep(3);
-    } catch (err: any) {
-      setErrorMsg(err.message || "Error al procesar el archivo de referencia");
+
+      toast.success("Examen creado exitosamente");
+      router.push(`/profesor/examenes/${examId}`);
+    } catch (e: any) {
+      setErrorMsg(e.message || "Error al crear examen");
     }
     setLoading(false);
   };
@@ -87,122 +100,112 @@ export default function NuevoExamenPage() {
         <Link href="/profesor/examenes"><Button variant="ghost" size="sm" aria-label="Volver"><ArrowLeft className="h-4 w-4" /></Button></Link>
         <div>
           <h1 className="text-2xl font-bold">Nuevo Examen</h1>
-          <p className="text-slate-500 dark:text-slate-400">Paso {step} de 3</p>
+          <p className="text-slate-500 dark:text-slate-400">Completa los datos y sube tu examen de referencia</p>
         </div>
       </div>
 
-      {/* Step indicators */}
-      <div className="flex gap-2">
-        {[1, 2, 3].map((s) => (
-          <div key={s} className={`h-2 flex-1 rounded-full ${s <= step ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"}`} />
-        ))}
-      </div>
+      <Card>
+        <CardHeader><CardTitle>Crear examen</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label>Titulo del examen *</Label>
+            <Input placeholder="Ej: Examen parcial de Matematicas" value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })} />
+          </div>
 
-      {step === 1 && (
-        <Card>
-          <CardHeader><CardTitle>Información del examen</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label>Título del examen</Label>
-              <Input placeholder="Ej: Examen parcial de Matemáticas" value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })} />
-            </div>
-            <div>
-              <Label>Descripción (opcional)</Label>
-              <Textarea placeholder="Instrucciones o notas..." value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })} />
-            </div>
-            <div>
-              <Label>Materia</Label>
-              {isLoading ? <Skeleton className="h-10" /> : (
-                <Select value={selectedSubjectId} onValueChange={(v: string) => { setSelectedSubjectId(v); loadSections(v); }}>
-                  <SelectTrigger><SelectValue placeholder="Selecciona una materia">{subjects?.find((s: any) => s.id === selectedSubjectId)?.name}</SelectValue></SelectTrigger>
-                  <SelectContent>
-                    {subjects?.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
-            {sections.length > 0 && (
-              <div>
-                <Label>Sección</Label>
-                <Select value={form.section_id} onValueChange={(v: string) => setForm({ ...form, section_id: v })}>
-                  <SelectTrigger><SelectValue placeholder="Selecciona una sección">{sections.find((s: any) => s.id === form.section_id)?.name ? `${sections.find((s: any) => s.id === form.section_id).name} (${sections.find((s: any) => s.id === form.section_id).class_code})` : undefined}</SelectValue></SelectTrigger>
-                  <SelectContent>
-                    {sections.map((s: any) => (
-                      <SelectItem key={s.id} value={s.id}>{s.name} ({s.class_code})</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+          <div>
+            <Label>Materia *</Label>
+            {isLoading ? <Skeleton className="h-10" /> : subjects?.length === 0 ? (
+              <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                No tienes materias. <Link href="/profesor/materias" className="text-indigo-600 hover:underline">Crear materia</Link>
               </div>
+            ) : (
+              <Select value={selectedSubjectId} onValueChange={(v: string) => { setSelectedSubjectId(v); setForm((prev) => ({ ...prev, section_id: "" })); loadSections(v); }}>
+                <SelectTrigger><SelectValue placeholder="Selecciona una materia">{subjects?.find((s: any) => s.id === selectedSubjectId)?.name}</SelectValue></SelectTrigger>
+                <SelectContent>
+                  {subjects?.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
             )}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Puntaje total</Label>
-                <Input type="number" value={form.total_points}
-                  onChange={(e) => setForm({ ...form, total_points: Number(e.target.value) })} />
-              </div>
-              <div>
-                <Label>Escala</Label>
-                <Select value={form.grading_scale} onValueChange={(v: string) => setForm({ ...form, grading_scale: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0-20">0-20</SelectItem>
-                    <SelectItem value="0-100">0-100</SelectItem>
-                    <SelectItem value="A-F">A-F</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            {errorMsg && <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 p-3 rounded-lg">{errorMsg}</p>}
-            <Button onClick={handleCreate} disabled={loading || !form.title || !form.section_id}
-              className="w-full bg-indigo-600 hover:bg-indigo-700">
-              {loading ? "Creando..." : "Continuar"}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+          </div>
 
-      {step === 2 && (
-        <Card>
-          <CardHeader><CardTitle>Subir examen de referencia</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center hover:border-indigo-400 transition-colors">
+          {sections.length > 0 && (
+            <div>
+              <Label>Seccion *</Label>
+              <Select value={form.section_id} onValueChange={(v: string) => setForm({ ...form, section_id: v })}>
+                <SelectTrigger><SelectValue placeholder="Selecciona una seccion">{sections.find((s: any) => s.id === form.section_id)?.name ? `${sections.find((s: any) => s.id === form.section_id).name} (${sections.find((s: any) => s.id === form.section_id).class_code})` : undefined}</SelectValue></SelectTrigger>
+                <SelectContent>
+                  {sections.map((s: any) => (
+                    <SelectItem key={s.id} value={s.id}>{s.name} ({s.class_code})</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Puntaje total</Label>
+              <Input type="number" value={form.total_points}
+                onChange={(e) => setForm({ ...form, total_points: Number(e.target.value) })} />
+            </div>
+            <div>
+              <Label>Escala</Label>
+              <Select value={form.grading_scale} onValueChange={(v: string) => setForm({ ...form, grading_scale: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0-20">0-20</SelectItem>
+                  <SelectItem value="0-100">0-100</SelectItem>
+                  <SelectItem value="A-F">A-F</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div>
+            <Label>Examen de referencia (con respuestas) *</Label>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="mt-2 w-full border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-8 text-center hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            >
               <Upload className="h-10 w-10 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-              <p className="font-medium mb-1">Sube tu examen resuelto</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">PDF, imagen o Word con las respuestas correctas</p>
-              <input type="file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" onChange={handleUploadRef}
-                className="block mx-auto text-sm" disabled={loading} />
-            </div>
-            {loading && (
-              <div className="flex items-center justify-center gap-2 text-indigo-600">
-                <Sparkles className="h-5 w-5 animate-pulse" />
-                <span>Procesando con IA...</span>
-              </div>
-            )}
-            {errorMsg && <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 p-3 rounded-lg">{errorMsg}</p>}
-            <Button variant="outline" onClick={() => setStep(3)}>Omitir</Button>
-          </CardContent>
-        </Card>
-      )}
+              {file ? (
+                <>
+                  <p className="font-medium text-indigo-600 dark:text-indigo-400 mb-1">{file.name}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Haz clic para cambiar el archivo</p>
+                </>
+              ) : (
+                <>
+                  <p className="font-medium mb-1">Sube tu examen resuelto</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">PDF, imagen o Word con las respuestas correctas</p>
+                </>
+              )}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </div>
 
-      {step === 3 && (
-        <Card>
-          <CardHeader><CardTitle>¡Examen creado!</CardTitle></CardHeader>
-          <CardContent className="space-y-4 text-center">
-            <FileText className="h-16 w-16 text-indigo-600 mx-auto" />
-            <p className="text-lg font-medium">Tu examen está listo</p>
-            <p className="text-slate-500 dark:text-slate-400">Ahora sube los exámenes de tus alumnos para que la IA los corrija automáticamente</p>
-            <div className="flex gap-3 justify-center">
-              <Link href="/profesor/examenes"><Button variant="outline">Ver todos los exámenes</Button></Link>
-              <Button className="bg-indigo-600 hover:bg-indigo-700"
-                onClick={() => router.push(`/profesor/examenes/${examId}`)}>
-                <Upload className="h-4 w-4 mr-2" />Subir exámenes de alumnos
-              </Button>
+          {errorMsg && <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 p-3 rounded-lg">{errorMsg}</p>}
+
+          {loading && (
+            <div className="flex items-center justify-center gap-2 text-indigo-600">
+              <Sparkles className="h-5 w-5 animate-pulse" />
+              <span>Creando y procesando con IA...</span>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+
+          <Button onClick={handleSubmit} disabled={loading || !form.title || !form.section_id || !file}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 h-12 text-base">
+            {loading ? "Creando examen..." : "Crear examen"}
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }

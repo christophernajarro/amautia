@@ -7,8 +7,7 @@ import { User } from "@/types/user";
 import {
   LayoutDashboard, BookOpen, Users, FileText, Sparkles, GraduationCap,
   CreditCard, Settings, Brain, BarChart3, Bell, Wallet,
-  ClipboardList, X, LogOut, UploadCloud, Trophy, Layers, MessageCircle,
-  Award, Zap, Database, ClipboardCheck, ShieldAlert, Link2
+  ClipboardList, X, LogOut, Award, Link2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -34,33 +33,16 @@ const adminLinks = [
 
 const profesorLinks = [
   { href: "/profesor", label: "Inicio", icon: LayoutDashboard },
-  { href: "/profesor/materias", label: "Materias y Alumnos", icon: BookOpen },
+  { href: "/profesor/materias", label: "Mis Cursos", icon: BookOpen },
   { href: "/profesor/examenes", label: "Exámenes", icon: FileText },
   { href: "/profesor/generar", label: "Generar con IA", icon: Sparkles },
-  { href: "/profesor/banco-preguntas", label: "Banco de Preguntas", icon: Database },
-  { type: "separator" as const, label: "Aula" },
-  { href: "/profesor/quiz-en-vivo", label: "Quiz en Vivo", icon: Zap },
-  { href: "/profesor/calificaciones", label: "Calificaciones", icon: ClipboardList },
-  { href: "/profesor/mensajes", label: "Mensajes", icon: MessageCircle },
-  { type: "separator" as const, label: "Análisis" },
   { href: "/profesor/estadisticas", label: "Estadísticas", icon: BarChart3 },
-  { href: "/profesor/analiticas", label: "Analíticas Avanzadas", icon: BarChart3 },
-  { href: "/profesor/plagio", label: "Plagio", icon: ShieldAlert },
-  { href: "/profesor/evaluacion-pares", label: "Evaluación por Pares", icon: ClipboardCheck },
-  { href: "/profesor/certificados", label: "Certificados", icon: Award },
 ] as const;
 
 const alumnoLinks = [
-  { href: "/alumno", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/alumno/unirse", label: "Unirme a clase", icon: GraduationCap },
-  { href: "/alumno/materias", label: "Mis Materias", icon: BookOpen },
+  { href: "/alumno", label: "Inicio", icon: LayoutDashboard },
   { href: "/alumno/examenes", label: "Mis Exámenes", icon: FileText },
   { href: "/alumno/tutor", label: "Tutor IA", icon: Brain },
-  { href: "/alumno/flashcards", label: "Flashcards", icon: Layers },
-  { href: "/alumno/quiz-en-vivo", label: "Quiz en Vivo", icon: Zap },
-  { href: "/alumno/gamificacion", label: "Gamificación", icon: Trophy },
-  { href: "/alumno/mensajes", label: "Mensajes", icon: MessageCircle },
-  { href: "/alumno/certificados", label: "Certificados", icon: Award },
   { href: "/alumno/progreso", label: "Mi Progreso", icon: BarChart3 },
 ];
 
@@ -105,13 +87,6 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
       <ScrollArea className="flex-1 px-3 py-3">
         <nav className="space-y-0.5">
           {links.map((link: any, i: number) => {
-            if (link.type === "separator") {
-              return (
-                <div key={`sep-${i}`} className="pt-5 pb-2 px-3">
-                  <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-white/25">{link.label}</span>
-                </div>
-              );
-            }
             const isActive = pathname === link.href || (link.href !== `/${user.role}` && link.href !== "/admin" && pathname.startsWith(link.href));
             return (
               <Link

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useProfesorSubjects, useCreateSubject, useDeleteSubject } from "@/lib/api-hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Users, Layers, Trash2, BookOpen, Copy, Check, ChevronDown, ChevronRight, AlertCircle } from "lucide-react";
+import { Plus, Users, Layers, Trash2, BookOpen, Copy, Check, ChevronDown, ChevronRight, AlertCircle, MessageCircle } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { getTokens } from "@/lib/auth";
 import { toast } from "sonner";
@@ -37,6 +37,9 @@ export default function MateriasPage() {
   const [creatingSec, setCreatingSec] = useState(false);
   const creatingSectionRef = useRef(false);
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Clear section input when switching between expanded subjects
+  useEffect(() => { setNewSection(""); }, [expanded]);
 
   const handleCreate = async () => {
     try {
@@ -210,6 +213,7 @@ export default function MateriasPage() {
                               variant="ghost" size="sm"
                               onClick={() => copyCode(sec.class_code)}
                               className="text-slate-400 dark:text-slate-500 hover:text-indigo-600"
+                              title="Copiar codigo"
                             >
                               {copiedCode === sec.class_code ? (
                                 <Check className="h-4 w-4 text-green-600" />
@@ -217,6 +221,15 @@ export default function MateriasPage() {
                                 <Copy className="h-4 w-4" />
                               )}
                             </Button>
+                            <a
+                              href={`https://wa.me/?text=${encodeURIComponent(`Unete a mi clase en Amautia con el codigo: ${sec.class_code}\n\nRegistrate en: https://amautia.com`)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center h-8 w-8 rounded-md text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30 transition-colors"
+                              title="Compartir por WhatsApp"
+                            >
+                              <MessageCircle className="h-3.5 w-3.5" />
+                            </a>
                           </div>
                         </div>
                       ))

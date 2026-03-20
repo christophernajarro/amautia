@@ -190,13 +190,16 @@ export default function ExamenPage() {
             </Badge>
           </div>
         </div>
-        <div className="flex gap-2">
-          <label className="cursor-pointer">
-            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${uploading ? "opacity-50 cursor-not-allowed" : ""}`}>
-              <Upload className="h-4 w-4" />{uploading ? "Subiendo..." : "Subir exámenes"}
-            </div>
-            <input type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.txt" className="hidden" onChange={handleUpload} disabled={uploading} />
-          </label>
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            className={`relative ${uploading ? "opacity-50 cursor-not-allowed" : ""}`}
+            disabled={uploading}
+            onClick={() => document.getElementById("student-exam-upload")?.click()}
+          >
+            <Upload className="h-4 w-4 mr-2" />{uploading ? "Subiendo..." : "Subir examenes"}
+            <input id="student-exam-upload" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.txt" className="hidden" onChange={handleUpload} disabled={uploading} />
+          </Button>
           {(status?.pending ?? 0) > 0 && (
             <Button onClick={handleCorrect} disabled={correcting} className="bg-indigo-600 hover:bg-indigo-700">
               <Zap className="h-4 w-4 mr-2" />{correcting ? "Corrigiendo..." : `Corregir (${status?.pending})`}
@@ -262,10 +265,15 @@ export default function ExamenPage() {
         <CardHeader><CardTitle>Resultados por alumno</CardTitle></CardHeader>
         <CardContent>
           {(results?.results?.length ?? 0) === 0 ? (
-            <div className="text-center py-8">
-              <Upload className="h-10 w-10 text-slate-200 dark:text-slate-700 mx-auto mb-3" />
-              <p className="text-slate-500 dark:text-slate-400">Sube los exámenes de tus alumnos para corregirlos</p>
-            </div>
+            <button
+              type="button"
+              onClick={() => document.getElementById("student-exam-upload")?.click()}
+              className="w-full text-center py-12 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            >
+              <Upload className="h-12 w-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+              <p className="font-medium text-slate-700 dark:text-slate-300 mb-1">Sube los examenes de tus alumnos</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Arrastra archivos o haz clic para seleccionar (PDF, imagen o texto)</p>
+            </button>
           ) : (
             <Table>
               <TableHeader>

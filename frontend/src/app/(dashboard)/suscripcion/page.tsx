@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CheckCircle, Star, Zap, Crown, Upload } from "lucide-react";
+import { toast } from "sonner";
 
 const planIcons: Record<number, typeof Star> = { 0: Star, 1: Zap, 2: Crown };
 const planColors: Record<number, string> = { 0: "indigo", 1: "violet", 2: "amber" };
@@ -59,7 +60,8 @@ export default function SuscripcionPage() {
       });
       setShowPayment(false);
       setUploadSuccess(true);
-    } catch {
+    } catch (err: any) {
+      toast.error("Error al subir el comprobante. Intenta de nuevo.");
       setUploadSuccess(false);
     }
     setUploading(false);

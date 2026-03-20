@@ -79,9 +79,12 @@ export default function TutorPage() {
     }
   };
 
-  const sendMessage = async () => {
-    if (!input.trim() || !activeChat || sending) return;
-    const userMsg: Message = { id: Date.now().toString(), role: "user", content: input, created_at: new Date().toISOString() };
+  const sendMessage = async (overrideText?: string) => {
+    const text = overrideText || input;
+    if (!text.trim() || sending) return;
+    const chatId = activeChat;
+    if (!chatId) return;
+    const userMsg: Message = { id: Date.now().toString(), role: "user", content: text, created_at: new Date().toISOString() };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setSending(true);
@@ -89,7 +92,7 @@ export default function TutorPage() {
     try {
       const formData = new FormData();
       formData.append("content", userMsg.content);
-      const data = await apiFetch<any>(`/alumno/tutor/chats/${activeChat}/message`, {
+      const data = await apiFetch<any>(`/alumno/tutor/chats/${chatId}/message`, {
         method: "POST", token: token!, body: formData,
       });
       const aiMsg: Message = { id: data.id || (Date.now() + 1).toString(), role: "assistant", content: data.content || data.message || "Sin respuesta", created_at: new Date().toISOString() };
@@ -185,8 +188,31 @@ export default function TutorPage() {
                   <button
                     key={i}
                     onClick={async () => {
-                      await createChat();
-                      setInput(s);
+                      const formData = new FormData();
+                      formData.append("title", s.slice(0, 50));
+                      try {
+                        const chat = await apiFetch<any>("/alumno/tutor/chats", {
+                          method: "POST", token: token!, body: formData,
+                        });
+                        setChats((prev) => [chat, ...prev]);
+                        setActiveChat(chat.id);
+                        setMessages([]);
+                        setShowSidebar(false);
+                        // Send the suggestion message immediately using the new chat id
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: s, created_at: new Date().toISOString() };
+                        setMessages([userMsg]);
+                        setSending(true);
+                        const fd = new FormData();
+                        fd.append("content", s);
+                        const data = await apiFetch<any>(`/alumno/tutor/chats/${chat.id}/message`, {
+                          method: "POST", token: token!, body: fd,
+                        });
+                        const aiMsg: Message = { id: data.id || (Date.now() + 1).toString(), role: "assistant", content: data.content || data.message || "Sin respuesta", created_at: new Date().toISOString() };
+                        setMessages((prev) => [...prev, aiMsg]);
+                      } catch (err: any) {
+                        setErrorMsg(err.message || "Error al crear conversacion");
+                      }
+                      setSending(false);
                     }}
                     className="text-left p-4 rounded-xl border bg-white dark:bg-slate-900 hover:border-indigo-300 hover:shadow-sm transition-all text-sm text-slate-700 dark:text-slate-300"
                   >
@@ -225,7 +251,7 @@ export default function TutorPage() {
                   </p>
                   <div className="flex flex-wrap justify-center gap-2">
                     {suggestions.slice(0, 2).map((s, i) => (
-                      <button key={i} onClick={() => setInput(s)}
+                      <button key={i} onClick={() => sendMessage(s)}
                         className="text-xs px-3 py-1.5 rounded-full bg-white dark:bg-slate-900 border hover:border-indigo-300 text-slate-600 dark:text-slate-300">
                         {s}
                       </button>

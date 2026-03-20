@@ -6,13 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookOpen, Users, FileText, CheckCircle, Plus, Sparkles, ArrowRight, Layers, Upload } from "lucide-react";
+import { BookOpen, Users, FileText, CheckCircle, Plus, Sparkles, ArrowRight } from "lucide-react";
 import { ProgressRing } from "@/components/charts/progress-ring";
 import { ScoreDistribution } from "@/components/charts/score-distribution";
 import Link from "next/link";
 import { UsageQuota } from "@/components/usage-quota";
 import { OnboardingWizard } from "@/components/onboarding-wizard";
-import { ReferralBanner } from "@/components/referral-banner";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function ProfesorDashboard() {
@@ -29,7 +28,7 @@ export default function ProfesorDashboard() {
 
   const kpis = [
     { label: "Materias", value: (stats as any)?.total_subjects || 0, icon: BookOpen, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-950/50", href: "/profesor/materias" },
-    { label: "Secciones", value: (stats as any)?.total_sections || 0, icon: FileText, color: "text-violet-600", bg: "bg-violet-50 dark:bg-violet-950/50", href: "/profesor/materias" },
+    { label: "Clases", value: (stats as any)?.total_sections || 0, icon: FileText, color: "text-violet-600", bg: "bg-violet-50 dark:bg-violet-950/50", href: "/profesor/materias" },
     { label: "Alumnos", value: (stats as any)?.total_students || 0, icon: Users, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/50", href: "/profesor/alumnos" },
     { label: "Exámenes", value: (stats as any)?.total_exams || 0, icon: CheckCircle, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/50", href: "/profesor/examenes" },
   ];
@@ -65,46 +64,6 @@ export default function ProfesorDashboard() {
 
       <UsageQuota />
 
-      <ReferralBanner userEmail={user?.email || ""} />
-
-      {isNewUser && (
-        <Card className="border-indigo-200 dark:border-indigo-800 bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-950/50 dark:to-violet-950/50">
-          <CardContent className="pt-6">
-            <h3 className="text-lg font-bold text-indigo-900 dark:text-indigo-200 mb-2">Bienvenido a Amautia</h3>
-            <p className="text-sm text-indigo-700 dark:text-indigo-300 mb-5">Sigue estos pasos para corregir tu primer examen con IA:</p>
-            <div className="grid gap-3 sm:grid-cols-3">
-              <Link href="/profesor/materias">
-                <div className="flex items-start gap-3 p-4 bg-white dark:bg-slate-900 rounded-xl border border-indigo-100 dark:border-indigo-900 hover:shadow-md transition-shadow cursor-pointer h-full">
-                  <div className="h-8 w-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold shrink-0">1</div>
-                  <div>
-                    <p className="font-semibold text-sm text-slate-900 dark:text-slate-100">Crear materia</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Organiza tus cursos y agrega secciones</p>
-                  </div>
-                </div>
-              </Link>
-              <Link href="/profesor/examenes/nuevo">
-                <div className="flex items-start gap-3 p-4 bg-white dark:bg-slate-900 rounded-xl border border-indigo-100 dark:border-indigo-900 hover:shadow-md transition-shadow cursor-pointer h-full">
-                  <div className="h-8 w-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold shrink-0">2</div>
-                  <div>
-                    <p className="font-semibold text-sm text-slate-900 dark:text-slate-100">Crear examen</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Sube tu examen de referencia con respuestas</p>
-                  </div>
-                </div>
-              </Link>
-              <Link href="/profesor/examenes">
-                <div className="flex items-start gap-3 p-4 bg-white dark:bg-slate-900 rounded-xl border border-indigo-100 dark:border-indigo-900 hover:shadow-md transition-shadow cursor-pointer h-full">
-                  <div className="h-8 w-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold shrink-0">3</div>
-                  <div>
-                    <p className="font-semibold text-sm text-slate-900 dark:text-slate-100">Corregir</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Sube exámenes de alumnos y la IA los corrige</p>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((kpi) => (
           <Link key={kpi.label} href={kpi.href}>
@@ -125,49 +84,6 @@ export default function ProfesorDashboard() {
             </Card>
           </Link>
         ))}
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Link href="/profesor/examenes/nuevo">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer border-indigo-100 bg-indigo-50/50 dark:border-indigo-900 dark:bg-indigo-950/30">
-            <CardContent className="pt-6 flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center">
-                <Plus className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-              </div>
-              <div>
-                <p className="font-semibold text-indigo-900 dark:text-indigo-200">Crear Examen</p>
-                <p className="text-xs text-indigo-600 dark:text-indigo-400">Nuevo examen manual</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-        <Link href="/profesor/generar">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer border-violet-100 bg-violet-50/50 dark:border-violet-900 dark:bg-violet-950/30">
-            <CardContent className="pt-6 flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-violet-100 dark:bg-violet-900/50 flex items-center justify-center">
-                <Sparkles className="h-6 w-6 text-violet-600" />
-              </div>
-              <div>
-                <p className="font-semibold text-violet-900 dark:text-violet-200">Generar con IA</p>
-                <p className="text-xs text-violet-600 dark:text-violet-400">Examen automático</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-        <Link href="/profesor/alumnos/importar">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer border-emerald-100 bg-emerald-50/50 dark:border-emerald-900 dark:bg-emerald-950/30">
-            <CardContent className="pt-6 flex items-center gap-4">
-              <div className="h-12 w-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
-                <Users className="h-6 w-6 text-emerald-600" />
-              </div>
-              <div>
-                <p className="font-semibold text-emerald-900 dark:text-emerald-200">Importar Alumnos</p>
-                <p className="text-xs text-emerald-600 dark:text-emerald-400">CSV masivo</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -225,7 +141,7 @@ export default function ProfesorDashboard() {
                       <p className="text-xs text-slate-500 dark:text-slate-400">{new Date(exam.created_at).toLocaleDateString("es-PE")}</p>
                     </div>
                     <Badge variant={exam.status === "corrected" ? "default" : "secondary"}>
-                      {{ draft: "Borrador", active: "Activo", ready: "Listo", corrected: "Corregido", graded: "Calificado", published: "Publicado" }[exam.status as string] || exam.status}
+                      {{ draft: "Sin referencia", active: "Activo", ready: "Listo para corregir", corrected: "Corregido", graded: "Calificado", published: "Publicado" }[exam.status as string] || exam.status}
                     </Badge>
                   </div>
                 </Link>
