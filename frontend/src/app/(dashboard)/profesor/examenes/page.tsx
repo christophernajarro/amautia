@@ -63,7 +63,7 @@ export default function ExamenesPage() {
       </div>
 
       {isLoading ? (
-        <div className="max-w-4xl mx-auto space-y-2">
+        <div className="max-w-4xl mx-auto space-y-4">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="flex items-center gap-4 rounded-xl border border-border bg-card px-5 py-4">
               <Skeleton className="h-10 w-10 rounded-xl shrink-0" />
@@ -127,7 +127,7 @@ export default function ExamenesPage() {
               className="pl-9"
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-4">
             {paginated.map((exam: any) => {
               const cfg = statusConfig[exam.status] || statusConfig.draft;
               const StatusIcon = cfg.icon;

@@ -173,7 +173,7 @@ export default function NotificacionesPage() {
 
       {/* ---- Loading skeleton ---- */}
       {isLoading ? (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
@@ -203,7 +203,7 @@ export default function NotificacionesPage() {
         </div>
       ) : (
         /* ---- Notification list ---- */
-        <div className="space-y-3">
+        <div className="space-y-4">
           {notifications?.map((n: any) => {
             const isUnread = !n.is_read;
             const { icon: Icon, color: iconColor } = getTypeConfig(n.type);
