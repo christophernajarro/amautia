@@ -207,18 +207,25 @@ async def exam_resultado(student_exam_id: str, db: AsyncSession = Depends(get_db
         answers.append({
             "question_number": q.question_number if q else None,
             "question_text": q.question_text if q else None,
+            "student_answer": sa.answer_text,
             "score": float(sa.score) if sa.score else 0,
             "max_score": float(sa.max_score) if sa.max_score else 0,
             "is_correct": sa.is_correct,
             "feedback": sa.feedback or "",
+            "suggestion": sa.suggestion,
         })
 
     return {
         "exam_title": exam.title,
+        "file_url": se.file_url,
         "total_score": float(se.total_score) if se.total_score else None,
         "total_points": float(exam.total_points),
         "percentage": float(se.percentage) if se.percentage else None,
         "general_feedback": se.general_feedback or "",
+        "strengths": se.strengths,
+        "areas_to_improve": se.areas_to_improve,
+        "profesor_reviewed": se.profesor_reviewed,
+        "profesor_notes": se.profesor_notes,
         "corrected_at": se.corrected_at.isoformat() if se.corrected_at else None,
         "answers": answers,
     }
