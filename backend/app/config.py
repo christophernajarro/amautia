@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
+    # NOTE: For production, add the actual domain(s) here or override via
+    # the CORS_ORIGINS env var, e.g. CORS_ORIGINS='["https://app.amautia.com"]'
     CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:3001"]
 
     UPLOAD_DIR: str = "uploads"

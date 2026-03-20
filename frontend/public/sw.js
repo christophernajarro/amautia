@@ -1,13 +1,22 @@
-const CACHE_NAME = "amautia-v1";
-const STATIC_ASSETS = ["/", "/login", "/registro"];
+const CACHE_NAME = "amautia-v2";
+const PRECACHE_URLS = [
+  "/",
+  "/login",
+  "/registro",
+  "/manifest.json",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+];
 
+// Install: precache static assets
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
   );
   self.skipWaiting();
 });
 
+// Activate: clean old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -17,23 +26,41 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// Fetch: network-first for API, stale-while-revalidate for pages
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
-  // Skip API calls and non-same-origin
-  if (request.url.includes("/api/") || !request.url.startsWith(self.location.origin)) return;
 
+  const url = new URL(request.url);
+
+  // Skip API calls and external URLs
+  if (url.pathname.startsWith("/api/") || url.origin !== self.location.origin) return;
+
+  // Static assets: cache-first
+  if (url.pathname.match(/\.(js|css|png|jpg|svg|woff2?)$/)) {
+    event.respondWith(
+      caches.match(request).then((cached) => cached || fetch(request).then((response) => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+        }
+        return response;
+      }))
+    );
+    return;
+  }
+
+  // Pages: stale-while-revalidate
   event.respondWith(
     caches.match(request).then((cached) => {
-      const fetchPromise = fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          }
-          return response;
-        })
-        .catch(() => cached);
+      const fetchPromise = fetch(request).then((response) => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+        }
+        return response;
+      }).catch(() => cached || new Response("Offline", { status: 503 }));
+
       return cached || fetchPromise;
     })
   );
@@ -48,11 +75,21 @@ self.addEventListener("push", (event) => {
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-192.png",
       data: data.url || "/",
+      vibrate: [200, 100, 200],
     })
   );
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  event.waitUntil(clients.openWindow(event.notification.data));
+  event.waitUntil(
+    clients.matchAll({ type: "window" }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url === event.notification.data && "focus" in client) {
+          return client.focus();
+        }
+      }
+      return clients.openWindow(event.notification.data);
+    })
+  );
 });

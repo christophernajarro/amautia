@@ -7,10 +7,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
+from sqlalchemy import text
 from app.config import get_settings
+from app.core.database import async_session
 from app.api.v1.router import api_router
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("amautia")
 settings = get_settings()
 
 app = FastAPI(
@@ -26,6 +28,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.auth_rpm = auth_requests_per_minute
         self._requests: dict[str, list[float]] = defaultdict(list)
         self._auth_requests: dict[str, list[float]] = defaultdict(list)
+        self._ai_requests: dict[str, list[float]] = defaultdict(list)
 
     async def dispatch(self, request: Request, call_next):
         client_ip = request.client.host if request.client else "unknown"
@@ -57,12 +60,38 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 )
             self._requests[client_ip].append(now)
 
+        # Per-user rate limiting for AI-intensive endpoints
+        ai_path_markers = ["/correct", "/generate", "/message"]
+        is_ai = any(p in path for p in ai_path_markers)
+        if is_ai:
+            auth = request.headers.get("authorization", "")
+            user_key = f"ai:{auth[-16:]}" if auth else f"ai:{client_ip}"
+            now_ts = time.time()
+            ai_window = 3600  # 1 hour
+
+            self._ai_requests[user_key] = [
+                t for t in self._ai_requests.get(user_key, []) if now_ts - t < ai_window
+            ]
+            if len(self._ai_requests[user_key]) >= 30:
+                return JSONResponse(
+                    status_code=429,
+                    content={"detail": "Limite de solicitudes IA alcanzado. Intenta en una hora."},
+                )
+            self._ai_requests[user_key].append(now_ts)
+
         # Clean up old IPs periodically (every ~1000 requests)
         if len(self._requests) > 1000:
             cutoff = now - window
             self._requests = defaultdict(list, {
                 ip: times for ip, times in self._requests.items()
                 if any(t > cutoff for t in times)
+            })
+        # Clean up old AI rate limit entries periodically
+        if len(self._ai_requests) > 500:
+            ai_cutoff = now - 3600
+            self._ai_requests = defaultdict(list, {
+                key: times for key, times in self._ai_requests.items()
+                if any(t > ai_cutoff for t in times)
             })
 
         return await call_next(request)
@@ -100,4 +129,18 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "Amautia API"}
+    db_ok = False
+    try:
+        async with async_session() as session:
+            await session.execute(text("SELECT 1"))
+            db_ok = True
+    except Exception:
+        pass
+
+    status = "ok" if db_ok else "degraded"
+    return {
+        "status": status,
+        "service": "Amautia API",
+        "database": "connected" if db_ok else "disconnected",
+        "version": "1.0.0",
+    }

@@ -1,14 +1,16 @@
+version: "3.8"
+
 services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: amautia
       POSTGRES_USER: amautia
       POSTGRES_PASSWORD: amautia_dev
+      POSTGRES_DB: amautia
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U amautia"]
       interval: 5s
@@ -32,6 +34,36 @@ services:
     volumes:
       - minio_data:/data
 
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://amautia:amautia_dev@db:5432/amautia
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: dev-only-change-in-production
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: amautia
+      MINIO_SECRET_KEY: amautia_dev
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/src:/app/src
+    command: npm run dev
+
 volumes:
-  postgres_data:
+  pgdata:
   minio_data:
