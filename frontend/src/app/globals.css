@@ -198,6 +198,11 @@
   100% { transform: scale(1.8); opacity: 0; }
 }
 
+@keyframes grow {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
 .animate-float-slow { animation: float-slow 25s ease-in-out infinite; }
 .animate-float-slower { animation: float-slower 30s ease-in-out infinite; }
 .animate-scan-line { animation: scan-line 3s ease-in-out infinite; }

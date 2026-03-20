@@ -433,17 +433,17 @@ export default function LandingPage() {
       <section id="funciones" className="py-16 relative">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-amber-500/[0.03] blur-[150px]" />
         <div className="max-w-7xl mx-auto px-6 lg:px-8 relative">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="text-center mb-10">
+          <div className="text-center mb-10">
             <span className="inline-block text-xs uppercase tracking-[0.25em] font-bold text-amber-400 bg-amber-400/[0.08] px-4 py-2 rounded-full mb-6">Funcionalidades</span>
             <h2 className="text-4xl lg:text-5xl font-bold leading-tight">
               Todo lo que necesitas para<br />
               <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-orange-500 bg-clip-text text-transparent">evaluar mejor</span>
             </h2>
-          </motion.div>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-4">
             {features.map((f, i) => (
-              <motion.div key={f.title} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className={`group relative rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.04] to-transparent p-7 hover:border-amber-500/20 hover:shadow-xl hover:shadow-amber-500/[0.03] hover:-translate-y-1 transition-all duration-500 ${f.span || ""}`}>
+              <div key={f.title} className={`group relative rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.04] to-transparent p-7 hover:border-amber-500/20 hover:shadow-xl hover:shadow-amber-500/[0.03] hover:-translate-y-1 transition-all duration-500 ${f.span || ""}`}>
                 <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${f.gradient} flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform duration-500`}>
                   <f.icon className="h-6 w-6 text-white" />
                 </div>
@@ -455,7 +455,7 @@ export default function LandingPage() {
                     <span className="flex items-center gap-1.5 text-amber-400/70"><Shield className="h-4 w-4" /> 94% precisión</span>
                   </div>
                 )}
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -464,16 +464,16 @@ export default function LandingPage() {
       {/* ═══════ HOW IT WORKS ═══════ */}
       <section id="proceso" className="py-16 bg-[#0a0a10] relative">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="text-center mb-12">
+          <div className="text-center mb-12">
             <span className="inline-block text-xs uppercase tracking-[0.25em] font-bold text-violet-400 bg-violet-400/[0.08] px-4 py-2 rounded-full mb-6">Proceso</span>
             <h2 className="text-4xl lg:text-5xl font-bold">Tres pasos. <span className="text-white/40">Cero estrés.</span></h2>
-          </motion.div>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-8 relative">
             {/* Connection line */}
             <div className="hidden md:block absolute top-16 left-[20%] right-[20%] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
             {steps.map((step, i) => (
-              <motion.div key={step.num} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="text-center relative">
+              <div key={step.num} className="text-center relative">
                 <div className="relative inline-flex items-center justify-center mb-8">
                   <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-white/[0.08] flex items-center justify-center">
                     <step.icon className="h-7 w-7 text-amber-400" />
@@ -482,7 +482,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold mb-3">{step.title}</h3>
                 <p className="text-white/40 max-w-xs mx-auto leading-relaxed">{step.desc}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -494,12 +494,12 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-6 lg:px-8 relative">
           <div className="grid md:grid-cols-3 gap-6">
             {stats.map((s, i) => (
-              <motion.div key={s.label} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className={`rounded-2xl bg-white/[0.03] border border-white/[0.06] p-8 text-center border-t-2 ${s.color}`}>
+              <div key={s.label} className={`rounded-2xl bg-white/[0.03] border border-white/[0.06] p-8 text-center border-t-2 ${s.color}`}>
                 <p className="text-6xl font-extrabold tracking-tight">
                   <CountUp end={s.value} suffix={s.suffix} />
                 </p>
                 <p className="text-white/40 mt-3 text-lg">{s.label}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -508,10 +508,10 @@ export default function LandingPage() {
       {/* ═══════ TESTIMONIALS ═══════ */}
       <section className="py-16 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 mb-10">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="text-center">
+          <div className="text-center">
             <span className="inline-block text-xs uppercase tracking-[0.25em] font-bold text-emerald-400 bg-emerald-400/[0.08] px-4 py-2 rounded-full mb-6">Testimonios</span>
             <h2 className="text-4xl lg:text-5xl font-bold">Lo que dicen los profesores</h2>
-          </motion.div>
+          </div>
         </div>
 
         {/* Marquee */}
@@ -544,11 +544,11 @@ export default function LandingPage() {
       <section id="precios" className="py-16 relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-amber-500/[0.03] blur-[150px]" />
         <div className="max-w-6xl mx-auto px-6 lg:px-8 relative">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="text-center mb-10">
+          <div className="text-center mb-10">
             <span className="inline-block text-xs uppercase tracking-[0.25em] font-bold text-amber-400 bg-amber-400/[0.08] px-4 py-2 rounded-full mb-6">Precios</span>
             <h2 className="text-4xl lg:text-5xl font-bold">Planes simples y transparentes</h2>
             <p className="text-lg text-white/40 mt-4">Paga con Yape, Plin o transferencia bancaria</p>
-          </motion.div>
+          </div>
 
           {/* Urgency banner */}
           <div className="text-center mb-8">
@@ -574,7 +574,7 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-3 gap-6 items-start">
             {plans.map((plan, i) => (
-              <motion.div key={plan.name} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className={`rounded-2xl p-8 border transition-all duration-500 ${plan.popular ? "bg-gradient-to-b from-amber-500/[0.08] to-transparent border-amber-500/30 scale-[1.03] shadow-xl shadow-amber-500/[0.05]" : "bg-white/[0.02] border-white/[0.06] hover:border-white/[0.12]"}`}>
+              <div key={plan.name} className={`rounded-2xl p-8 border transition-all duration-500 ${plan.popular ? "bg-gradient-to-b from-amber-500/[0.08] to-transparent border-amber-500/30 scale-[1.03] shadow-xl shadow-amber-500/[0.05]" : "bg-white/[0.02] border-white/[0.06] hover:border-white/[0.12]"}`}>
                 {plan.popular && <span className="inline-block text-xs font-bold uppercase tracking-[0.15em] text-amber-400 bg-amber-400/[0.1] px-3 py-1 rounded-full mb-4">Más popular</span>}
                 <h3 className="text-xl font-bold">{plan.name}</h3>
                 <div className="mt-4 mb-6">
@@ -593,7 +593,7 @@ export default function LandingPage() {
                     {plan.name === "Institucional" ? "Agendar demostración" : plan.popular ? "Empezar ahora" : "Empezar gratis"}
                   </button>
                 </Link>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -602,13 +602,13 @@ export default function LandingPage() {
       {/* ═══════ FAQ ═══════ */}
       <section id="faq" className="py-16 bg-[#0a0a10]">
         <div className="max-w-3xl mx-auto px-6 lg:px-8">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="text-center mb-10">
+          <div className="text-center mb-10">
             <h2 className="text-4xl lg:text-5xl font-bold">Preguntas frecuentes</h2>
-          </motion.div>
+          </div>
 
           <div className="space-y-0">
             {faqs.map((faq, i) => (
-              <motion.div key={i} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal} className="border-b border-white/[0.06]">
+              <div key={i} className="border-b border-white/[0.06]">
                 <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between py-6 text-left group">
                   <span className="text-lg font-semibold pr-4 group-hover:text-amber-300 transition-colors">{faq.q}</span>
                   <ChevronDown className={`h-5 w-5 text-white/30 shrink-0 transition-transform duration-300 ${openFaq === i ? "rotate-180 text-amber-400" : ""}`} />
@@ -616,7 +616,7 @@ export default function LandingPage() {
                 <div className={`overflow-hidden transition-all duration-400 ${openFaq === i ? "max-h-48 pb-6" : "max-h-0"}`}>
                   <p className="text-white/50 leading-relaxed">{faq.a}</p>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -629,7 +629,7 @@ export default function LandingPage() {
           <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-violet-500/[0.04] blur-[120px]" />
         </div>
         <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center relative">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={reveal}>
+          <div>
             <h2 className="text-4xl lg:text-6xl font-extrabold leading-tight">
               ¿Listo para transformar<br />
               <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-orange-500 bg-clip-text text-transparent">tu forma de evaluar?</span>
@@ -641,7 +641,7 @@ export default function LandingPage() {
               </button>
             </Link>
             <p className="text-sm text-white/25 mt-6">Configuración en 2 minutos · Sin tarjeta de crédito</p>
-          </motion.div>
+          </div>
         </div>
       </section>
 

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Upload, Sparkles, CheckCircle, ArrowRight, Clock, FileText } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface Props {
   open: boolean;
@@ -23,7 +22,7 @@ const demoSteps = [
         <p className="text-white/60 font-medium">Examen_Historia_5A.pdf</p>
         <p className="text-sm text-white/30 mt-1">Subido correctamente</p>
         <div className="mt-4 h-2 bg-white/10 rounded-full overflow-hidden">
-          <motion.div initial={{ width: 0 }} animate={{ width: "100%" }} transition={{ duration: 1.5, ease: "easeOut" }} className="h-full bg-amber-500 rounded-full" />
+          <div className="h-full bg-amber-500 rounded-full" style={{ animation: "grow 1.5s ease-out forwards", width: 0 }} />
         </div>
       </div>
     ),
@@ -36,13 +35,11 @@ const demoSteps = [
     visual: (
       <div className="space-y-3">
         {["Juan Pérez", "María López", "Carlos Ruiz", "Ana Torres"].map((name, i) => (
-          <motion.div key={name} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.3 }} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.04] border border-white/[0.06]">
+          <div key={name} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.04] border border-white/[0.06]">
             <FileText className="h-5 w-5 text-violet-400 shrink-0" />
             <span className="text-sm text-white/70 flex-1">{name}</span>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.3 + 0.8 }}>
-              <CheckCircle className="h-5 w-5 text-emerald-400" />
-            </motion.div>
-          </motion.div>
+            <CheckCircle className="h-5 w-5 text-emerald-400" />
+          </div>
         ))}
         <div className="flex items-center gap-2 text-sm text-violet-300 mt-2">
           <Clock className="h-4 w-4" />
@@ -124,19 +121,10 @@ export function DemoModal({ open, onClose }: Props) {
           </div>
           <p className="text-white/50 mb-6 ml-[52px]">{step.description}</p>
 
-          {/* Animated visual */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4 }}
-              className="mb-6"
-            >
-              {step.visual}
-            </motion.div>
-          </AnimatePresence>
+          {/* Step visual */}
+          <div key={currentStep} className="mb-6">
+            {step.visual}
+          </div>
 
           {/* Navigation */}
           <div className="flex items-center justify-between">
@@ -147,7 +135,7 @@ export function DemoModal({ open, onClose }: Props) {
                   Anterior
                 </Button>
               )}
-              <Button onClick={handleNext} className="bg-amber-500 hover:bg-amber-400 text-black font-semibold">
+              <Button onClick={handleNext} className="bg-amber-500 hover:bg-amber-400 text-white font-semibold">
                 {currentStep === demoSteps.length - 1 ? (
                   <>¡Pruébalo gratis!</>
                 ) : (
