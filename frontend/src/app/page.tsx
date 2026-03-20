@@ -4,7 +4,7 @@ import Link from "next/link";
 import {
   GraduationCap, Sparkles, FileText, Brain, BarChart3,
   ArrowRight, Check, Zap, Upload, CheckCircle, Database,
-  Star, ChevronDown, Play, Shield, Clock, MessageCircle,
+  Star, ChevronDown, Play, Shield, Clock, MessageCircle, Mail,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -646,38 +646,65 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════ FOOTER ═══════ */}
-      <footer className="border-t border-white/[0.08] bg-[#08080c] py-16 pb-24 lg:pb-16">
+      <footer className="bg-[#0c1020] pt-20 pb-24 lg:pb-12">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-10 mb-12">
+          <div className="grid md:grid-cols-4 gap-12 mb-16">
+            {/* Brand */}
             <div>
-              <div className="flex items-center gap-2.5 mb-4">
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
-                  <GraduationCap className="h-4 w-4 text-white" />
+              <div className="flex items-center gap-2.5 mb-5">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                  <GraduationCap className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-lg font-bold text-white">Amautia</span>
+                <span className="text-xl font-bold text-white">Amautia</span>
               </div>
-              <p className="text-sm text-white/50 leading-relaxed">Plataforma educativa con IA para profesores en Latinoamérica.</p>
+              <p className="text-[15px] text-slate-400 leading-relaxed">
+                Plataforma educativa con IA para profesores en Latinoamérica.
+              </p>
             </div>
+
+            {/* Links */}
             {[
               { title: "Producto", links: [["Funciones", "#funciones"], ["Precios", "#precios"], ["Integraciones", "#"]] },
-              { title: "Recursos", links: [["Blog", "#"], ["Tutoriales", "#"], ["Soporte", "mailto:ventas@necs.pe"]] },
               { title: "Legal", links: [["Términos", "#"], ["Privacidad", "#"], ["Cookies", "#"]] },
             ].map((col) => (
               <div key={col.title}>
-                <h4 className="text-sm font-semibold uppercase tracking-[0.15em] text-white/60 mb-4">{col.title}</h4>
-                <ul className="space-y-3">
+                <h4 className="text-[15px] font-semibold text-white mb-5">{col.title}</h4>
+                <ul className="space-y-3.5">
                   {col.links.map(([label, href]) => (
-                    <li key={label}><a href={href} className="text-sm text-white/45 hover:text-white/80 transition-colors">{label}</a></li>
+                    <li key={label}>
+                      <a href={href} className="text-[15px] text-slate-400 hover:text-white transition-colors duration-200">{label}</a>
+                    </li>
                   ))}
                 </ul>
               </div>
             ))}
+
+            {/* Contact */}
+            <div>
+              <h4 className="text-[15px] font-semibold text-white mb-5">Contacto</h4>
+              <ul className="space-y-3.5">
+                <li>
+                  <a href="mailto:ventas@necs.pe" className="flex items-center gap-2.5 text-[15px] text-slate-400 hover:text-emerald-400 transition-colors duration-200">
+                    <Mail className="h-4 w-4 text-emerald-500 shrink-0" />
+                    ventas@necs.pe
+                  </a>
+                </li>
+                <li>
+                  <a href="https://wa.me/51918359598" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-[15px] text-slate-400 hover:text-emerald-400 transition-colors duration-200">
+                    <MessageCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+                    +51 918 359 598
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
-          <div className="border-t border-white/[0.08] pt-8 flex flex-wrap justify-between items-center gap-4">
-            <p className="text-sm text-white/35">© 2026 Amautia. Todos los derechos reservados.</p>
-            <p className="text-sm text-white/35">
+
+          {/* Bottom bar */}
+          <div className="border-t border-slate-700/50 pt-8 flex flex-wrap justify-between items-center gap-4">
+            <p className="text-sm text-slate-500">© 2026 Amautia. Todos los derechos reservados.</p>
+            <p className="text-sm text-slate-500">
               Desarrollado por{" "}
-              <a href="https://pos.necs.pe/" target="_blank" rel="noopener noreferrer" className="text-amber-400/80 hover:text-amber-300 font-medium transition-colors">
+              <a href="https://pos.necs.pe/" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300 font-semibold transition-colors duration-200">
                 NECS Soluciones
               </a>
             </p>
