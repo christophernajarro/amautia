@@ -56,7 +56,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-10 shadow-2xl shadow-black/50">
+    <div className="w-full max-w-md rounded-2xl border border-white/[0.12] bg-white/[0.05] backdrop-blur-xl p-10 shadow-2xl shadow-black/50">
       {/* Logo & Heading */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-3 mb-4">
@@ -66,17 +66,17 @@ export default function LoginPage() {
           <span className="text-2xl font-bold tracking-tight text-white">Amautia</span>
         </div>
         <h1 className="text-xl font-semibold text-white mb-1">Bienvenido de vuelta</h1>
-        <p className="text-sm text-white/40">Ingresa a tu cuenta para continuar</p>
+        <p className="text-sm text-white/50">Ingresa a tu cuenta para continuar</p>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-white/50 text-xs font-medium uppercase tracking-wider">
+          <Label htmlFor="email" className="text-white/60 text-xs font-medium uppercase tracking-wider">
             Correo electronico
           </Label>
           <div className="relative">
-            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
+            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
             <Input
               id="email"
               type="email"
@@ -85,17 +85,17 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="pl-11 h-12 bg-white/[0.04] border-white/[0.08] text-white text-base rounded-xl placeholder:text-white/20 focus:border-amber-500/40 focus:ring-amber-500/20 transition-colors"
+              className="pl-11 h-12 bg-white/[0.06] border-white/[0.12] text-white text-base rounded-xl placeholder:text-white/30 focus:border-amber-500/50 focus:ring-amber-500/25 transition-colors"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password" className="text-white/50 text-xs font-medium uppercase tracking-wider">
+          <Label htmlFor="password" className="text-white/60 text-xs font-medium uppercase tracking-wider">
             Contrasena
           </Label>
           <div className="relative">
-            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
+            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
             <Input
               id="password"
               type="password"
@@ -104,7 +104,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="pl-11 h-12 bg-white/[0.04] border-white/[0.08] text-white text-base rounded-xl placeholder:text-white/20 focus:border-amber-500/40 focus:ring-amber-500/20 transition-colors"
+              className="pl-11 h-12 bg-white/[0.06] border-white/[0.12] text-white text-base rounded-xl placeholder:text-white/30 focus:border-amber-500/50 focus:ring-amber-500/25 transition-colors"
             />
           </div>
         </div>
@@ -118,7 +118,7 @@ export default function LoginPage() {
 
         <Button
           type="submit"
-          className="w-full h-14 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-semibold text-lg rounded-xl shadow-lg shadow-amber-500/20 transition-all duration-200"
+          className="w-full h-14 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold text-lg rounded-xl shadow-lg shadow-amber-500/25 transition-all duration-200"
           disabled={loading}
         >
           {loading ? (
@@ -134,7 +134,7 @@ export default function LoginPage() {
         <div className="text-center">
           <Link
             href="/forgot-password"
-            className="text-sm text-amber-400/70 hover:text-amber-300 transition-colors"
+            className="text-sm text-amber-400/80 hover:text-amber-300 transition-colors"
           >
             Olvidaste tu contrasena?
           </Link>
@@ -146,10 +146,10 @@ export default function LoginPage() {
         <div className="mt-6">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-white/[0.05]" />
+              <span className="w-full border-t border-white/[0.08]" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-[#09090b]/80 px-3 text-white/15 tracking-wider text-[10px]">
+              <span className="bg-[#09090b]/80 px-3 text-white/25 tracking-wider text-[10px]">
                 Dev
               </span>
             </div>
@@ -161,7 +161,7 @@ export default function LoginPage() {
                 type="button"
                 variant="outline"
                 size="sm"
-                className={`text-[10px] h-8 border-white/[0.06] bg-white/[0.01] text-white/30 transition-all duration-200 ${roleColors[testUser.role] || ""}`}
+                className={`text-[10px] h-8 border-white/[0.10] bg-white/[0.03] text-white/50 transition-all duration-200 ${roleColors[testUser.role] || ""}`}
                 onClick={() => handleTestUser(testUser.email, testUser.password)}
               >
                 {roleIcons[testUser.role]}
@@ -173,11 +173,11 @@ export default function LoginPage() {
       )}
 
       {/* Register link */}
-      <div className="mt-6 text-center text-sm text-white/30">
+      <div className="mt-6 text-center text-sm text-white/40">
         No tienes cuenta?{" "}
         <Link
           href="/registro"
-          className="text-amber-400/80 hover:text-amber-300 font-medium transition-colors"
+          className="text-amber-400 hover:text-amber-300 font-medium transition-colors"
         >
           Registrate
         </Link>
