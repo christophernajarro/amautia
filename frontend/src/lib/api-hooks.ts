@@ -546,3 +546,20 @@ export function useCreateLTIRegistration() {
   const qc = useQueryClient();
   return useMutation({ mutationFn: (data: any) => apiFetch("/lti/registrations", { method: "POST", body: JSON.stringify(data), token: freshToken() }), onSuccess: () => qc.invalidateQueries({ queryKey: ["lti"] }) });
 }
+
+// File preview
+export function useReferencePreview(examId: string) {
+  return useQuery({
+    queryKey: ["exam", examId, "reference-preview"],
+    queryFn: () => apiFetch<any>(`/profesor/exams/${examId}/reference-preview`, { token: freshToken() }),
+    enabled: isAuthenticated() && !!examId,
+  });
+}
+
+export function useStudentExamPreview(studentExamId: string) {
+  return useQuery({
+    queryKey: ["student-exam", studentExamId, "preview"],
+    queryFn: () => apiFetch<any>(`/profesor/student-exams/${studentExamId}/preview`, { token: freshToken() }),
+    enabled: isAuthenticated() && !!studentExamId,
+  });
+}

@@ -521,6 +521,63 @@ async def exam_results(exam_id: str, db: AsyncSession = Depends(get_db), user: U
             "stats": stats, "results": results}
 
 
+# ─── File Preview ───
+
+@router.get("/exams/{exam_id}/reference-preview")
+async def reference_preview(exam_id: str, db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
+    """Get reference exam file URL and extracted content for preview."""
+    exam_id = parse_uuid(exam_id)
+    exam = (await db.execute(select(Exam).where(Exam.id == exam_id, Exam.profesor_id == user.id))).scalar_one_or_none()
+    if not exam:
+        raise HTTPException(404, "Examen no encontrado")
+    return {
+        "file_url": exam.reference_file_url,
+        "file_type": exam.reference_file_type,
+        "extracted_content": exam.extracted_content,
+        "answers_text": exam.answers_text,
+    }
+
+
+@router.get("/student-exams/{student_exam_id}/preview")
+async def student_exam_preview(student_exam_id: str, db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
+    """Get student exam file and extracted content for preview."""
+    student_exam_id = parse_uuid(student_exam_id)
+    se = (await db.execute(select(StudentExam).where(StudentExam.id == student_exam_id))).scalar_one_or_none()
+    if not se:
+        raise HTTPException(404, "Examen de alumno no encontrado")
+    # Verify professor owns the parent exam
+    exam = (await db.execute(select(Exam).where(Exam.id == se.exam_id, Exam.profesor_id == user.id))).scalar_one_or_none()
+    if not exam:
+        raise HTTPException(403, "No tienes acceso a este examen")
+
+    # Get student answers
+    answers = (await db.execute(
+        select(StudentAnswer).where(StudentAnswer.student_exam_id == se.id)
+    )).scalars().all()
+
+    return {
+        "id": str(se.id),
+        "file_url": se.file_url,
+        "file_type": se.file_type,
+        "extracted_content": se.extracted_content,
+        "total_score": float(se.total_score) if se.total_score else None,
+        "percentage": float(se.percentage) if se.percentage else None,
+        "status": se.status,
+        "general_feedback": se.general_feedback,
+        "strengths": se.strengths,
+        "areas_to_improve": se.areas_to_improve,
+        "answers": [{
+            "question_id": str(a.question_id) if a.question_id else None,
+            "answer_text": a.answer_text,
+            "score": float(a.score) if a.score else None,
+            "max_score": float(a.max_score) if a.max_score else None,
+            "is_correct": a.is_correct,
+            "feedback": a.feedback,
+            "suggestion": a.suggestion,
+        } for a in answers],
+    }
+
+
 @router.get("/exams/{exam_id}/correction-status")
 async def correction_status(exam_id: str, db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
     total = (await db.execute(select(func.count(StudentExam.id)).where(StudentExam.exam_id == exam_id))).scalar() or 0

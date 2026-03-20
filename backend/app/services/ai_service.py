@@ -154,7 +154,27 @@ def _extract_pdf_text(data: bytes) -> str:
 
 
 def _extract_docx_text(data: bytes) -> str:
-    """Extract text from DOCX bytes using zipfile + XML parsing."""
+    """Extract text from DOCX bytes. Uses python-docx if available, else zipfile + XML fallback."""
+    # Attempt python-docx first (better paragraph/table handling)
+    try:
+        import io
+        from docx import Document
+        doc = Document(io.BytesIO(data))
+        paragraphs = [p.text for p in doc.paragraphs if p.text.strip()]
+        # Also extract text from tables
+        for table in doc.tables:
+            for row in table.rows:
+                row_texts = [cell.text.strip() for cell in row.cells if cell.text.strip()]
+                if row_texts:
+                    paragraphs.append(" | ".join(row_texts))
+        if paragraphs:
+            return "\n".join(paragraphs)
+    except ImportError:
+        logger.info("python-docx not installed — falling back to zipfile XML extraction")
+    except Exception as e:
+        logger.warning("python-docx extraction failed: %s — trying zipfile fallback", e)
+
+    # Fallback: zipfile + XML parsing
     try:
         import io
         import zipfile
@@ -165,7 +185,6 @@ def _extract_docx_text(data: bytes) -> str:
                 return "[Archivo DOCX inválido]"
             xml_content = z.read("word/document.xml")
             tree = ET.fromstring(xml_content)
-            ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
             paragraphs = []
             for p in tree.iter("{http://schemas.openxmlformats.org/wordprocessingml/2006/main}p"):
                 texts = [t.text for t in p.iter("{http://schemas.openxmlformats.org/wordprocessingml/2006/main}t") if t.text]
