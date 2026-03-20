@@ -182,6 +182,7 @@ export default function FlashcardStudyPage() {
                 className="border-red-200 text-red-600 hover:bg-red-50"
                 onClick={() => handleReview(0)}
                 disabled={reviewCard.isPending}
+                title={reviewCard.isPending ? "Procesando..." : undefined}
               >
                 No se
               </Button>
@@ -190,6 +191,7 @@ export default function FlashcardStudyPage() {
                 className="border-amber-200 text-amber-600 hover:bg-amber-50"
                 onClick={() => handleReview(2)}
                 disabled={reviewCard.isPending}
+                title={reviewCard.isPending ? "Procesando..." : undefined}
               >
                 Dificil
               </Button>
@@ -198,6 +200,7 @@ export default function FlashcardStudyPage() {
                 className="border-blue-200 text-blue-600 hover:bg-blue-50"
                 onClick={() => handleReview(3)}
                 disabled={reviewCard.isPending}
+                title={reviewCard.isPending ? "Procesando..." : undefined}
               >
                 Bien
               </Button>
@@ -206,6 +209,7 @@ export default function FlashcardStudyPage() {
                 className="border-emerald-200 text-emerald-600 hover:bg-emerald-50"
                 onClick={() => handleReview(5)}
                 disabled={reviewCard.isPending}
+                title={reviewCard.isPending ? "Procesando..." : undefined}
               >
                 Facil
               </Button>

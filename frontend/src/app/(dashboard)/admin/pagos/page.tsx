@@ -231,6 +231,7 @@ export default function PagosPage() {
                 <Button
                   onClick={handleApprove}
                   disabled={approving}
+                  title={approving ? "Procesando..." : undefined}
                   className="flex-1 bg-emerald-600 hover:bg-emerald-700"
                 >
                   {approving ? "Aprobando..." : "Aprobar"}
@@ -238,6 +239,7 @@ export default function PagosPage() {
                 <Button
                   onClick={handleReject}
                   disabled={rejecting || !rejectReason.trim()}
+                  title={rejecting ? "Procesando..." : !rejectReason.trim() ? "Ingresa un motivo de rechazo" : undefined}
                   variant="destructive"
                   className="flex-1"
                 >

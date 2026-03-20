@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { ROLE_ROUTES } from "@/lib/constants";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Navbar } from "@/components/layout/navbar";
+import { CommandPalette } from "@/components/command-palette";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -49,6 +50,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-background">
       <Sidebar user={user} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <CommandPalette user={user} />
       <div className="lg:pl-64">
         <Navbar user={user} onMenuClick={() => setSidebarOpen(true)} />
         <main className="px-6 py-8 lg:px-10 lg:py-10">

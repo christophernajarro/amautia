@@ -135,6 +135,7 @@ export default function GenerarPage() {
             </div>
             {errorMsg && <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 p-3 rounded-lg">{errorMsg}</p>}
             <Button onClick={handleGenerate} disabled={loading || !form.source_text}
+              title={loading ? "Procesando..." : !form.source_text ? "Ingresa el texto fuente para generar el examen" : undefined}
               className="w-full bg-indigo-600 hover:bg-indigo-700">
               {loading ? (
                 <><Sparkles className="h-4 w-4 mr-2 animate-pulse" />Generando con IA...</>
@@ -275,6 +276,7 @@ export default function GenerarPage() {
                     </div>
                   )}
                   <Button onClick={handleSaveAsExam} disabled={!saveSectionId || savingExam}
+                    title={savingExam ? "Guardando..." : !saveSectionId ? "Selecciona una sección primero" : undefined}
                     className="w-full bg-indigo-600 hover:bg-indigo-700">
                     {savingExam ? "Guardando..." : "Guardar y continuar"}
                   </Button>

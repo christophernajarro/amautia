@@ -172,6 +172,7 @@ export default function PlanesPage() {
                   className={`flex-1 ${!plan.is_active ? "bg-indigo-600 hover:bg-indigo-700" : ""}`}
                   onClick={() => toggleStatus.mutate({ plan_id: plan.id, is_active: !plan.is_active })}
                   disabled={toggleStatus.isPending}
+                  title={toggleStatus.isPending ? "Procesando..." : undefined}
                 >
                   <Power className="h-4 w-4 mr-1" />
                   {plan.is_active ? "Desactivar" : "Activar"}
@@ -196,7 +197,7 @@ export default function PlanesPage() {
               </div>
               <div>
                 <Label>Slug</Label>
-                <Input placeholder="ej: pro" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} disabled={!!editingPlan} className={editingPlan ? "bg-slate-50" : ""} />
+                <Input placeholder="ej: pro" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} disabled={!!editingPlan} title={editingPlan ? "El slug no se puede editar" : undefined} className={editingPlan ? "bg-slate-50" : ""} />
               </div>
             </div>
 
@@ -275,7 +276,7 @@ export default function PlanesPage() {
               </div>
             )}
 
-            <Button onClick={handleSubmit} disabled={isPending || !form.name.trim() || !form.slug.trim() || !form.price_monthly} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={handleSubmit} disabled={isPending || !form.name.trim() || !form.slug.trim() || !form.price_monthly} title={isPending ? "Procesando..." : !form.name.trim() ? "Ingresa un nombre para el plan" : !form.slug.trim() ? "Ingresa un slug para el plan" : !form.price_monthly ? "Ingresa un precio mensual" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
               {isPending ? "Guardando..." : editingPlan ? "Guardar cambios" : "Crear plan"}
             </Button>
           </div>

@@ -136,7 +136,7 @@ export default function QuizEnVivoPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreate} disabled={createQuiz.isPending}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreate} disabled={createQuiz.isPending} title={createQuiz.isPending ? "Procesando..." : undefined}>
               {createQuiz.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Crear quiz"}
             </Button>
           </DialogFooter>

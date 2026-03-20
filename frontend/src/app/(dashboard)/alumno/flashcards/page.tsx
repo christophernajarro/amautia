@@ -180,7 +180,7 @@ export default function FlashcardsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreate} disabled={createSet.isPending}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreate} disabled={createSet.isPending} title={createSet.isPending ? "Procesando..." : undefined}>
               {createSet.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Crear set"}
             </Button>
           </DialogFooter>
@@ -209,7 +209,7 @@ export default function FlashcardsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setGenOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleGenerate} disabled={generateCards.isPending}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleGenerate} disabled={generateCards.isPending} title={generateCards.isPending ? "Procesando..." : undefined}>
               {generateCards.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Generando...</> : <><Sparkles className="h-4 w-4 mr-2" />Generar</>}
             </Button>
           </DialogFooter>

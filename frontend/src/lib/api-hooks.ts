@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "./api";
 import { getTokens } from "./auth";
+import { toast } from "sonner";
 
 /** Read token fresh from localStorage inside every queryFn / mutationFn closure. */
 function freshToken(): string {
@@ -49,7 +50,27 @@ export function useToggleUserStatus() {
   return useMutation({
     mutationFn: ({ id, is_active }: { id: string; is_active: boolean }) =>
       apiFetch(`/admin/users/${id}/status`, { method: "PATCH", body: JSON.stringify({ is_active }), token: freshToken() }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "users"] }),
+    onMutate: async ({ id, is_active }) => {
+      // Cancel any in-flight user queries to avoid overwriting optimistic update
+      await qc.cancelQueries({ queryKey: ["admin", "users"] });
+      // Snapshot all user query entries (may have multiple filter variants)
+      const previousQueries: Array<{ queryKey: readonly unknown[]; data: any }> = [];
+      qc.getQueriesData<any[]>({ queryKey: ["admin", "users"] }).forEach(([queryKey, data]) => {
+        previousQueries.push({ queryKey, data });
+        qc.setQueryData<any[]>(queryKey, (old) =>
+          old?.map((u) => u.id === id ? { ...u, is_active } : u)
+        );
+      });
+      return { previousQueries };
+    },
+    onError: (_err, _vars, context) => {
+      // Revert all cached user queries
+      context?.previousQueries.forEach(({ queryKey, data }) => {
+        qc.setQueryData(queryKey, data);
+      });
+      toast.error("Error al cambiar estado del usuario: " + (_err as Error).message);
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ["admin", "users"] }),
   });
 }
 
@@ -248,7 +269,19 @@ export function useDeleteSubject() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => apiFetch(`/profesor/subjects/${id}`, { method: "DELETE", token: freshToken() }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["profesor"] }),
+    onMutate: async (id: string) => {
+      await qc.cancelQueries({ queryKey: ["profesor", "subjects"] });
+      const previous = qc.getQueryData<any[]>(["profesor", "subjects"]);
+      qc.setQueryData<any[]>(["profesor", "subjects"], (old) =>
+        old?.filter((s) => s.id !== id)
+      );
+      return { previous };
+    },
+    onError: (_err, _id, context) => {
+      qc.setQueryData(["profesor", "subjects"], context?.previous);
+      toast.error("Error al eliminar materia: " + (_err as Error).message);
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: ["profesor"] }),
   });
 }
 

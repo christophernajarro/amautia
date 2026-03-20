@@ -173,7 +173,7 @@ export default function PadreDashboardPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setLinkOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleLink} disabled={linkChild.isPending}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleLink} disabled={linkChild.isPending} title={linkChild.isPending ? "Procesando..." : undefined}>
               {linkChild.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Vinculando...</> : "Vincular"}
             </Button>
           </DialogFooter>

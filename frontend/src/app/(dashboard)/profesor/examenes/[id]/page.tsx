@@ -238,7 +238,7 @@ function BulkUploadZone({
             </div>
           )}
 
-          <Button onClick={handleUpload} disabled={uploading} className="w-full h-12 text-base">
+          <Button onClick={handleUpload} disabled={uploading} title={uploading ? "Subiendo archivos..." : undefined} className="w-full h-12 text-base">
             {uploading
               ? "Subiendo..."
               : `Subir ${files.length} examen${files.length > 1 ? "es" : ""}`}
@@ -290,7 +290,7 @@ function StudentUploadButton({
         size="sm"
         onClick={() => inputRef.current?.click()}
         disabled={uploading}
-        title="Subir examen para este alumno"
+        title={uploading ? "Subiendo archivos..." : "Subir examen para este alumno"}
       >
         {uploading ? (
           <RefreshCw className="h-4 w-4 animate-spin" />
@@ -548,6 +548,7 @@ export default function ExamenPage() {
             <Button
               onClick={handleCorrect}
               disabled={correcting}
+              title={correcting ? "Corrección en proceso..." : undefined}
               className="bg-indigo-600 hover:bg-indigo-700"
             >
               <Zap className="h-4 w-4 mr-2" />
@@ -559,6 +560,7 @@ export default function ExamenPage() {
               <Button
                 onClick={() => setShowPublishDialog(true)}
                 disabled={publishing}
+                title={publishing ? "Publicando..." : undefined}
                 variant="outline"
               >
                 <Globe className="h-4 w-4 mr-2" />
@@ -569,6 +571,7 @@ export default function ExamenPage() {
                 size="sm"
                 onClick={() => handleExport("excel")}
                 disabled={exporting === "excel"}
+                title={exporting === "excel" ? "Exportando..." : undefined}
               >
                 <FileSpreadsheet className="h-4 w-4 mr-1" />
                 {exporting === "excel" ? "..." : "Excel"}
@@ -578,6 +581,7 @@ export default function ExamenPage() {
                 size="sm"
                 onClick={() => handleExport("pdf")}
                 disabled={exporting === "pdf"}
+                title={exporting === "pdf" ? "Exportando..." : undefined}
               >
                 <FileText className="h-4 w-4 mr-1" />
                 {exporting === "pdf" ? "..." : "PDF"}
@@ -618,6 +622,7 @@ export default function ExamenPage() {
                   size="sm"
                   onClick={handleReprocess}
                   disabled={reprocessing}
+                  title={reprocessing ? "Procesando..." : undefined}
                 >
                   <RefreshCw className={`h-4 w-4 mr-1 ${reprocessing ? "animate-spin" : ""}`} />
                   {reprocessing ? "Procesando..." : "Reprocesar"}

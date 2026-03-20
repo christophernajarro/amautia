@@ -77,7 +77,7 @@ export function OnboardingWizard({ userName, open, onClose }: Props) {
           onKeyDown={(e) => e.key === "Enter" && handleCreateSubject()}
           autoFocus
         />
-        <Button onClick={handleCreateSubject} disabled={!subjectName.trim() || creating} className="h-12 w-full text-base bg-primary text-primary-foreground">
+        <Button onClick={handleCreateSubject} disabled={!subjectName.trim() || creating} title={creating ? "Procesando..." : !subjectName.trim() ? "Ingresa un nombre para la materia" : undefined} className="h-12 w-full text-base bg-primary text-primary-foreground">
           {creating ? "Creando..." : "Crear materia"}
         </Button>
         <button onClick={() => { onClose(); }} className="text-sm text-muted-foreground hover:underline">

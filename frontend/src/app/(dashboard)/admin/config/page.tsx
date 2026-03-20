@@ -98,7 +98,7 @@ export default function ConfigPage() {
               <Label>Descripción</Label>
               <Input value={description} onChange={(e) => setDescription(e.target.value)} />
             </div>
-            <Button onClick={handleSave} disabled={updateConfig.isPending} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={handleSave} disabled={updateConfig.isPending} title={updateConfig.isPending ? "Guardando..." : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
               {updateConfig.isPending ? "Guardando..." : "Guardar"}
             </Button>
           </div>

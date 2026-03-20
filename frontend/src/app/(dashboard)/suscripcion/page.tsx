@@ -134,6 +134,7 @@ export default function SuscripcionPage() {
                     variant={isPopular ? "default" : "outline"}
                     onClick={() => handlePayment(plan)}
                     disabled={isCurrent}
+                    title={isCurrent ? "Ya estás en este plan" : undefined}
                   >
                     {isCurrent ? "Plan actual" : "Elegir plan"}
                   </Button>
@@ -179,7 +180,7 @@ export default function SuscripcionPage() {
                 <Upload className="h-8 w-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
                 <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">Captura de pantalla o foto del voucher</p>
                 <input type="file" accept="image/*,.pdf" onChange={handleUploadReceipt}
-                  className="block mx-auto text-sm" disabled={uploading} />
+                  className="block mx-auto text-sm" disabled={uploading} title={uploading ? "Subiendo archivos..." : undefined} />
               </div>
             </div>
 

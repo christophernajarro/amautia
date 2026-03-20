@@ -3,11 +3,12 @@
 import { useNotifications, useUnreadCount } from "@/lib/api-hooks";
 import { apiFetch } from "@/lib/api";
 import { getTokens } from "@/lib/auth";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Bell, CheckCheck } from "lucide-react";
+import { toast } from "sonner";
 
 export default function NotificacionesPage() {
   const { data: notifications, isLoading } = useNotifications();
@@ -15,25 +16,64 @@ export default function NotificacionesPage() {
   const qc = useQueryClient();
   const unreadCount = unreadData?.count || 0;
 
-  const markAsRead = async (id: string) => {
-    const token = getTokens().access;
-    if (!token) return;
-    try {
-      await apiFetch(`/notifications/${id}/read`, { method: "PATCH", token });
+  const markAsReadMutation = useMutation({
+    mutationFn: (id: string) => {
+      const token = getTokens().access;
+      return apiFetch(`/notifications/${id}/read`, { method: "PATCH", token: token! });
+    },
+    onMutate: async (id: string) => {
+      await qc.cancelQueries({ queryKey: ["notifications"] });
+      await qc.cancelQueries({ queryKey: ["notifications", "unread"] });
+      const previousNotifications = qc.getQueryData<any[]>(["notifications"]);
+      const previousUnread = qc.getQueryData<{ count: number }>(["notifications", "unread"]);
+      qc.setQueryData<any[]>(["notifications"], (old) =>
+        old?.map((n) => n.id === id ? { ...n, is_read: true } : n)
+      );
+      qc.setQueryData<{ count: number }>(["notifications", "unread"], (old) =>
+        old ? { count: Math.max(0, old.count - 1) } : old
+      );
+      return { previousNotifications, previousUnread };
+    },
+    onError: (_err, _id, context) => {
+      qc.setQueryData(["notifications"], context?.previousNotifications);
+      qc.setQueryData(["notifications", "unread"], context?.previousUnread);
+      toast.error("Error al marcar notificación como leída");
+    },
+    onSettled: () => {
       qc.invalidateQueries({ queryKey: ["notifications"] });
       qc.invalidateQueries({ queryKey: ["notifications", "unread"] });
-    } catch { /* non-critical */ }
-  };
+    },
+  });
 
-  const markAllAsRead = async () => {
-    const token = getTokens().access;
-    if (!token) return;
-    try {
-      await apiFetch("/notifications/read-all", { method: "PATCH", token });
+  const markAllAsReadMutation = useMutation({
+    mutationFn: () => {
+      const token = getTokens().access;
+      return apiFetch("/notifications/read-all", { method: "PATCH", token: token! });
+    },
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey: ["notifications"] });
+      await qc.cancelQueries({ queryKey: ["notifications", "unread"] });
+      const previousNotifications = qc.getQueryData<any[]>(["notifications"]);
+      const previousUnread = qc.getQueryData<{ count: number }>(["notifications", "unread"]);
+      qc.setQueryData<any[]>(["notifications"], (old) =>
+        old?.map((n) => ({ ...n, is_read: true }))
+      );
+      qc.setQueryData<{ count: number }>(["notifications", "unread"], { count: 0 });
+      return { previousNotifications, previousUnread };
+    },
+    onError: (_err, _vars, context) => {
+      qc.setQueryData(["notifications"], context?.previousNotifications);
+      qc.setQueryData(["notifications", "unread"], context?.previousUnread);
+      toast.error("Error al marcar todas como leídas");
+    },
+    onSettled: () => {
       qc.invalidateQueries({ queryKey: ["notifications"] });
       qc.invalidateQueries({ queryKey: ["notifications", "unread"] });
-    } catch { /* non-critical */ }
-  };
+    },
+  });
+
+  const markAsRead = (id: string) => markAsReadMutation.mutate(id);
+  const markAllAsRead = () => markAllAsReadMutation.mutate();
 
   return (
     <div className="space-y-6">

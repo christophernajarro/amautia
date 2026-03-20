@@ -78,6 +78,7 @@ export default function MateriasPage() {
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
+    toast.success("Copiado al portapapeles");
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
@@ -126,7 +127,7 @@ export default function MateriasPage() {
                   ))}
                 </div>
               </div>
-              <Button onClick={handleCreate} disabled={createSubject.isPending || !form.name.trim()} className="w-full bg-indigo-600 hover:bg-indigo-700">
+              <Button onClick={handleCreate} disabled={createSubject.isPending || !form.name.trim()} title={createSubject.isPending ? "Procesando..." : !form.name.trim() ? "Ingresa un nombre para la materia" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
                 {createSubject.isPending ? "Creando..." : "Crear materia"}
               </Button>
             </div>
@@ -247,7 +248,7 @@ export default function MateriasPage() {
                         onKeyDown={(e) => e.key === "Enter" && createSection(s.id)}
                         className="bg-white dark:bg-slate-900"
                       />
-                      <Button onClick={() => createSection(s.id)} disabled={creatingSec || !newSection.trim()} size="sm" className="bg-indigo-600 hover:bg-indigo-700 shrink-0">
+                      <Button onClick={() => createSection(s.id)} disabled={creatingSec || !newSection.trim()} title={creatingSec ? "Procesando..." : !newSection.trim() ? "Ingresa un nombre para la sección" : undefined} size="sm" className="bg-indigo-600 hover:bg-indigo-700 shrink-0">
                         <Plus className="h-4 w-4 mr-1" />{creatingSec ? "..." : "Agregar"}
                       </Button>
                     </div>

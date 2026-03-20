@@ -79,6 +79,7 @@ export default function AlumnoQuizEnVivoPage() {
               className="w-full bg-indigo-600 hover:bg-indigo-700 h-12"
               onClick={handleJoin}
               disabled={joinQuiz.isPending}
+              title={joinQuiz.isPending ? "Procesando..." : undefined}
             >
               {joinQuiz.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Uniéndose...</> : <><Zap className="h-4 w-4 mr-2" />Únete al quiz</>}
             </Button>
@@ -243,6 +244,7 @@ export default function AlumnoQuizEnVivoPage() {
           className="w-full bg-indigo-600 hover:bg-indigo-700 h-12"
           onClick={handleSubmitAnswer}
           disabled={!selectedAnswer || submitAnswer.isPending}
+          title={!selectedAnswer ? "Selecciona una respuesta primero" : submitAnswer.isPending ? "Procesando..." : undefined}
         >
           {submitAnswer.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Enviando...</> : "Enviar respuesta"}
         </Button>

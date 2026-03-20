@@ -170,6 +170,7 @@ export default function AlumnoMensajesPage() {
                       className="bg-indigo-600 hover:bg-indigo-700 shrink-0"
                       onClick={handleSend}
                       disabled={sendMessage.isPending || !messageText.trim()}
+                      title={sendMessage.isPending ? "Procesando..." : !messageText.trim() ? "Escribe un mensaje primero" : undefined}
                     >
                       <Send className="h-4 w-4" />
                     </Button>

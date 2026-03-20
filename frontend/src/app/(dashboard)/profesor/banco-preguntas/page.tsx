@@ -241,7 +241,7 @@ export default function BancoPreguntasPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setAddOpen(false)}>Cancelar</Button>
-              <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleAddItem} disabled={addItem.isPending}>
+              <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleAddItem} disabled={addItem.isPending} title={addItem.isPending ? "Procesando..." : undefined}>
                 {addItem.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Agregando...</> : "Agregar"}
               </Button>
             </DialogFooter>
@@ -264,7 +264,7 @@ export default function BancoPreguntasPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setGenOpen(false)}>Cancelar</Button>
-              <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleGenerateExam} disabled={generateExam.isPending}>
+              <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleGenerateExam} disabled={generateExam.isPending} title={generateExam.isPending ? "Procesando..." : undefined}>
                 {generateExam.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Generando...</> : <><Sparkles className="h-4 w-4 mr-2" />Generar</>}
               </Button>
             </DialogFooter>
@@ -351,7 +351,7 @@ export default function BancoPreguntasPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreateBank} disabled={createBank.isPending}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreateBank} disabled={createBank.isPending} title={createBank.isPending ? "Procesando..." : undefined}>
               {createBank.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Crear banco"}
             </Button>
           </DialogFooter>

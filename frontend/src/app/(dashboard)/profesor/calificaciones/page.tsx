@@ -108,7 +108,7 @@ export default function CalificacionesPage() {
         </div>
         {selectedSection && (
           <div className="flex gap-2 w-full sm:w-auto flex-wrap">
-            <Button variant="outline" size="sm" onClick={handleSync} disabled={syncGradebook.isPending}>
+            <Button variant="outline" size="sm" onClick={handleSync} disabled={syncGradebook.isPending} title={syncGradebook.isPending ? "Procesando..." : undefined}>
               {syncGradebook.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
               Sincronizar exámenes
             </Button>
@@ -277,7 +277,7 @@ export default function CalificacionesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddEntryOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleAddEntry} disabled={createEntry.isPending}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleAddEntry} disabled={createEntry.isPending} title={createEntry.isPending ? "Procesando..." : undefined}>
               {createEntry.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Agregar"}
             </Button>
           </DialogFooter>
@@ -306,7 +306,7 @@ export default function CalificacionesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddPeriodOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleAddPeriod} disabled={createPeriod.isPending}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleAddPeriod} disabled={createPeriod.isPending} title={createPeriod.isPending ? "Procesando..." : undefined}>
               {createPeriod.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Crear periodo"}
             </Button>
           </DialogFooter>

@@ -74,6 +74,7 @@ export default function PlagioPage() {
                 className="bg-indigo-600 hover:bg-indigo-700 w-full sm:w-auto"
                 onClick={handleRunCheck}
                 disabled={!selectedExamId || runCheck.isPending}
+                title={!selectedExamId ? "Selecciona un examen primero" : runCheck.isPending ? "Procesando..." : undefined}
               >
                 {runCheck.isPending ? (
                   <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Analizando...</>

@@ -189,7 +189,7 @@ export default function LTIPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreate} disabled={createReg.isPending}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreate} disabled={createReg.isPending} title={createReg.isPending ? "Procesando..." : undefined}>
               {createReg.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Crear registro"}
             </Button>
           </DialogFooter>

@@ -263,10 +263,10 @@ export default function ProgresoPage() {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={generating}>
+            <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={generating} title={generating ? "Generación en proceso..." : undefined}>
               Cancelar
             </Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleGenerate} disabled={generating}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleGenerate} disabled={generating} title={generating ? "Procesando..." : undefined}>
               {generating ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />Generando...

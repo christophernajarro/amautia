@@ -174,7 +174,7 @@ export default function ProfesorMensajesPage() {
                   </ScrollArea>
                   <div className="p-4 border-t flex gap-2">
                     <Input value={messageText} onChange={(e) => setMessageText(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }} placeholder="Escribe un mensaje..." className="flex-1" />
-                    <Button size="icon" className="bg-indigo-600 hover:bg-indigo-700 shrink-0" onClick={handleSend} disabled={sendMessage.isPending || !messageText.trim()}><Send className="h-4 w-4" /></Button>
+                    <Button size="icon" className="bg-indigo-600 hover:bg-indigo-700 shrink-0" onClick={handleSend} disabled={sendMessage.isPending || !messageText.trim()} title={sendMessage.isPending ? "Procesando..." : !messageText.trim() ? "Escribe un mensaje primero" : undefined}><Send className="h-4 w-4" /></Button>
                   </div>
                 </CardContent>
               </>
@@ -245,7 +245,7 @@ export default function ProfesorMensajesPage() {
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setAnnOpen(false)}>Cancelar</Button>
-                <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreateAnnouncement} disabled={createAnnouncement.isPending}>
+                <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreateAnnouncement} disabled={createAnnouncement.isPending} title={createAnnouncement.isPending ? "Publicando..." : undefined}>
                   {createAnnouncement.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Publicando...</> : "Publicar"}
                 </Button>
               </DialogFooter>
@@ -300,7 +300,7 @@ export default function ProfesorMensajesPage() {
                   </ScrollArea>
                   <div className="p-4 border-t flex gap-2">
                     <Input value={postText} onChange={(e) => setPostText(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleCreatePost(); } }} placeholder="Escribe una publicación..." className="flex-1" />
-                    <Button size="icon" className="bg-indigo-600 hover:bg-indigo-700 shrink-0" onClick={handleCreatePost} disabled={createPost.isPending || !postText.trim()}><Send className="h-4 w-4" /></Button>
+                    <Button size="icon" className="bg-indigo-600 hover:bg-indigo-700 shrink-0" onClick={handleCreatePost} disabled={createPost.isPending || !postText.trim()} title={createPost.isPending ? "Procesando..." : !postText.trim() ? "Escribe una publicación primero" : undefined}><Send className="h-4 w-4" /></Button>
                   </div>
                 </CardContent>
               </>

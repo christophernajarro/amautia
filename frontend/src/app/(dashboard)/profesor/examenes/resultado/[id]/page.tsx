@@ -96,10 +96,12 @@ export default function ResultadoAlumnoPage() {
         {siblings.length > 1 && (
           <div className="flex gap-2">
             <Button variant="outline" size="sm" disabled={!prevSibling}
+              title={!prevSibling ? "No hay alumno anterior" : undefined}
               onClick={() => prevSibling && router.push(`/profesor/examenes/resultado/${prevSibling.id}?exam=${examId}`)}>
               <ChevronLeft className="h-4 w-4 mr-1" />Anterior
             </Button>
             <Button variant="outline" size="sm" disabled={!nextSibling}
+              title={!nextSibling ? "No hay alumno siguiente" : undefined}
               onClick={() => nextSibling && router.push(`/profesor/examenes/resultado/${nextSibling.id}?exam=${examId}`)}>
               Siguiente<ChevronRight className="h-4 w-4 ml-1" />
             </Button>
@@ -199,7 +201,7 @@ export default function ResultadoAlumnoPage() {
             <Textarea placeholder="Comentarios adicionales..." value={notes}
               onChange={(e) => setNotes(e.target.value)} className="mt-1" />
           </div>
-          <Button onClick={handleSave} disabled={saving} className="bg-indigo-600 hover:bg-indigo-700">
+          <Button onClick={handleSave} disabled={saving} title={saving ? "Guardando..." : undefined} className="bg-indigo-600 hover:bg-indigo-700">
             {saved ? <><CheckCircle className="h-4 w-4 mr-2" />Guardado</> : saving ? "Guardando..." : <><Save className="h-4 w-4 mr-2" />Guardar revisión</>}
           </Button>
         </CardContent>

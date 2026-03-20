@@ -218,7 +218,7 @@ export default function AdminCertificadosPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreateTemplate} disabled={createTemplate.isPending}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleCreateTemplate} disabled={createTemplate.isPending} title={createTemplate.isPending ? "Procesando..." : undefined}>
               {createTemplate.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creando...</> : "Crear plantilla"}
             </Button>
           </DialogFooter>
@@ -251,7 +251,7 @@ export default function AdminCertificadosPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIssueOpen(false)}>Cancelar</Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleIssue} disabled={issueCert.isPending}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleIssue} disabled={issueCert.isPending} title={issueCert.isPending ? "Procesando..." : undefined}>
               {issueCert.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Emitiendo...</> : <><Send className="h-4 w-4 mr-2" />Emitir</>}
             </Button>
           </DialogFooter>

@@ -167,7 +167,7 @@ export default function IAConfigPage() {
                     </p>
                   )}
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleTestProvider(p.id)} disabled={testProvider.isPending}>
+                    <Button variant="outline" size="sm" onClick={() => handleTestProvider(p.id)} disabled={testProvider.isPending} title={testProvider.isPending ? "Procesando..." : undefined}>
                       <FlaskConical className="h-3 w-3 mr-1" />Test
                     </Button>
                     <Button variant="outline" size="sm" onClick={() => {
@@ -198,7 +198,7 @@ export default function IAConfigPage() {
             resetModelForm();
             if (providers?.length) setModelForm((f) => ({ ...f, provider_id: providers[0].id }));
             setShowCreateModel(true);
-          }} className="bg-indigo-600 hover:bg-indigo-700" disabled={!providers?.length}>
+          }} className="bg-indigo-600 hover:bg-indigo-700" disabled={!providers?.length} title={!providers?.length ? "Agrega un proveedor primero" : undefined}>
             <Plus className="h-4 w-4 mr-2" />Agregar modelo
           </Button>
         </div>
@@ -288,7 +288,7 @@ export default function IAConfigPage() {
             <div><Label>Nombre</Label><Input placeholder="ej: Google Gemini" value={providerForm.name} onChange={(e) => setProviderForm({ ...providerForm, name: e.target.value })} /></div>
             <div><Label>Slug</Label><Input placeholder="ej: gemini, openai, anthropic" value={providerForm.slug} onChange={(e) => setProviderForm({ ...providerForm, slug: e.target.value })} /></div>
             <div><Label>API Key</Label><Input type="password" placeholder="sk-..." value={providerForm.api_key} onChange={(e) => setProviderForm({ ...providerForm, api_key: e.target.value })} /></div>
-            <Button onClick={handleCreateProvider} disabled={createProvider.isPending || !providerForm.name.trim() || !providerForm.slug.trim() || !providerForm.api_key.trim()} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={handleCreateProvider} disabled={createProvider.isPending || !providerForm.name.trim() || !providerForm.slug.trim() || !providerForm.api_key.trim()} title={createProvider.isPending ? "Procesando..." : !providerForm.name.trim() ? "Ingresa un nombre" : !providerForm.slug.trim() ? "Ingresa un slug" : !providerForm.api_key.trim() ? "Ingresa una API key" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
               {createProvider.isPending ? "Creando..." : "Crear proveedor"}
             </Button>
           </div>
@@ -307,7 +307,7 @@ export default function IAConfigPage() {
               <Switch checked={providerForm.is_active} onCheckedChange={(checked) => setProviderForm({ ...providerForm, is_active: checked })} />
               <Label>Activo</Label>
             </div>
-            <Button onClick={handleEditProvider} disabled={updateProvider.isPending || !providerForm.name.trim()} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={handleEditProvider} disabled={updateProvider.isPending || !providerForm.name.trim()} title={updateProvider.isPending ? "Guardando..." : !providerForm.name.trim() ? "Ingresa un nombre" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
               {updateProvider.isPending ? "Guardando..." : "Guardar cambios"}
             </Button>
           </div>
@@ -323,7 +323,7 @@ export default function IAConfigPage() {
           </p>
           <div className="flex gap-2 mt-4">
             <Button variant="outline" className="flex-1" onClick={() => setDeletingProvider(null)}>Cancelar</Button>
-            <Button variant="destructive" className="flex-1" onClick={handleDeleteProvider} disabled={deleteProvider.isPending}>
+            <Button variant="destructive" className="flex-1" onClick={handleDeleteProvider} disabled={deleteProvider.isPending} title={deleteProvider.isPending ? "Procesando..." : undefined}>
               {deleteProvider.isPending ? "Eliminando..." : "Eliminar"}
             </Button>
           </div>
@@ -349,7 +349,7 @@ export default function IAConfigPage() {
               <div className="flex items-center gap-2"><Switch checked={modelForm.supports_vision} onCheckedChange={(c) => setModelForm({ ...modelForm, supports_vision: c })} /><Label>Vision</Label></div>
               <div className="flex items-center gap-2"><Switch checked={modelForm.is_active} onCheckedChange={(c) => setModelForm({ ...modelForm, is_active: c })} /><Label>Activo</Label></div>
             </div>
-            <Button onClick={handleCreateModel} disabled={createModel.isPending || !modelForm.name.trim() || !modelForm.model_id.trim() || !modelForm.provider_id} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={handleCreateModel} disabled={createModel.isPending || !modelForm.name.trim() || !modelForm.model_id.trim() || !modelForm.provider_id} title={createModel.isPending ? "Procesando..." : !modelForm.name.trim() ? "Ingresa un nombre" : !modelForm.model_id.trim() ? "Ingresa un Model ID" : !modelForm.provider_id ? "Selecciona un proveedor" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
               {createModel.isPending ? "Creando..." : "Crear modelo"}
             </Button>
           </div>
@@ -369,7 +369,7 @@ export default function IAConfigPage() {
               <div className="flex items-center gap-2"><Switch checked={modelForm.supports_vision} onCheckedChange={(c) => setModelForm({ ...modelForm, supports_vision: c })} /><Label>Vision</Label></div>
               <div className="flex items-center gap-2"><Switch checked={modelForm.is_active} onCheckedChange={(c) => setModelForm({ ...modelForm, is_active: c })} /><Label>Activo</Label></div>
             </div>
-            <Button onClick={handleEditModel} disabled={updateModel.isPending || !modelForm.name.trim() || !modelForm.model_id.trim()} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={handleEditModel} disabled={updateModel.isPending || !modelForm.name.trim() || !modelForm.model_id.trim()} title={updateModel.isPending ? "Guardando..." : !modelForm.name.trim() ? "Ingresa un nombre" : !modelForm.model_id.trim() ? "Ingresa un Model ID" : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
               {updateModel.isPending ? "Guardando..." : "Guardar cambios"}
             </Button>
           </div>
@@ -385,7 +385,7 @@ export default function IAConfigPage() {
           </p>
           <div className="flex gap-2 mt-4">
             <Button variant="outline" className="flex-1" onClick={() => setDeletingModel(null)}>Cancelar</Button>
-            <Button variant="destructive" className="flex-1" onClick={handleDeleteModel} disabled={deleteModel.isPending}>
+            <Button variant="destructive" className="flex-1" onClick={handleDeleteModel} disabled={deleteModel.isPending} title={deleteModel.isPending ? "Procesando..." : undefined}>
               {deleteModel.isPending ? "Eliminando..." : "Eliminar"}
             </Button>
           </div>
@@ -408,6 +408,7 @@ export default function IAConfigPage() {
             ].map(({ task, label, color }) => (
               <Button key={task} variant="outline" className={color}
                 disabled={setDefaultModel.isPending}
+                title={setDefaultModel.isPending ? "Procesando..." : undefined}
                 onClick={() => {
                   setDefaultModel.mutate({ id: defaultModelTarget.id, task });
                   setDefaultModelTarget(null);

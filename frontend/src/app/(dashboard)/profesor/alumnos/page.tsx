@@ -203,8 +203,8 @@ export default function AlumnosPage() {
             <div className="flex items-center justify-between pt-2">
               <p className="text-sm text-slate-500">Mostrando {startItem}-{endItem} de {filtered.length}</p>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>Anterior</Button>
-                <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Siguiente</Button>
+                <Button variant="outline" size="sm" disabled={page <= 1} title={page <= 1 ? "Ya estás en la primera página" : undefined} onClick={() => setPage(page - 1)}>Anterior</Button>
+                <Button variant="outline" size="sm" disabled={page >= totalPages} title={page >= totalPages ? "Ya estás en la última página" : undefined} onClick={() => setPage(page + 1)}>Siguiente</Button>
               </div>
             </div>
           )}
@@ -218,7 +218,7 @@ export default function AlumnosPage() {
             <Input placeholder="Nombre" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} />
             <Input placeholder="Apellido" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} />
             <Input placeholder="Email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-            <Button onClick={addStudent} disabled={submitting} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={addStudent} disabled={submitting} title={submitting ? "Procesando..." : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
               {submitting ? "Agregando..." : "Agregar"}
             </Button>
           </div>

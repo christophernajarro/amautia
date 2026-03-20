@@ -89,23 +89,23 @@ export default function QuizControlPage() {
       {/* Controls */}
       <div className="flex flex-wrap gap-3 justify-center">
         {(isWaiting || isPaused) && (
-          <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={() => handleAction(isWaiting ? "start" : "resume")} disabled={action.isPending}>
+          <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={() => handleAction(isWaiting ? "start" : "resume")} disabled={action.isPending} title={action.isPending ? "Procesando..." : undefined}>
             {action.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
             {isWaiting ? "Iniciar quiz" : "Reanudar"}
           </Button>
         )}
         {isActive && (
           <>
-            <Button variant="outline" onClick={() => handleAction("pause")} disabled={action.isPending}>
+            <Button variant="outline" onClick={() => handleAction("pause")} disabled={action.isPending} title={action.isPending ? "Procesando..." : undefined}>
               <Pause className="h-4 w-4 mr-2" />Pausar
             </Button>
-            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => handleAction("next")} disabled={action.isPending}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={() => handleAction("next")} disabled={action.isPending} title={action.isPending ? "Procesando..." : undefined}>
               <SkipForward className="h-4 w-4 mr-2" />Siguiente pregunta
             </Button>
           </>
         )}
         {(isActive || isPaused) && (
-          <Button variant="outline" className="border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30" onClick={() => handleAction("finish")} disabled={action.isPending}>
+          <Button variant="outline" className="border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30" onClick={() => handleAction("finish")} disabled={action.isPending} title={action.isPending ? "Procesando..." : undefined}>
             <StopCircle className="h-4 w-4 mr-2" />Finalizar
           </Button>
         )}

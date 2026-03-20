@@ -92,7 +92,7 @@ export default function UsuariosPage() {
                 </SelectContent>
               </Select>
               <Input placeholder="Teléfono (opcional)" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-              <Button onClick={handleCreate} disabled={createUser.isPending} className="w-full bg-indigo-600 hover:bg-indigo-700">
+              <Button onClick={handleCreate} disabled={createUser.isPending} title={createUser.isPending ? "Procesando..." : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
                 {createUser.isPending ? "Creando..." : "Crear usuario"}
               </Button>
             </div>
@@ -209,7 +209,7 @@ export default function UsuariosPage() {
               </SelectContent>
             </Select>
             <Input placeholder="Teléfono (opcional)" value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} />
-            <Button onClick={handleEdit} disabled={updateUser.isPending} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={handleEdit} disabled={updateUser.isPending} title={updateUser.isPending ? "Guardando..." : undefined} className="w-full bg-indigo-600 hover:bg-indigo-700">
               {updateUser.isPending ? "Guardando..." : "Guardar cambios"}
             </Button>
           </div>

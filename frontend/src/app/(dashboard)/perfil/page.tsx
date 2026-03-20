@@ -110,7 +110,7 @@ export default function PerfilPage() {
             </div>
           </div>
           {saveError && <p className="text-sm text-red-600 dark:text-red-400">{saveError}</p>}
-          <Button onClick={handleSave} disabled={saving} className="bg-indigo-600 hover:bg-indigo-700">
+          <Button onClick={handleSave} disabled={saving} title={saving ? "Guardando..." : undefined} className="bg-indigo-600 hover:bg-indigo-700">
             {saved ? (
               <><CheckCircle className="h-4 w-4 mr-2" />Guardado</>
             ) : saving ? "Guardando..." : (
@@ -144,6 +144,7 @@ export default function PerfilPage() {
           {passwordChanged && <p className="text-sm text-emerald-600">Contraseña cambiada exitosamente</p>}
           <Button variant="outline"
             disabled={!passwordForm.current || !passwordForm.new_password || passwordForm.new_password !== passwordForm.confirm || changingPassword}
+            title={changingPassword ? "Procesando..." : !passwordForm.current ? "Ingresa tu contraseña actual" : !passwordForm.new_password ? "Ingresa una nueva contraseña" : passwordForm.new_password !== passwordForm.confirm ? "Las contraseñas no coinciden" : undefined}
             onClick={async () => {
               setChangingPassword(true);
               setPasswordError("");

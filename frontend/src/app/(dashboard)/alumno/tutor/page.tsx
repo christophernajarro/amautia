@@ -300,10 +300,11 @@ export default function TutorPage() {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Escribe tu pregunta..."
                   disabled={sending}
+                  title={sending ? "Procesando..." : undefined}
                   className="flex-1"
                   autoFocus
                 />
-                <Button type="submit" disabled={!input.trim() || sending} className="bg-indigo-600 hover:bg-indigo-700 shrink-0">
+                <Button type="submit" disabled={!input.trim() || sending} title={sending ? "Procesando..." : !input.trim() ? "Escribe una pregunta primero" : undefined} className="bg-indigo-600 hover:bg-indigo-700 shrink-0">
                   <Send className="h-4 w-4" />
                 </Button>
               </form>

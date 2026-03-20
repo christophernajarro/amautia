@@ -121,6 +121,7 @@ export default function ImportarAlumnosPage() {
             </p>
             <input type="file" accept=".csv,.xlsx" onChange={handleUpload}
               disabled={!selectedSection || uploading}
+              title={uploading ? "Subiendo archivos..." : !selectedSection ? "Selecciona una sección primero" : undefined}
               className="block mx-auto text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" />
           </div>
 

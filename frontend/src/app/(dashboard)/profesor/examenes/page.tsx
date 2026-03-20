@@ -152,8 +152,8 @@ export default function ExamenesPage() {
             <div className="flex items-center justify-between pt-2">
               <p className="text-sm text-slate-500 dark:text-slate-400">Mostrando {startItem}-{endItem} de {filtered.length}</p>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>Anterior</Button>
-                <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Siguiente</Button>
+                <Button variant="outline" size="sm" disabled={page <= 1} title={page <= 1 ? "Ya estás en la primera página" : undefined} onClick={() => setPage(page - 1)}>Anterior</Button>
+                <Button variant="outline" size="sm" disabled={page >= totalPages} title={page >= totalPages ? "Ya estás en la última página" : undefined} onClick={() => setPage(page + 1)}>Siguiente</Button>
               </div>
             </div>
           )}
