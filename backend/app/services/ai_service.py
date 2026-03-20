@@ -428,17 +428,23 @@ async def _stream_real_provider(prompt: str, config: dict) -> AsyncIterator[str]
 
 
 async def _call_openai(prompt: str, config: dict, file_contents: list[dict] | None = None) -> str:
-    """Call OpenAI API."""
+    """Call OpenAI API. Supports GPT-4.x (max_tokens) and GPT-5.x (max_completion_tokens)."""
     messages = _build_openai_messages(prompt, file_contents)
+    model = config.get("model", "gpt-4o")
+    max_tok = config.get("max_tokens", 4096)
+
+    # GPT-5.x and o-series use max_completion_tokens instead of max_tokens
+    body: dict = {"model": model, "messages": messages}
+    if model.startswith("gpt-5") or model.startswith("o1") or model.startswith("o3") or model.startswith("o4"):
+        body["max_completion_tokens"] = max_tok
+    else:
+        body["max_tokens"] = max_tok
+
     async with httpx.AsyncClient(timeout=AI_TIMEOUT) as client:
         response = await client.post(
             "https://api.openai.com/v1/chat/completions",
             headers={"Authorization": f"Bearer {config.get('api_key')}"},
-            json={
-                "model": config.get("model", "gpt-4o"),
-                "messages": messages,
-                "max_tokens": config.get("max_tokens", 2000),
-            },
+            json=body,
         )
         if response.status_code != 200:
             raise RuntimeError(f"OpenAI API error {response.status_code}: {response.text[:200]}")
