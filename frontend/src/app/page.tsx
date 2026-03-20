@@ -314,7 +314,7 @@ export default function LandingPage() {
               <button className="hidden sm:inline-flex h-11 px-5 items-center text-[15px] text-white/70 hover:text-white transition-colors">Ingresar</button>
             </Link>
             <Link href="/registro">
-              <button className="h-11 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-[15px] font-semibold text-black hover:from-amber-400 hover:to-amber-500 transition-all shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30">
+              <button className="h-11 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-[15px] font-semibold text-white hover:from-amber-400 hover:to-amber-500 transition-all shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30">
                 Prueba gratis
               </button>
             </Link>
@@ -351,7 +351,7 @@ export default function LandingPage() {
 
               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }} className="flex flex-wrap gap-4 mt-10">
                 <Link href="/registro">
-                  <button className="h-14 px-8 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-lg font-semibold text-black flex items-center gap-2 hover:from-amber-400 hover:to-amber-500 transition-all shadow-xl shadow-amber-500/20 hover:shadow-amber-500/35 hover:-translate-y-0.5">
+                  <button className="h-14 px-8 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-lg font-semibold text-white flex items-center gap-2 hover:from-amber-400 hover:to-amber-500 transition-all shadow-xl shadow-amber-500/20 hover:shadow-amber-500/35 hover:-translate-y-0.5">
                     Comienza gratis <ArrowRight className="h-5 w-5" />
                   </button>
                 </Link>
@@ -410,7 +410,7 @@ export default function LandingPage() {
             {[["10x", "más rápido"], ["94%", "precisión IA"], ["+500", "profesores"]].map(([num, label]) => (
               <div key={num} className="text-center">
                 <p className="text-2xl lg:text-3xl font-extrabold text-white/90">{num}</p>
-                <p className="text-sm text-white/30 mt-1">{label}</p>
+                <p className="text-sm text-white/45 mt-1">{label}</p>
               </div>
             ))}
           </div>
@@ -420,10 +420,10 @@ export default function LandingPage() {
       {/* ═══════ SOCIAL PROOF ═══════ */}
       <section className="py-16 border-b border-white/[0.04]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <p className="text-center text-sm text-white/25 uppercase tracking-[0.2em] font-medium mb-10">Usado por profesores en toda Latinoamérica</p>
+          <p className="text-center text-sm text-white/40 uppercase tracking-[0.2em] font-medium mb-10">Usado por profesores en toda Latinoamérica</p>
           <div className="flex flex-wrap justify-center gap-x-12 gap-y-4">
             {["Colegio San Marcos", "Universidad Nacional", "I.E. Túpac Amaru", "Colegio San José", "Instituto Pedagógico"].map((name) => (
-              <span key={name} className="text-white/[0.12] text-lg font-semibold tracking-wide hover:text-white/20 transition-colors">{name}</span>
+              <span key={name} className="text-white/25 text-lg font-semibold tracking-wide hover:text-white/40 transition-colors">{name}</span>
             ))}
           </div>
         </div>
@@ -589,7 +589,7 @@ export default function LandingPage() {
                   ))}
                 </ul>
                 <Link href={plan.name === "Institucional" ? "mailto:ventas@necs.pe?subject=Demo%20Plan%20Institucional" : "/registro"}>
-                  <button className={`w-full h-12 rounded-xl font-semibold transition-all ${plan.popular ? "bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:from-amber-400 hover:to-amber-500 shadow-lg shadow-amber-500/20" : "border border-white/[0.1] text-white hover:bg-white/[0.04]"}`}>
+                  <button className={`w-full h-12 rounded-xl font-semibold transition-all ${plan.popular ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-400 hover:to-amber-500 shadow-lg shadow-amber-500/20" : "border border-white/[0.1] text-white hover:bg-white/[0.04]"}`}>
                     {plan.name === "Institucional" ? "Agendar demostración" : plan.popular ? "Empezar ahora" : "Empezar gratis"}
                   </button>
                 </Link>
@@ -636,7 +636,7 @@ export default function LandingPage() {
             </h2>
             <p className="text-xl text-white/40 mt-6 max-w-2xl mx-auto">Únete a cientos de profesores que ya ahorran tiempo con Amautia.</p>
             <Link href="/registro">
-              <button className="mt-10 h-16 px-12 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-xl font-bold text-black flex items-center gap-3 mx-auto hover:from-amber-400 hover:to-amber-500 transition-all shadow-2xl shadow-amber-500/20 hover:shadow-amber-500/35 hover:-translate-y-1">
+              <button className="mt-10 h-16 px-12 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-xl font-bold text-white flex items-center gap-3 mx-auto hover:from-amber-400 hover:to-amber-500 transition-all shadow-2xl shadow-amber-500/20 hover:shadow-amber-500/35 hover:-translate-y-1">
                 Crear cuenta gratis <ArrowRight className="h-6 w-6" />
               </button>
             </Link>
@@ -646,7 +646,7 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════ FOOTER ═══════ */}
-      <footer className="border-t border-white/[0.04] py-16 pb-24 lg:pb-16">
+      <footer className="border-t border-white/[0.08] bg-[#08080c] py-16 pb-24 lg:pb-16">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-10 mb-12">
             <div>
@@ -654,9 +654,9 @@ export default function LandingPage() {
                 <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
                   <GraduationCap className="h-4 w-4 text-white" />
                 </div>
-                <span className="text-lg font-bold">Amautia</span>
+                <span className="text-lg font-bold text-white">Amautia</span>
               </div>
-              <p className="text-sm text-white/30 leading-relaxed">Plataforma educativa con IA para profesores en Latinoamérica.</p>
+              <p className="text-sm text-white/50 leading-relaxed">Plataforma educativa con IA para profesores en Latinoamérica.</p>
             </div>
             {[
               { title: "Producto", links: [["Funciones", "#funciones"], ["Precios", "#precios"], ["Integraciones", "#"]] },
@@ -664,18 +664,23 @@ export default function LandingPage() {
               { title: "Legal", links: [["Términos", "#"], ["Privacidad", "#"], ["Cookies", "#"]] },
             ].map((col) => (
               <div key={col.title}>
-                <h4 className="text-sm font-semibold uppercase tracking-[0.15em] text-white/50 mb-4">{col.title}</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-[0.15em] text-white/60 mb-4">{col.title}</h4>
                 <ul className="space-y-3">
                   {col.links.map(([label, href]) => (
-                    <li key={label}><a href={href} className="text-sm text-white/30 hover:text-white/60 transition-colors">{label}</a></li>
+                    <li key={label}><a href={href} className="text-sm text-white/45 hover:text-white/80 transition-colors">{label}</a></li>
                   ))}
                 </ul>
               </div>
             ))}
           </div>
-          <div className="border-t border-white/[0.04] pt-8 flex flex-wrap justify-between items-center gap-4">
-            <p className="text-sm text-white/20">© 2026 Amautia. Todos los derechos reservados.</p>
-            <p className="text-sm text-white/20">Hecho con ❤️ en Perú</p>
+          <div className="border-t border-white/[0.08] pt-8 flex flex-wrap justify-between items-center gap-4">
+            <p className="text-sm text-white/35">© 2026 Amautia. Todos los derechos reservados.</p>
+            <p className="text-sm text-white/35">
+              Desarrollado por{" "}
+              <a href="https://pos.necs.pe/" target="_blank" rel="noopener noreferrer" className="text-amber-400/80 hover:text-amber-300 font-medium transition-colors">
+                NECS Soluciones
+              </a>
+            </p>
           </div>
         </div>
       </footer>
@@ -683,7 +688,7 @@ export default function LandingPage() {
       {/* Sticky mobile CTA */}
       <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-[#06060a]/95 backdrop-blur-xl border-t border-white/[0.06] p-4 flex gap-3">
         <Link href="/registro" className="flex-1">
-          <button className="w-full h-12 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-semibold text-base">
+          <button className="w-full h-12 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-semibold text-base">
             Prueba gratis 14 días
           </button>
         </Link>
