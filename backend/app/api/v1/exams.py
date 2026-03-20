@@ -3,8 +3,10 @@ import uuid
 import json
 import asyncio
 import logging
+import unicodedata
 from decimal import Decimal
 from datetime import datetime, timezone
+from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -27,6 +29,12 @@ from app.ai.prompts import CORRECTION_PROMPT, EXTRACTION_PROMPT, GENERATION_PROM
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+def _normalize_name(name: str) -> str:
+    """Remove accents and normalize for matching."""
+    nfkd = unicodedata.normalize('NFKD', name.lower())
+    return ''.join(c for c in nfkd if not unicodedata.combining(c))
 
 
 async def _verify_exam_ownership(db: AsyncSession, exam_id, user_id):
@@ -234,6 +242,25 @@ async def upload_student_exams(exam_id: str, files: list[UploadFile] = File(...)
             # Try comma-separated fallback
             parsed_student_ids = [s.strip() for s in student_ids.split(",") if s.strip()]
 
+    # Build name map for filename-to-student matching (used as fallback for any file without explicit student_id)
+    student_name_map: dict[str, uuid.UUID] = {}
+    enrolled = (await db.execute(
+        select(User, SectionStudent)
+        .join(SectionStudent, SectionStudent.student_id == User.id)
+        .where(SectionStudent.section_id == exam.section_id)
+    )).all()
+
+    for student, _ in enrolled:
+        full = f"{student.first_name} {student.last_name}"
+        key = _normalize_name(full).replace(" ", "_")
+        student_name_map[key] = student.id
+        # Also try last_first format
+        key2 = _normalize_name(f"{student.last_name}_{student.first_name}")
+        student_name_map[key2] = student.id
+        # Also try just last name
+        key3 = _normalize_name(student.last_name)
+        student_name_map[key3] = student.id
+
     created = []
     for i, file in enumerate(files):
         url = await save_file(file, f"exams/{exam_id}/students")
@@ -244,12 +271,29 @@ async def upload_student_exams(exam_id: str, files: list[UploadFile] = File(...)
                 sid = uuid.UUID(str(parsed_student_ids[i]))
             except (ValueError, AttributeError):
                 sid = None
+        # Try filename matching if no explicit student_id
+        matched_name = None
+        if not sid and student_name_map and file.filename:
+            fname = _normalize_name(Path(file.filename).stem).replace(" ", "_").replace("-", "_")
+            for key, student_id in student_name_map.items():
+                if key in fname or fname in key:
+                    sid = student_id
+                    matched_name = key
+                    break
+        # Infer content type from extension if browser sent generic octet-stream
+        ftype = file.content_type
+        if ftype == "application/octet-stream" and file.filename:
+            ext = Path(file.filename).suffix.lower()
+            from app.services.storage import EXTENSION_CONTENT_TYPE_MAP
+            mapped = EXTENSION_CONTENT_TYPE_MAP.get(ext)
+            if mapped:
+                ftype = next(iter(mapped))
         se = StudentExam(exam_id=exam.id, student_id=sid, file_url=url,
-                         file_type=file.content_type, status="pending")
+                         file_type=ftype, status="pending")
         db.add(se)
         await db.flush()
         created.append({"id": str(se.id), "student_id": str(sid) if sid else None,
-                         "file": file.filename, "url": url})
+                         "file": file.filename, "url": url, "matched_name": matched_name})
 
     await db.commit()
     return {"uploaded": len(created), "student_exams": created}
@@ -471,6 +515,11 @@ async def exam_results(exam_id: str, db: AsyncSession = Depends(get_db), user: U
     if not exam:
         raise HTTPException(404, "Examen no encontrado")
 
+    # Count questions for this exam
+    questions_count = (await db.execute(
+        select(func.count(ExamQuestion.id)).where(ExamQuestion.exam_id == exam.id)
+    )).scalar() or 0
+
     # Single joined query: student_exams LEFT JOIN users (fixes N+1 for students)
     se_rows = (await db.execute(
         select(StudentExam, User)
@@ -502,6 +551,8 @@ async def exam_results(exam_id: str, db: AsyncSession = Depends(get_db), user: U
             "status": se.status,
             "feedback": se.general_feedback,
             "corrected_at": se.corrected_at.isoformat() if se.corrected_at else None,
+            "file_url": se.file_url,
+            "adjusted_score": float(se.adjusted_score) if se.adjusted_score else None,
             "answers": [{"question": a.question_id and str(a.question_id), "score": float(a.score) if a.score else None,
                         "max_score": float(a.max_score) if a.max_score else None, "correct": a.is_correct,
                         "feedback": a.feedback} for a in answers],
@@ -518,7 +569,51 @@ async def exam_results(exam_id: str, db: AsyncSession = Depends(get_db), user: U
     }
 
     return {"exam_id": str(exam.id), "title": exam.title, "exam_status": exam.status,
+            "reference_file_url": exam.reference_file_url,
+            "reference_file_type": exam.reference_file_type,
+            "questions_count": questions_count,
+            "section_id": str(exam.section_id),
             "stats": stats, "results": results}
+
+
+@router.get("/exams/{exam_id}/enrolled-students")
+async def enrolled_students(exam_id: str, db: AsyncSession = Depends(get_db), user: User = Depends(get_profesor)):
+    """Get all students enrolled in the exam's section, with their student exam status."""
+    exam = (await db.execute(select(Exam).where(Exam.id == exam_id, Exam.profesor_id == user.id))).scalar_one_or_none()
+    if not exam:
+        raise HTTPException(404, "Examen no encontrado")
+
+    # Get enrolled students via section
+    rows = (await db.execute(
+        select(User, SectionStudent)
+        .join(SectionStudent, SectionStudent.student_id == User.id)
+        .where(SectionStudent.section_id == exam.section_id)
+        .order_by(User.last_name, User.first_name)
+    )).all()
+
+    # Get existing student exams for this exam
+    student_exams = (await db.execute(
+        select(StudentExam).where(StudentExam.exam_id == exam.id)
+    )).scalars().all()
+    se_by_student = {se.student_id: se for se in student_exams if se.student_id}
+
+    result = []
+    for student, ss in rows:
+        se = se_by_student.get(student.id)
+        result.append({
+            "student_id": str(student.id),
+            "first_name": student.first_name,
+            "last_name": student.last_name,
+            "email": student.email,
+            "has_exam": se is not None,
+            "student_exam_id": str(se.id) if se else None,
+            "status": se.status if se else None,
+            "score": float(se.total_score) if se and se.total_score else None,
+            "percentage": float(se.percentage) if se and se.percentage else None,
+            "file_url": se.file_url if se else None,
+        })
+
+    return {"students": result, "total": len(result)}
 
 
 # ─── File Preview ───

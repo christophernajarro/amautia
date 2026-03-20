@@ -27,8 +27,8 @@ async def save_file(file: UploadFile, subfolder: str = "general") -> str:
     if len(content) > settings.MAX_FILE_SIZE:
         raise HTTPException(413, f"Archivo demasiado grande. Máximo: {settings.MAX_FILE_SIZE // (1024*1024)}MB")
 
-    # Validate content type
-    if file.content_type and file.content_type not in settings.ALLOWED_UPLOAD_TYPES:
+    # Validate content type (skip for application/octet-stream — browsers send this for .docx etc.)
+    if file.content_type and file.content_type != "application/octet-stream" and file.content_type not in settings.ALLOWED_UPLOAD_TYPES:
         raise HTTPException(
             415,
             f"Tipo de archivo no permitido: {file.content_type}. "
@@ -39,8 +39,8 @@ async def save_file(file: UploadFile, subfolder: str = "general") -> str:
     ext = Path(file.filename or "file").suffix.lower()
     if ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(415, f"Extensión de archivo no permitida: {ext}")
-    # Validate extension matches content_type
-    if file.content_type and ext in EXTENSION_CONTENT_TYPE_MAP:
+    # Validate extension matches content_type (skip for octet-stream — generic binary fallback)
+    if file.content_type and file.content_type != "application/octet-stream" and ext in EXTENSION_CONTENT_TYPE_MAP:
         if file.content_type not in EXTENSION_CONTENT_TYPE_MAP[ext]:
             raise HTTPException(
                 415,

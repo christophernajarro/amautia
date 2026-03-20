@@ -13,7 +13,7 @@ class StudentExam(Base):
     exam_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("exams.id", ondelete="CASCADE"), index=True)
     student_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), index=True)
     file_url: Mapped[str] = mapped_column(String(500), nullable=False)
-    file_type: Mapped[str | None] = mapped_column(String(20))
+    file_type: Mapped[str | None] = mapped_column(String(100))
     total_score: Mapped[Decimal | None] = mapped_column(Numeric(6, 2))
     percentage: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
     status: Mapped[str] = mapped_column(String(20), default="pending", index=True)

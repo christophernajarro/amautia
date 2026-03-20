@@ -15,7 +15,7 @@ class Exam(Base):
     section_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("sections.id", ondelete="CASCADE"), index=True)
     profesor_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), index=True)
     reference_file_url: Mapped[str | None] = mapped_column(String(500))
-    reference_file_type: Mapped[str | None] = mapped_column(String(20))
+    reference_file_type: Mapped[str | None] = mapped_column(String(100))
     answers_file_url: Mapped[str | None] = mapped_column(String(500))
     answers_text: Mapped[str | None] = mapped_column(Text)
     total_points: Mapped[Decimal] = mapped_column(Numeric(6, 2), default=20)

@@ -16,6 +16,7 @@ export default function ExamenDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [detail, setDetail] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     const token = getTokens().access;
@@ -32,7 +33,10 @@ export default function ExamenDetailPage() {
           })),
         });
         setLoading(false);
-      }).catch(() => setLoading(false));
+      }).catch((e: any) => {
+        setErrorMsg(e.message || "No se pudo cargar el resultado");
+        setLoading(false);
+      });
     }
   }, [id]);
 
@@ -46,7 +50,9 @@ export default function ExamenDetailPage() {
 
   if (!detail) return (
     <div className="text-center py-12">
-      <p className="text-slate-500 dark:text-slate-400">Examen no encontrado</p>
+      <p className="text-slate-500 dark:text-slate-400">
+        {errorMsg || "Examen no encontrado"}
+      </p>
       <Link href="/alumno/examenes"><Button variant="link">Volver</Button></Link>
     </div>
   );

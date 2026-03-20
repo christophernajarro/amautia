@@ -260,6 +260,14 @@ export function useProfesorExams() {
   });
 }
 
+export function useEnrolledStudents(examId: string) {
+  return useQuery({
+    queryKey: ["exam", examId, "enrolled-students"],
+    queryFn: () => apiFetch<any>(`/profesor/exams/${examId}/enrolled-students`, { token: freshToken() }),
+    enabled: isAuthenticated() && !!examId,
+  });
+}
+
 // Alumno
 export function useAlumnoDashboard() {
   return useQuery({
